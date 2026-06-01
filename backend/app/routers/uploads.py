@@ -1,0 +1,29 @@
+from typing import Annotated
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status
+from app.routers.auth import get_current_user
+from app.models.user import User
+from app.utils.image import save_and_compress_image
+
+router = APIRouter(prefix="/uploads", tags=["uploads"])
+
+@router.post("/", status_code=status.HTTP_201_CREATED)
+def upload_image(
+    current_user: Annotated[User, Depends(get_current_user)],
+    file: UploadFile = File(...)
+):
+    # Validate file type
+    allowed_types = ["image/jpeg", "image/png", "image/webp", "image/jpg"]
+    if file.content_type not in allowed_types:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Định dạng file không hợp lệ. Chỉ chấp nhận các đuôi: JPG, JPEG, PNG, WEBP."
+        )
+        
+    try:
+        url = save_and_compress_image(file)
+        return {"url": url}
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Lỗi khi xử lý lưu trữ hình ảnh: {str(e)}"
+        )

@@ -1,0 +1,306 @@
+"use client";
+
+import React, { useEffect, useState } from "react";
+import { api } from "@/lib/api";
+import { Plus, Trash2, X, AlertCircle, Shield, User } from "lucide-react";
+
+interface UserProfile {
+  id: number;
+  username: string;
+  is_active: boolean;
+  is_superuser: boolean;
+}
+
+export default function AdminUsersPage() {
+  const [users, setUsers] = useState<UserProfile[]>([]);
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Modal states
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Form fields
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [formError, setFormError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  const fetchData = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [usersData, meData] = await Promise.all([
+        api.get("/users"),
+        api.get("/auth/me")
+      ]);
+      setUsers(usersData);
+      setCurrentUser(meData);
+    } catch (err: any) {
+      setError(err.message || "Không thể tải danh sách tài khoản.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const openAddModal = () => {
+    setUsername("");
+    setPassword("");
+    setConfirmPassword("");
+    setFormError(null);
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = async (user: UserProfile) => {
+    if (user.id === currentUser?.id) {
+      alert("Bạn không thể tự xóa tài khoản của chính mình.");
+      return;
+    }
+    if (!confirm(`Bạn có chắc chắn muốn xóa tài khoản "${user.username}"?`)) {
+      return;
+    }
+    try {
+      await api.delete(`/users/${user.id}`);
+      setUsers(users.filter((u) => u.id !== user.id));
+    } catch (err: any) {
+      alert(err.message || "Không thể xóa tài khoản.");
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!username || !password || !confirmPassword) {
+      setFormError("Vui lòng điền đầy đủ các thông tin bắt buộc.");
+      return;
+    }
+    if (password !== confirmPassword) {
+      setFormError("Mật khẩu xác nhận không khớp.");
+      return;
+    }
+    if (password.length < 6) {
+      setFormError("Mật khẩu phải chứa ít nhất 6 ký tự.");
+      return;
+    }
+
+    setSubmitting(true);
+    setFormError(null);
+    const payload = { username, password };
+
+    try {
+      const created = await api.post("/users", payload);
+      setUsers([...users, created]);
+      setIsModalOpen(false);
+    } catch (err: any) {
+      setFormError(err.message || "Lỗi tạo tài khoản. Vui lòng kiểm tra lại.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="space-y-8">
+      {/* Title Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-black text-slate-800 tracking-tight">Quản Lý Nhân Viên</h1>
+          <p className="text-slate-500 text-xs mt-1">
+            Danh sách nhân viên quản lý website và phân quyền truy cập.
+          </p>
+        </div>
+        <button
+          onClick={openAddModal}
+          className="flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground shadow-sm hover:opacity-90 active:scale-95 transition-transform shrink-0"
+        >
+          <Plus className="h-4 w-4" />
+          <span>Thêm Nhân Viên</span>
+        </button>
+      </div>
+
+      {/* Error block */}
+      {error && (
+        <div className="rounded-2xl bg-red-50 p-4 border border-red-100 flex items-start gap-3 text-red-800">
+          <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
+          <p className="text-xs font-medium">{error}</p>
+        </div>
+      )}
+
+      {/* Main Grid/Table */}
+      <div className="rounded-3xl border border-border bg-white overflow-hidden shadow-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse text-left">
+            <thead>
+              <tr className="border-b border-border bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                <th className="px-6 py-4">Tên đăng nhập</th>
+                <th className="px-6 py-4">Vai trò</th>
+                <th className="px-6 py-4">Trạng thái</th>
+                <th className="px-6 py-4 text-right">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 text-xs font-semibold text-slate-600">
+              {loading ? (
+                <tr>
+                  <td colSpan={4} className="px-6 py-20 text-center">
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+                      <span className="text-slate-400 text-[11px]">Đang tải danh sách tài khoản...</span>
+                    </div>
+                  </td>
+                </tr>
+              ) : users.length > 0 ? (
+                users.map((userItem) => (
+                  <tr key={userItem.id} className="hover:bg-slate-50/50 transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className={`rounded-xl p-2 ${userItem.is_superuser ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-primary'}`}>
+                          {userItem.is_superuser ? <Shield className="h-4 w-4" /> : <User className="h-4 w-4" />}
+                        </div>
+                        <span className="text-slate-800 font-bold">
+                          {userItem.username}
+                          {userItem.id === currentUser?.id && (
+                            <span className="ml-2 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-500">
+                              Bạn
+                            </span>
+                          )}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold leading-5 ${
+                        userItem.is_superuser
+                          ? "bg-amber-100 text-amber-800"
+                          : "bg-emerald-100 text-emerald-800"
+                      }`}>
+                        {userItem.is_superuser ? "Quản trị viên" : "Nhân viên"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold leading-5 ${
+                        userItem.is_active
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
+                      }`}>
+                        {userItem.is_active ? "Hoạt động" : "Đã khóa"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        {userItem.id !== currentUser?.id && (
+                          <button
+                            onClick={() => handleDelete(userItem)}
+                            className="rounded-lg p-1.5 text-red-500 hover:bg-red-50 transition-colors"
+                            title="Xóa tài khoản"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={4} className="px-6 py-16 text-center text-slate-400">
+                    Chưa có tài khoản nào khác.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Modal Dialog Form */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-3xl border border-border bg-white p-6 shadow-xl animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+              <h2 className="text-lg font-black text-slate-800">
+                Thêm Nhân Viên Mới
+              </h2>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="rounded-full p-1.5 text-slate-400 hover:bg-slate-100 transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+              {formError && (
+                <div className="rounded-2xl bg-red-50 p-4 border border-red-100 text-xs font-semibold text-red-800">
+                  {formError}
+                </div>
+              )}
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700">Tên đăng nhập *</label>
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Nhập tên đăng nhập"
+                  className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none"
+                  required
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700">Mật khẩu *</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Nhập mật khẩu (tối thiểu 6 ký tự)"
+                  className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none"
+                  required
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700">Xác nhận mật khẩu *</label>
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Nhập lại mật khẩu"
+                  className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none"
+                  required
+                />
+              </div>
+
+              <div className="rounded-2xl bg-slate-50 p-4 border border-slate-100 space-y-1">
+                <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Phân quyền mặc định</p>
+                <p className="text-xs text-slate-600 font-semibold">Vai trò: Nhân viên quản lý</p>
+                <p className="text-[10px] text-slate-400">
+                  Tài khoản nhân viên có đầy đủ quyền quản lý nội dung (sản phẩm, danh mục, bài viết, cấu hình) nhưng không thể quản lý tài khoản nhân viên khác.
+                </p>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 mt-6">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="rounded-full border border-border bg-white px-5 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
+                >
+                  Hủy
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="rounded-full bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground shadow-sm hover:opacity-90 active:scale-95 transition-transform disabled:opacity-50"
+                >
+                  {submitting ? "Đang tạo..." : "Tạo Mới"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

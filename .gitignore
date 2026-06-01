@@ -1,0 +1,49 @@
+# System / OS
+.DS_Store
+Thumbs.db
+*.pem
+
+# IDE / Editor
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Next.js
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/build/
+frontend/next-env.d.ts
+frontend/*.tsbuildinfo
+
+# Python / FastAPI
+backend/.venv/
+backend/__pycache__/
+backend/*.py[cod]
+backend/*$py.class
+backend/*.egg-info/
+backend/build/
+backend/dist/
+backend/wheels/
+backend/.pytest_cache/
+
+# Agent
+.antigravitycli/
+.gemini/
+.system_generated/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+frontend/.env
+backend/.env
+
+# Databases (optional, but good to keep out if they are local state)
+# backend/nongsan.db
