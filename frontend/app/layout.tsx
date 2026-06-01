@@ -10,7 +10,7 @@ const beVietnamPro = Be_Vietnam_Pro({
 });
 
 export const metadata: Metadata = {
-  title: "Sạch sẽ • Chất lượng • Bền vững • Toàn cầu",
+  title: "Sạch sẽ • Chất lượng • Bền vững • Toàn cầu >> Nông sản Sạch | Sạch sẽ • Chất lượng • Bền vững • Toàn cầu",
   description: "Chuyên cung cấp các sản phẩm nông sản sạch, trái cây xuất khẩu, hạt dinh dưỡng và nông sản hữu cơ chất lượng cao đạt tiêu chuẩn toàn cầu.",
 };
 
