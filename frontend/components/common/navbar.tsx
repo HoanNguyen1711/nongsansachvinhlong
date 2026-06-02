@@ -109,7 +109,7 @@ export const Navbar: React.FC<NavbarProps> = ({ phone = "0901234567", lang: init
                 {t.companyName}
               </span>
               <span className="text-[9px] font-bold leading-none text-foreground/50 tracking-widest uppercase mt-0.5">
-                {lang === 'vi' ? 'NÔNG SẠCH XUẤT KHẨU' : lang === 'en' ? 'CLEAN AGRI EXPORT' : '清洁农产品出口'}
+                {lang === 'vi' ? 'NÔNG SẢN SẠCH XUẤT KHẨU' : lang === 'en' ? 'CLEAN AGRI EXPORT' : '清洁农产品出口'}
               </span>
             </div>
           </Link>
