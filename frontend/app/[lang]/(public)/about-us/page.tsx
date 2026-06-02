@@ -1,5 +1,5 @@
 import React from "react";
-import { Leaf, Award, Heart, Shield } from "lucide-react";
+import { Award, CheckCircle, Snowflake, Users } from "lucide-react";
 import { getTranslation, LanguageCode } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
@@ -30,9 +30,9 @@ export default async function AboutPage({ params }: PageProps) {
   const t = getTranslation(lang);
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 space-y-16">
+    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 space-y-20">
       {/* Page Banner */}
-      <div className="relative overflow-hidden bg-emerald-950 text-white py-16 px-8 rounded-[32px] shadow-lg border border-white/5">
+      <div className="relative overflow-hidden bg-emerald-950 text-white py-20 px-8 rounded-[32px] shadow-lg border border-white/5">
         {/* Background Image */}
         <img 
           src="/banner_about.png" 
@@ -45,122 +45,164 @@ export default async function AboutPage({ params }: PageProps) {
         <div className="absolute -left-16 -bottom-16 w-64 h-64 rounded-full bg-emerald-500/5 blur-3xl pointer-events-none"></div>
 
         <div className="relative z-20 text-center space-y-4 max-w-2xl mx-auto">
-          <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white drop-shadow-sm">
+          <h1 className="text-3xl sm:text-4.5xl font-black tracking-tight text-white drop-shadow-sm">
             {t.aboutTitle}
           </h1>
           <div className="w-12 h-1 bg-emerald-500 mx-auto rounded-full"></div>
-          <p className="text-emerald-200/80 text-sm sm:text-base max-w-md mx-auto leading-relaxed">
+          <p className="text-emerald-200/80 text-sm sm:text-base max-w-xl mx-auto leading-relaxed">
             {lang === "vi" 
-              ? "Khám phá hành trình xây dựng vùng nông sản sạch, bền vững và đầy nhiệt huyết tại Vĩnh Long."
+              ? "Hành trình đưa nông sản Vĩnh Long vươn tầm thế giới với chuẩn mực chất lượng quốc tế và truy xuất nguồn gốc minh bạch."
               : lang === "en"
-              ? "Discover our journey of building a clean, sustainable, and passionate agricultural region in Vinh Long."
-              : "探索我们在永隆省建立绿色、可持续且充满激情的农产品基地的旅程。"}
+              ? "The journey of bringing Vinh Long's agricultural products to the global stage with international standards and transparent traceability."
+              : "以国际标准和透明追溯，推动永隆农产品走向全球市场的旅程。"}
           </p>
         </div>
       </div>
 
-      {/* Grid Story */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center bg-white p-8 rounded-3xl border border-border">
+      {/* Grid Story 1: Global Mission & Traceability */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center bg-white p-8 md:p-10 rounded-3xl border border-slate-100 shadow-sm">
         <div className="space-y-6">
-          <h2 className="text-2xl font-bold text-slate-800">
-            {lang === "vi" ? "Từ Vườn Nhà Đến Bàn Ăn Của Bạn" : lang === "en" ? "From Our Garden to Your Table" : "从自家果园直达您的餐桌"}
+          <span className="text-emerald-600 font-bold text-xs uppercase tracking-widest bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-100 inline-block">
+            {lang === "vi" ? "Truy xuất số hóa" : lang === "en" ? "Digital Traceability" : "数字化追溯"}
+          </span>
+          <h2 className="text-2xl md:text-3xl font-extrabold text-slate-800 leading-tight">
+            {lang === "vi" 
+              ? "Sứ Mệnh Vươn Tầm Quốc Tế & Truy Xuất Minh Bạch" 
+              : lang === "en" 
+              ? "Global Mission & Digital Traceability" 
+              : "全球使命与数字化追溯"}
           </h2>
           <p className="text-slate-600 text-sm leading-relaxed">
             {lang === "vi"
-              ? "Nông Sản Sạch được sáng lập bởi một nhóm những kỹ sư trẻ đầy nhiệt huyết và các hộ nông dân bản địa tại Vĩnh Long. Với tình yêu mãnh liệt dành cho thổ nhưỡng phù sa sông nước miền Tây, chúng tôi cam kết mang đến những sản phẩm tự nhiên tinh khiết nhất."
+              ? "Nông Sản Sạch Xuất Khẩu ra đời với khát vọng nâng tầm giá trị nông sản vùng đồng bằng sông Cửu Long và đưa thương hiệu Việt vươn xa trên bản đồ thế giới. Chúng tôi hiểu rằng, để chinh phục những thị trường xuất khẩu khó tính như EU, Mỹ, Nhật Bản và Hàn Quốc, sự minh bạch là điều kiện tiên quyết."
               : lang === "en"
-              ? "Nong San Sach was founded by a group of passionate young engineers and native farmers in Vinh Long. With a deep love for the rich alluvial soil of the Mekong Delta, we commit to bringing the purest natural products."
-              : "Nong San Sach是由永隆省一群充满热情的年轻工程师和当地果农共同创立的。怀着对西部水乡冲积平原的挚爱，我们承诺带来最纯净的天然农产品。"}
+              ? "Clean Agri Export was founded with the aspiration to elevate the value of Mekong Delta agricultural products and project the Vietnamese brand onto the global stage. We understand that to conquer demanding export markets such as the EU, USA, Japan, and South Korea, absolute transparency is a prerequisite."
+              : "清洁农产品出口的诞生，旨在提升湄公河三角洲农产品的价值，并让越南品牌在世界舞台上大放异彩。我们深知，要征服欧盟、美国、日本和韩国等严苛的出口市场，绝对的透明度是首要前提。"}
           </p>
           <p className="text-slate-600 text-sm leading-relaxed">
             {lang === "vi"
-              ? "Chúng tôi hiểu rằng sức khỏe của bạn và gia đình bắt nguồn từ nguồn thức ăn nạp vào mỗi ngày. Do đó, quy trình trồng trọt từ làm đất, tưới tiêu đến bảo vệ thực vật đều tuân thủ 100% nguyên tắc an toàn, không sử dụng chất kích thích hay thuốc bảo vệ thực vật độc hại nằm ngoài danh mục cho phép."
+              ? "Mỗi sản phẩm từ vùng trồng của chúng tôi đều được áp dụng hệ thống truy xuất nguồn gốc số hóa. Từ quá trình cải tạo đất, tưới tiêu, bón phân sinh học cho đến ngày thu hoạch đều được ghi chép thời gian thực qua nhật ký canh tác điện tử, giúp đối tác nhập khẩu dễ dàng kiểm tra toàn bộ lịch trình sinh trưởng qua mã QR."
               : lang === "en"
-              ? "We understand that the health of you and your family begins with the food consumed daily. Therefore, our cultivation process—from soil preparation and irrigation to plant protection—complies 100% with safety principles, strictly avoiding growth stimulants or unauthorized toxic pesticides."
-              : "我们深知，您与家人的健康始于每日摄入的食物。因此，从整地、灌溉到植物保护的整个种植过程均100%遵守安全准则，绝不使用任何生长激素或禁用化学农药。"}
+              ? "Every product from our farming zones is integrated into a digital traceability system. From soil preparation, irrigation, and organic fertilization to the day of harvesting, all parameters are recorded in real-time via electronic farming logs. This allows importing partners to easily verify the complete crop cycle using a simple QR code."
+              : "我们种植区的每件产品都融入了数字化追溯系统。从土壤改良、灌溉、有机施肥到采收之日，所有参数都通过电子种植日志进行实时记录，使进口合作伙伴可以通过二维码轻松核实完整的作物生长周期。"}
           </p>
         </div>
-        <div className="relative rounded-2xl overflow-hidden aspect-video flex items-center justify-center border border-border bg-emerald-50 text-emerald-800/40 font-bold">
-          {settings.farm_image_url ? (
-            <img
-              src={settings.farm_image_url}
-              alt="Nông trại Vĩnh Long"
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <span>
-              {lang === "vi" 
-                ? "[Ảnh Nông Trại Vĩnh Long Nhìn Từ Trên Cao]" 
-                : lang === "en" 
-                ? "[Aerial Photo of Vinh Long Farm]" 
-                : "[永隆省果园航拍图]"}
-            </span>
-          )}
+        <div className="relative rounded-2xl overflow-hidden aspect-video shadow-md border border-slate-200 group">
+          <img
+            src="/about-us.jpg"
+            alt="About us traceability"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none"></div>
         </div>
       </div>
 
-      {/* Values grid */}
+      {/* Grid Story 2: Post-Harvest Tech & Cold Chain */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center bg-white p-8 md:p-10 rounded-3xl border border-slate-100 shadow-sm">
+        <div className="relative rounded-2xl overflow-hidden aspect-video shadow-md border border-slate-200 group md:order-first order-last">
+          <img
+            src="/about-us2.jpg"
+            alt="About us cold chain"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none"></div>
+        </div>
+        <div className="space-y-6">
+          <span className="text-teal-600 font-bold text-xs uppercase tracking-widest bg-teal-50 px-3 py-1.5 rounded-full border border-teal-100 inline-block">
+            {lang === "vi" ? "Logistics & Công Nghệ" : lang === "en" ? "Logistics & Tech" : "物流与技术"}
+          </span>
+          <h2 className="text-2xl md:text-3xl font-extrabold text-slate-800 leading-tight">
+            {lang === "vi" 
+              ? "Công Nghệ Sau Thu Hoạch & Chuỗi Cung Ứng Lạnh" 
+              : lang === "en" 
+              ? "Post-Harvest Technology & Cold Chain" 
+              : "收获后技术与冷链物流"}
+          </h2>
+          <p className="text-slate-600 text-sm leading-relaxed">
+            {lang === "vi"
+              ? "Để giữ trọn vẹn hương vị tươi ngon đặc trưng của trái cây nhiệt đới khi vận chuyển qua các đại dương, chúng tôi đã đầu tư mạnh mẽ vào hạ tầng công nghiệp sau thu hoạch. Các sản phẩm chủ lực như Sầu Riêng Ri6 Cấp Đông, Bưởi Năm Roi, Chanh Không Hạt... đều được làm sạch, xử lý nhiệt và đóng gói tại nhà máy đạt tiêu chuẩn quốc tế HACCP và ISO 22000."
+              : lang === "en"
+              ? "To preserve the rich, authentic flavor of tropical fruits during long ocean shipments, we have heavily invested in post-harvest industrial infrastructure. Key export items such as IQF frozen Ri6 durian, Nam Roi pomelos, and seedless limes are cleaned, heat-treated, and packed in facilities operating under international HACCP and ISO 22000 certifications."
+              : "为了在漫长的远洋运输中保留热带水果浓郁、正宗的风味，我们对收获后的工业基础设施进行了大力投资。我们的出口主打产品（如IQF冷冻Ri6榴莲、五鞭蜜柚和无籽青柠）均在获得国际HACCP和ISO 22000认证的工厂中进行清洗、热处理和包装。"}
+          </p>
+          <p className="text-slate-600 text-sm leading-relaxed">
+            {lang === "vi"
+              ? "Bằng việc áp dụng công nghệ cấp đông nhanh IQF tiên tiến và duy trì chuỗi cung ứng lạnh (cold chain) liên tục từ khâu thu hoạch tại vườn đến container xuất khẩu, chúng tôi cam kết sản phẩm luôn giữ được độ tươi ngon, giá trị dinh dưỡng nguyên bản và đáp ứng hoàn hảo các tiêu chuẩn kiểm dịch thực vật nghiêm ngặt nhất."
+              : lang === "en"
+              ? "By utilizing advanced IQF quick-freezing technology and maintaining an uninterrupted cold chain from orchard harvesting directly to export shipping containers, we ensure our products retain their original freshness, high nutritional values, and fully satisfy the most stringent phytosanitary standards."
+              : "通过采用先进的IQF快速冷冻技术，并维持从果园采收直接到出口集装箱的无间断冷链，我们确保产品始终保持原有的新鲜度与高营养价值，完全符合最严格的植物检疫标准。"}
+          </p>
+        </div>
+      </div>
+
+      {/* Strategic Pillars */}
       <div className="space-y-8">
         <h2 className="text-2xl font-bold text-center text-slate-800">
-          {lang === "vi" ? "Giá Trị Cốt Lõi" : lang === "en" ? "Core Values" : "核心价值"}
+          {lang === "vi" ? "Trụ Cột Chất Lượng Xuất Khẩu" : lang === "en" ? "Strategic Export Pillars" : "出口品质四大支柱"}
         </h2>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-4">
-          <div className="bg-white rounded-2xl p-6 border border-border space-y-3 text-center">
-            <div className="mx-auto rounded-full bg-emerald-50 p-3 w-12 h-12 text-primary flex items-center justify-center">
-              <Leaf className="h-6 w-6" />
-            </div>
-            <h3 className="font-bold text-slate-800 text-sm">
-              {lang === "vi" ? "Trồng Tự Nhiên" : lang === "en" ? "Natural Growing" : "自然种植"}
-            </h3>
-            <p className="text-xs text-slate-500">
-              {lang === "vi"
-                ? "Canh tác hữu cơ, gìn giữ độ màu mỡ tự nhiên của đất trồng bazan."
-                : lang === "en"
-                ? "Organic cultivation, preserving the natural fertility of the basalt soil."
-                : "采用有机耕作，保留红土本源的自然肥力。"}
-            </p>
-          </div>
-          <div className="bg-white rounded-2xl p-6 border border-border space-y-3 text-center">
-            <div className="mx-auto rounded-full bg-emerald-50 p-3 w-12 h-12 text-primary flex items-center justify-center">
+          {/* Pillar 1 */}
+          <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm space-y-3 text-center transition-transform hover:-translate-y-1 duration-300">
+            <div className="mx-auto rounded-full bg-emerald-50 p-3 w-12 h-12 text-emerald-600 flex items-center justify-center">
               <Award className="h-6 w-6" />
             </div>
-            <h3 className="font-bold text-slate-800 text-sm">{t.vietgapTitle}</h3>
-            <p className="text-xs text-slate-500">
+            <h3 className="font-bold text-slate-800 text-sm">
+              {lang === "vi" ? "Tiêu Chuẩn Toàn Cầu" : lang === "en" ? "Global Standards" : "全球品质标准"}
+            </h3>
+            <p className="text-xs text-slate-500 leading-relaxed">
               {lang === "vi"
-                ? "Kiểm tra nghiêm ngặt dư lượng thuốc trừ sâu và vi sinh vật gây hại."
+                ? "Đạt chứng nhận VietGAP, GlobalGAP và kiểm nghiệm dư lượng hóa chất nghiêm ngặt."
                 : lang === "en"
-                ? "Strict inspection of pesticide residues and harmful microorganisms."
-                : "严格检测农药残留和有害微生物。"}
+                ? "Certified under VietGAP and GlobalGAP standards with zero chemical residue tolerance."
+                : "荣获 VietGAP 和 GlobalGAP 认证，严格控制农药与化学残留。"}
             </p>
           </div>
-          <div className="bg-white rounded-2xl p-6 border border-border space-y-3 text-center">
-            <div className="mx-auto rounded-full bg-emerald-50 p-3 w-12 h-12 text-primary flex items-center justify-center">
-              <Heart className="h-6 w-6" />
+          {/* Pillar 2 */}
+          <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm space-y-3 text-center transition-transform hover:-translate-y-1 duration-300">
+            <div className="mx-auto rounded-full bg-emerald-50 p-3 w-12 h-12 text-emerald-600 flex items-center justify-center">
+              <CheckCircle className="h-6 w-6" />
             </div>
             <h3 className="font-bold text-slate-800 text-sm">
-              {lang === "vi" ? "Chân Thành" : lang === "en" ? "Sincerity" : "真诚服务"}
+              {lang === "vi" ? "Truy Xuất Số Hóa" : lang === "en" ? "Digital Traceability" : "数字化追溯"}
             </h3>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 leading-relaxed">
               {lang === "vi"
-                ? "Kết nối trực tiếp khách hàng với nhà vườn, bán giá trị thực của sản phẩm."
+                ? "Mã QR truy xuất nguồn gốc minh bạch hành trình từ nông trại đến cảng xuất khẩu."
                 : lang === "en"
-                ? "Connecting customers directly to orchards, selling the true value of products."
-                : "连接客户与产地，传递产品的真实价值。"}
+                ? "Electronic QR tracing from agricultural zones directly to international ports."
+                : "电子二维码全程追溯，从种植产地直达国际集装箱港口。"}
             </p>
           </div>
-          <div className="bg-white rounded-2xl p-6 border border-border space-y-3 text-center">
-            <div className="mx-auto rounded-full bg-emerald-50 p-3 w-12 h-12 text-primary flex items-center justify-center">
-              <Shield className="h-6 w-6" />
+          {/* Pillar 3 */}
+          <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm space-y-3 text-center transition-transform hover:-translate-y-1 duration-300">
+            <div className="mx-auto rounded-full bg-emerald-50 p-3 w-12 h-12 text-emerald-600 flex items-center justify-center">
+              <Snowflake className="h-6 w-6" />
             </div>
             <h3 className="font-bold text-slate-800 text-sm">
-              {lang === "vi" ? "Cam Kết" : lang === "en" ? "Commitment" : "品质承诺"}
+              {lang === "vi" ? "Logistics Lạnh" : lang === "en" ? "Cold Supply Chain" : "冷链物流技术"}
             </h3>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 leading-relaxed">
               {lang === "vi"
-                ? "Sẵn sàng đền bù, đổi hàng nếu sản phẩm giao đến tay không đạt chất lượng."
+                ? "Quy trình cấp đông IQF và chuỗi bảo quản lạnh liên tục giữ trọn dưỡng chất."
                 : lang === "en"
-                ? "Ready to compensate or exchange if the delivered product does not meet quality."
-                : "若送达的产品不符合品质标准，支持退换或退款。"}
+                ? "Advanced IQF quick-freezing and a continuous temperature-controlled supply chain."
+                : "采用先进 IQF 快速冷冻及无缝温控冷链，锁住新鲜营养。"}
+            </p>
+          </div>
+          {/* Pillar 4 */}
+          <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm space-y-3 text-center transition-transform hover:-translate-y-1 duration-300">
+            <div className="mx-auto rounded-full bg-emerald-50 p-3 w-12 h-12 text-emerald-600 flex items-center justify-center">
+              <Users className="h-6 w-6" />
+            </div>
+            <h3 className="font-bold text-slate-800 text-sm">
+              {lang === "vi" ? "Hợp Tác Bền Vững" : lang === "en" ? "Sustainable Alliances" : "可持续农业合作"}
+            </h3>
+            <p className="text-xs text-slate-500 leading-relaxed">
+              {lang === "vi"
+                ? "Liên kết chặt chẽ với hợp tác xã nông dân, bảo đảm sinh kế và phát triển sinh thái."
+                : lang === "en"
+                ? "Strong alliances with local cooperatives, protecting soil vitality and supporting livelihoods."
+                : "与当地农户合作社深度联结，保护土壤活力并保障农户生计。"}
             </p>
           </div>
         </div>

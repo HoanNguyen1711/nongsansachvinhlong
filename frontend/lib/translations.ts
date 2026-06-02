@@ -2,7 +2,7 @@ export const translations = {
   vi: {
     companyName: "Vĩnh Long Việt Nam",
     companyFullName: "Công ty Cổ phần Xuất Nhập khẩu Nông sản Sạch Vĩnh Long Việt Nam",
-    slogan: "Sạch sẽ • Chất lượng • Bền vững • Toàn cầu",
+    slogan: "Truy Xuất Minh Bạch – Chất Lượng Bền Vững",
     pillarCleanTitle: "Sạch Sẽ",
     pillarCleanDesc: "Nông sản 100% tự nhiên, quy trình canh tác sạch, không tồn dư hóa chất độc hại.",
     pillarQualityTitle: "Chất Lượng",
@@ -131,7 +131,7 @@ export const translations = {
   en: {
     companyName: "Vinh Long Viet Nam",
     companyFullName: "Vinh Long Viet Nam Clean Agricultural Products Import Export Joint Stock Company",
-    slogan: "Clean • Quality • Sustainable • Global",
+    slogan: "Transparent Traceability – Sustainable Quality",
     pillarCleanTitle: "Cleanliness",
     pillarCleanDesc: "100% natural agriculture, clean cultivation process, zero toxic residues.",
     pillarQualityTitle: "Quality",
@@ -260,7 +260,7 @@ export const translations = {
   zh: {
     companyName: "永隆越南",
     companyFullName: "永隆越南清洁农产品进出口股份公司",
-    slogan: "清洁 • 优质 • 可持续 • 全球",
+    slogan: "透明追溯 – 持续品质",
     pillarCleanTitle: "清洁卫生",
     pillarCleanDesc: "100%纯天然农产品，绿色无污染种植，无毒害化学残留。",
     pillarQualityTitle: "优良品质",
