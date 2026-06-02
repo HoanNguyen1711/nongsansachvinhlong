@@ -11,6 +11,8 @@ FROM python:3.13-alpine
 WORKDIR /app
 COPY --from=builder /app/.venv /app/.venv
 COPY ./app /app/app
+COPY ./migrations /app/migrations
+COPY ./alembic.ini /app/alembic.ini
 ENV PATH="/app/.venv/bin:$PATH"
 
 # Expose port

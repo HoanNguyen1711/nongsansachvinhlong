@@ -1,12 +1,18 @@
 from sqlmodel import create_engine, SQLModel, Session
+from sqlalchemy import text
 from app.core.config import settings
 
 # check_same_thread is needed only for SQLite
-connect_args = {"check_same_thread": False}
+connect_args = {}
+if settings.DATABASE_URL.startswith("sqlite"):
+    connect_args = {"check_same_thread": False}
+
 engine = create_engine(settings.DATABASE_URL, connect_args=connect_args)
 
 def init_db():
-    # Import models here to register them with SQLModel metadata
+    import os
+    from alembic.config import Config
+    from alembic import command
     from app.models.user import User
     from app.models.product import Product
     from app.models.blog import Blog
@@ -14,76 +20,13 @@ def init_db():
     from app.models.setting import Setting
     from app.models.testimonial import Testimonial
     
-    SQLModel.metadata.create_all(engine)
+    # Path to alembic.ini relative to this file
+    base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    alembic_ini_path = os.path.join(base_dir, "alembic.ini")
     
-    # Run migration to add is_superuser to user table if it doesn't exist
-    # and add language translation columns if they don't exist
-    from sqlalchemy import text
-    with engine.begin() as conn:
-        # 1. User migrations
-        try:
-            conn.execute(text("ALTER TABLE user ADD COLUMN is_superuser BOOLEAN DEFAULT 0"))
-        except Exception:
-            pass
-            
-        # 2. Product migrations
-        for col in ["name_en", "name_zh", "description_en", "description_zh"]:
-            try:
-                conn.execute(text(f"ALTER TABLE product ADD COLUMN {col} TEXT"))
-            except Exception:
-                pass
-                
-        # 3. Category migrations
-        for col in ["name_en", "name_zh"]:
-            try:
-                conn.execute(text(f"ALTER TABLE category ADD COLUMN {col} TEXT"))
-            except Exception:
-                pass
-                
-        # 4. Blog migrations
-        for col in ["title_en", "title_zh", "summary_en", "summary_zh", "content_en", "content_zh", "tag", "tag_en", "tag_zh", "tag_color"]:
-            try:
-                conn.execute(text(f"ALTER TABLE blog ADD COLUMN {col} TEXT"))
-            except Exception:
-                pass
-
-        # Backfill default tag values if they are null
-        try:
-            conn.execute(text("UPDATE blog SET tag = 'Kinh nghiệm nhà nông' WHERE tag IS NULL"))
-            conn.execute(text("UPDATE blog SET tag_en = 'Farmer''s Experience' WHERE tag_en IS NULL"))
-            conn.execute(text("UPDATE blog SET tag_zh = '农人经验' WHERE tag_zh IS NULL"))
-            conn.execute(text("UPDATE blog SET tag_color = 'emerald' WHERE tag_color IS NULL"))
-            
-            # Update specific tags and colors to match the content of default blog posts
-            updates = [
-                ("Cách Chọn Bơ Sáp%", "Mẹo chọn quả", "Selection Tips", "选果窍门", "amber"),
-                ("Quy Trình Canh Tác%", "Kinh nghiệm canh tác", "Cultivation Tips", "种植经验", "emerald"),
-                ("Lợi Ích Sức Khỏe Tuyệt Vời%", "Dinh dưỡng & Sức khỏe", "Nutrition & Health", "营养与健康", "blue"),
-                ("Lợi ích sức khỏe vượt trội%", "Dinh dưỡng & Sức khỏe", "Nutrition & Health", "营养与健康", "blue"),
-                ("Bí quyết chọn Bưởi%", "Mẹo chọn quả", "Selection Tips", "选果窍门", "amber"),
-                ("Hạt Điều Tươi%", "Dinh dưỡng & Sức khỏe", "Nutrition & Health", "营养与健康", "blue"),
-                ("Trà Ô Long%", "Dinh dưỡng & Sức khỏe", "Nutrition & Health", "营养与健康", "blue"),
-                ("Giải nhiệt mùa hè%", "Thức uống bổ dưỡng", "Healthy Drinks", "健康饮品", "purple"),
-                ("VietGAP là gì%", "Tiêu chuẩn nông sản", "Standards & Quality", "农产品标准", "slate"),
-                ("Lợi ích tuyệt vời của hạt bí%", "Làm đẹp & Sức khỏe", "Beauty & Health", "美容与健康", "rose"),
-                ("Mẹo bảo quan%", "Bảo quản thực phẩm", "Storage Tips", "保鲜窍门", "emerald"),
-                ("Tại sao nông sản hữu cơ%", "Kiến thức nông sản", "Organic Knowledge", "有机常识", "slate"),
-                ("Cách làm sinh tố bơ%", "Món ngon bổ dưỡng", "Recipes & Cooking", "健康食谱", "purple"),
-            ]
-            for pattern, tag_vi, tag_en, tag_zh, color in updates:
-                conn.execute(
-                    text("UPDATE blog SET tag = :tag, tag_en = :tag_en, tag_zh = :tag_zh, tag_color = :color WHERE title LIKE :pattern"),
-                    {"tag": tag_vi, "tag_en": tag_en, "tag_zh": tag_zh, "color": color, "pattern": pattern}
-                )
-        except Exception:
-            pass
-                
-        # 5. Testimonial migrations
-        for col in ["content_en", "content_zh", "region_en", "region_zh"]:
-            try:
-                conn.execute(text(f"ALTER TABLE testimonial ADD COLUMN {col} TEXT"))
-            except Exception:
-                pass
+    # Run Alembic migrations programmatically
+    alembic_cfg = Config(alembic_ini_path)
+    command.upgrade(alembic_cfg, "head")
     
     # Initialize default admin if not exists
     with Session(engine) as session:

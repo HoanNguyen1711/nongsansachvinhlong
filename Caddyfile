@@ -1,4 +1,4 @@
-nongsansachvietnam.com, www.nongsansachvietnam.com {
+{$DOMAIN_NAME} {
     # Encode responses with Gzip or Zstandard
     encode gzip zstd
 
