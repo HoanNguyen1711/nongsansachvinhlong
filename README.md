@@ -37,7 +37,7 @@ Dự án sử dụng **Alembic** để quản lý cấu trúc bảng.
 * **Driver PostgreSQL:** Sử dụng thư viện `pg8000` (driver PostgreSQL viết bằng Python thuần) để loại bỏ hoàn toàn các lỗi Segment Fault do xung đột thư viện `musl` trên Alpine Linux.
 
 ### Lệnh tạo migrations mới khi thay đổi Model (Dev):
-Khi bạn thêm, sửa đổi thuộc tính của model trong thư mục `app/models/`, hãy chạy lệnh sau ở folder `backend` để tự sinh file migration mới:
+Khi bạn thêm hoặc sửa đổi thuộc tính của model trong thư mục `app/models/`, hãy chạy lệnh sau ở folder `backend` để tự sinh file migration mới:
 ```bash
 # Sử dụng cơ sở dữ liệu in-memory để so sánh schema chuẩn xác
 DATABASE_URL=sqlite:///:memory: uv run alembic revision --autogenerate -m "Mô tả thay đổi"
@@ -53,19 +53,38 @@ DATABASE_URL=sqlite:///:memory: uv run alembic revision --autogenerate -m "Mô t
 
 ### Bước 1: Thiết lập cấu hình `.env`
 Tạo tệp `.env` tại thư mục gốc của dự án:
+```bash
+nano .env
+```
+
+Nhập và điều chỉnh các tham số cấu hình sau:
+
 ```env
-# Tên miền phục vụ (Local hoặc VPS)
+# 1. Tên miền phục vụ (Domain names cho Caddy)
 # - Dưới local: DOMAIN_NAME=localhost
 # - Trên VPS: DOMAIN_NAME=nongsansachvietnam.com, www.nongsansachvietnam.com
 DOMAIN_NAME=localhost
 
-# Cấu hình PostgreSQL 18
+# 2. Cấu hình kết nối SQLAlchemy/SQLModel tới PostgreSQL 18
+# Định dạng: postgresql+pg8000://<username>:<password>@db:5432/<database_name>
+# Lưu ý quan trọng: Nếu mật khẩu có ký tự đặc biệt "@", bạn phải mã hóa (URL encode) thành "%40"
+# Ví dụ: mật khẩu là "P@ssw0rd" thì nhập vào chuỗi là "P%40ssw0rd"
+DATABASE_URL=postgresql+pg8000://nongsan_user:secure_password_here@db:5432/nongsan_db
+
+# 3. Cấu hình khởi tạo Database PostgreSQL 18
 POSTGRES_USER=nongsan_user
 POSTGRES_PASSWORD=secure_password_here
 POSTGRES_DB=nongsan_db
 
-# Mã bảo mật JWT
+# 4. Thư mục tải lên hình ảnh tĩnh (Mặc định trong container)
+UPLOAD_DIR=/app/static/uploads
+
+# 5. Mã bảo mật JWT (Nên tạo một chuỗi ngẫu nhiên dài để bảo mật ở Production)
 JWT_SECRET=super-secure-random-secret-key-123456789
+
+# 6. Tài khoản quản trị mặc định (Tự động khởi tạo ở lần chạy đầu tiên nếu chưa có)
+ADMIN_USERNAME=adminnongsan
+ADMIN_PASSWORD=admin_password_here
 ```
 
 ### Bước 2: Khởi Chạy Hệ Thống
@@ -73,39 +92,32 @@ Mở terminal tại thư mục gốc của dự án và chạy lệnh sau:
 ```bash
 docker compose up -d --build
 ```
-Lệnh này sẽ tự động tải các base image, xây dựng môi trường ảo FastAPI, khởi chạy PostgreSQL 18 và Caddy. Đồng thời tự tạo database schema và nạp dữ liệu mẫu (Seeding).
+Lệnh này sẽ tự động tải các base image, xây dựng môi trường ảo FastAPI, khởi chạy PostgreSQL 18 và Caddy. Đồng thời tự tạo database schema và nạp dữ liệu mẫu (Seeding) lên Postgres.
 
 ### Truy Cập Website (Môi trường local)
 - **Trang chủ khách hàng:** [http://localhost](http://localhost)
 - **Trang đăng nhập Admin:** [http://localhost/ns-login-portal-2026](http://localhost/ns-login-portal-2026)
 - **Trang quản trị Admin:** [http://localhost/ns-admin-portal-2026](http://localhost/ns-admin-portal-2026)
-- **Tài khoản Admin Mặc Định:** Tài khoản: `admin` / Mật khẩu: `admin123`
 
 ---
 
-## 🚚 Di Trú Dữ Liệu SQLite Cũ Sang Postgres 18 trên VPS (Downtime ~30 giây)
+## 🚢 Triển khai (Deployment) & CI/CD
 
-Nếu hệ thống cũ của bạn đang chạy SQLite và chứa dữ liệu thực tế của khách hàng, hãy thực hiện theo quy trình sau để di chuyển dữ liệu sang Postgres 18 trên VPS:
+Dự án được tích hợp sẵn luồng CI/CD tự động bằng **GitHub Actions** để đóng gói và triển khai nhanh lên máy chủ VPS qua kết nối SSH bảo mật.
 
-1. **Sao lưu dữ liệu SQLite cũ trên VPS:**
-   ```bash
-   mkdir -p ~/db_backups
-   docker cp $(docker compose ps -q backend):/app/data/nongsan.db ~/db_backups/nongsan_prod_backup.db
-   ```
-2. **Cập nhật mã nguồn và chỉnh sửa `.env` trên VPS:**
-   Đảm bảo tệp `.env` trên VPS đã cấu hình tên miền thực tế và thông tin đăng nhập PostgreSQL mong muốn.
-3. **Khởi chạy hệ thống PostgreSQL 18 mới:**
-   ```bash
-   docker compose down
-   docker compose pull
-   docker compose up -d --build
-   ```
-4. **Copy tệp SQLite đã backup vào container backend và chạy script di trú:**
-   ```bash
-   # Copy file db cũ vào container backend
-   docker cp ~/db_backups/nongsan_prod_backup.db $(docker compose ps -q backend):/app/nongsan.db
-   
-   # Chạy script di trú dữ liệu
-   docker compose exec backend python -m app.utils.migrate_db
-   ```
-   *Script [migrate_db.py](file:///home/hoan/Dev/web2/backend/app/utils/migrate_db.py) sẽ tự động xóa các dữ liệu seed trống, sao chép toàn bộ dữ liệu từ SQLite sang PostgreSQL 18 và đồng bộ hóa các bộ đếm ID tự tăng (sequences).*
+### 1. Luồng Hoạt Động (CI/CD Workflow)
+Khi bạn thực hiện lệnh `git push` lên nhánh `main`, GitHub Actions sẽ tự động kích hoạt:
+1. Đăng nhập vào Docker Hub tài khoản của bạn.
+2. Build song song 2 Docker Image (`backend` & `frontend`) dạng tối ưu cache đa tầng.
+3. Push các image lên Docker Hub: `hoan171188/nongsanlongan:backend` và `hoan171188/nongsanlongan:frontend`.
+4. SSH vào VPS, tự động chạy lệnh pull các image mới nhất, kết hợp với file `.env` cục bộ trên VPS và khởi chạy lại hệ thống bằng Docker Compose ở chế độ chạy ngầm (detached mode).
+
+### 2. Thiết lập trên Github Repository (Secrets)
+Truy cập vào trang quản lý của dự án trên GitHub: **Settings > Secrets and variables > Actions** và khai báo các khóa sau:
+
+| Tên Secret | Mô tả | Ví dụ |
+| :--- | :--- | :--- |
+| `DOCKERHUB_TOKEN` | Token bảo mật tạo từ tài khoản Docker Hub của bạn (để login) | `dckr_pat_...` |
+| `SSH_HOST` | Địa chỉ IP tĩnh của VPS chạy Production | `123.45.67.89` |
+| `SSH_USERNAME` | Tên tài khoản đăng nhập SSH của VPS | `root` hoặc `ubuntu` |
+| `SSH_PRIVATE_KEY` | Nội dung khóa riêng tư SSH Private Key để xác thực đăng nhập | `-----BEGIN OPENSSH PRIVATE KEY-----...` |
