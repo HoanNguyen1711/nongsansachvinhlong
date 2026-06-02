@@ -74,10 +74,10 @@ export default async function AboutPage({ params }: PageProps) {
           </h2>
           <p className="text-slate-600 text-sm leading-relaxed">
             {lang === "vi"
-              ? "Nông Sản Sạch Xuất Khẩu ra đời với khát vọng nâng tầm giá trị nông sản vùng đồng bằng sông Cửu Long và đưa thương hiệu Việt vươn xa trên bản đồ thế giới. Chúng tôi hiểu rằng, để chinh phục những thị trường xuất khẩu khó tính như EU, Mỹ, Nhật Bản và Hàn Quốc, sự minh bạch là điều kiện tiên quyết."
+              ? "Nông Sản Sạch Xuất Khẩu ra đời với khát vọng nâng tầm giá trị nông sản vùng đồng bằng sông Cửu Long và đưa thương hiệu Việt vươn xa trên bản đồ thế giới. Chúng tôi hiểu rằng, để chinh phục những thị trường xuất khẩu khó tính và tiềm năng lớn như Trung Quốc, EU, Mỹ, Nhật Bản và Hàn Quốc, sự minh bạch là điều kiện tiên quyết."
               : lang === "en"
-              ? "Clean Agri Export was founded with the aspiration to elevate the value of Mekong Delta agricultural products and project the Vietnamese brand onto the global stage. We understand that to conquer demanding export markets such as the EU, USA, Japan, and South Korea, absolute transparency is a prerequisite."
-              : "清洁农产品出口的诞生，旨在提升湄公河三角洲农产品的价值，并让越南品牌在世界舞台上大放异彩。我们深知，要征服欧盟、美国、日本和韩国等严苛的出口市场，绝对的透明度是首要前提。"}
+              ? "Clean Agri Export was founded with the aspiration to elevate the value of Mekong Delta agricultural products and project the Vietnamese brand onto the global stage. We understand that to conquer demanding and high-potential export markets such as China, the EU, USA, Japan, and South Korea, absolute transparency is a prerequisite."
+              : "清洁农产品出口的诞生，旨在提升湄公河三角洲农产品的价值，并让越南品牌在世界舞台上大放异彩。我们深知，要征服中国、欧盟、美国、日本和韩国等严苛且潜力巨大的出口市场，绝对的透明度是首要前提。"}
           </p>
           <p className="text-slate-600 text-sm leading-relaxed">
             {lang === "vi"
@@ -120,10 +120,10 @@ export default async function AboutPage({ params }: PageProps) {
           </h2>
           <p className="text-slate-600 text-sm leading-relaxed">
             {lang === "vi"
-              ? "Để giữ trọn vẹn hương vị tươi ngon đặc trưng của trái cây nhiệt đới khi vận chuyển qua các đại dương, chúng tôi đã đầu tư mạnh mẽ vào hạ tầng công nghiệp sau thu hoạch. Các sản phẩm chủ lực như Sầu Riêng Ri6 Cấp Đông, Bưởi Năm Roi, Chanh Không Hạt... đều được làm sạch, xử lý nhiệt và đóng gói tại nhà máy đạt tiêu chuẩn quốc tế HACCP và ISO 22000."
+              ? "Để giữ trọn vẹn hương vị tươi ngon đặc trưng của trái cây nhiệt đới khi xuất khẩu chính ngạch sang Trung Quốc và các đại dương lớn, chúng tôi đã đầu tư mạnh mẽ vào hạ tầng công nghiệp sau thu hoạch. Các sản phẩm chủ lực như Sầu Riêng Ri6 Cấp Đông, Bưởi Năm Roi, Chanh Không Hạt... đều được xử lý và đóng gói tại nhà máy đạt tiêu chuẩn quốc tế HACCP và ISO 22000."
               : lang === "en"
-              ? "To preserve the rich, authentic flavor of tropical fruits during long ocean shipments, we have heavily invested in post-harvest industrial infrastructure. Key export items such as IQF frozen Ri6 durian, Nam Roi pomelos, and seedless limes are cleaned, heat-treated, and packed in facilities operating under international HACCP and ISO 22000 certifications."
-              : "为了在漫长的远洋运输中保留热带水果浓郁、正宗的风味，我们对收获后的工业基础设施进行了大力投资。我们的出口主打产品（如IQF冷冻Ri6榴莲、五鞭蜜柚和无籽青柠）均在获得国际HACCP和ISO 22000认证的工厂中进行清洗、热处理和包装。"}
+              ? "To preserve the rich, authentic flavor of tropical fruits during official export to China and long ocean shipments worldwide, we have heavily invested in post-harvest industrial infrastructure. Key export items such as IQF frozen Ri6 durian, Nam Roi pomelos, and seedless limes are cleaned, heat-treated, and packed in facilities operating under international HACCP and ISO 22000 certifications."
+              : "为了在向中国正式出口及运往全球远洋时仍能保留热带水果浓郁、正宗的风味，我们对收获后的工业基础设施进行了大力投资。我们的出口主打产品（如IQF冷冻Ri6榴莲、五鞭蜜柚和无籽青柠）均在获得国际HACCP和ISO 22000认证的工厂中进行清洗、热处理和包装。"}
           </p>
           <p className="text-slate-600 text-sm leading-relaxed">
             {lang === "vi"
