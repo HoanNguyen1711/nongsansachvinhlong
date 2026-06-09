@@ -71,9 +71,9 @@ def init_db():
             "email": "contact@nongsansach.vn",
             "farm_image_url": "",
             "zalo_qr_url": "",
-            "banner_image_url_1": "https://chanhthu.com/wp-content/uploads/2024/03/chanh-thu-sau-rieng-1.png",
-            "banner_image_url_2": "https://chanhthu.com/wp-content/uploads/2024/03/chanh-thu-buoi.png",
-            "banner_image_url_3": "https://chanhthu.com/wp-content/uploads/2024/03/chanh-thu-chom-chom.png",
+            "banner_image_url_1": "",
+            "banner_image_url_2": "",
+            "banner_image_url_3": "",
             "homepage_layout": "default",
         }
         for key, value in default_settings.items():
