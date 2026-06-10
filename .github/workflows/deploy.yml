@@ -8,7 +8,6 @@ on:
       - 'backend/**'
       - 'frontend/**'
       - 'Caddyfile'
-      - 'Caddyfile.prod'
       - 'docker-compose.yml'
       - '.github/workflows/deploy.yml'
 
@@ -73,3 +72,12 @@ jobs:
             
             # Remove unused and dangling Docker images to free disk space
             docker image prune -f
+
+      # 7. Send notification to Discord
+      - name: Discord Notification
+        uses: sarisia/actions-status-discord@v1
+        if: always()
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          status: ${{ job.status }}
+          title: "Deploy to VPS (Code Change)"
