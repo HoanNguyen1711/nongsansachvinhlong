@@ -1,19 +1,13 @@
-name: Deploy to VPS
+name: Weekly Security Patch Deploy
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'backend/**'
-      - 'frontend/**'
-      - 'Caddyfile'
-      - 'Caddyfile.prod'
-      - 'docker-compose.yml'
-      - '.github/workflows/deploy.yml'
+  schedule:
+    # Run at 00:00 every Sunday (UTC), which is 07:00 Sunday in Vietnam time
+    - cron: '0 0 * * 0'
+  workflow_dispatch: # Allows manual trigger from the GitHub Actions tab
 
 jobs:
-  build-and-deploy:
+  security-patch-deploy:
     runs-on: ubuntu-latest
     steps:
       # 1. Checkout source code
@@ -31,27 +25,29 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # 4. Build and Push Backend Image
+      # 4. Build and Push Backend Image with latest base image updates
       - name: Build and Push Backend
         uses: docker/build-push-action@v5
         with:
           context: ./backend
           push: true
+          pull: true # Force pulling the latest base image to apply security patches
           tags: hoan171188/nongsanlongan:backend
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # 5. Build and Push Frontend Image
+      # 5. Build and Push Frontend Image with latest base image updates
       - name: Build and Push Frontend
         uses: docker/build-push-action@v5
         with:
           context: ./frontend
           push: true
+          pull: true # Force pulling the latest base image to apply security patches
           tags: hoan171188/nongsanlongan:frontend
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # 6. SSH into VPS and deploy pre-built images
+      # 6. SSH into VPS and deploy patched images
       - name: Deploy to VPS via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
