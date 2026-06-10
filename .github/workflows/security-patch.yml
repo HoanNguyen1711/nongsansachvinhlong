@@ -27,7 +27,7 @@ jobs:
 
       # 4. Build and Push Backend Image with latest base image updates
       - name: Build and Push Backend
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: ./backend
           push: true
@@ -38,7 +38,7 @@ jobs:
 
       # 5. Build and Push Frontend Image with latest base image updates
       - name: Build and Push Frontend
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: ./frontend
           push: true
