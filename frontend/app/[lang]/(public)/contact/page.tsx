@@ -1,10 +1,8 @@
-"use client";
-
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { MapPin, Phone, Mail, MessageSquare } from "lucide-react";
-import { useParams } from "next/navigation";
-import { api } from "@/lib/api";
 import { getTranslation, LanguageCode } from "@/lib/i18n";
+
+export const dynamic = "force-dynamic";
 
 const formatPhone = (phoneStr: string) => {
   if (phoneStr.length === 10) {
@@ -13,27 +11,52 @@ const formatPhone = (phoneStr: string) => {
   return phoneStr;
 };
 
-export default function ContactPage() {
-  const params = useParams();
-  const lang = (params?.lang as LanguageCode) || "vi";
+async function getSettings() {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://backend:8000";
+  try {
+    const res = await fetch(`${apiUrl}/api/settings`, { next: { revalidate: 10 } });
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (error) {
+    console.error("Error fetching settings in contact page:", error);
+  }
+  return null;
+}
 
-  const [phoneNumber, setPhoneNumber] = useState("0901234567");
-  const [address, setAddress] = useState("123 Đường Phan Chu Trinh, TP. Buôn Ma Thuột, Đắk Lắk");
-  const [email, setEmail] = useState("contact@nongsansach.vn");
-  const [zaloQrUrl, setZaloQrUrl] = useState("");
+const getLocalizedAddress = (address: string | undefined | null, lang: LanguageCode): string => {
+  const addr = address || "";
+  if (lang === "vi") return addr;
+  
+  // Check if it's the Buon Ma Thuot default
+  if (addr.includes("Phan Chu Trinh") || addr.includes("Buôn Ma Thuột")) {
+    if (lang === "en") return "123 Phan Chu Trinh Street, Buon Ma Thuot City, Dak Lak Province";
+    if (lang === "zh") return "达乐省邦美蜀市潘周桢路123号";
+  }
+  
+  // Check if it's the Vinh Long default
+  if (addr.includes("Phạm Hùng") || addr.includes("Vĩnh Long")) {
+    if (lang === "en") return "123 Pham Hung Street, Ward 9, Vinh Long City, Vinh Long Province";
+    if (lang === "zh") return "永隆省永隆市九坊范雄路123号";
+  }
+  
+  return addr;
+};
 
-  useEffect(() => {
-    api.get("/settings")
-      .then((data) => {
-        if (data) {
-          if (data.phone_number) setPhoneNumber(data.phone_number);
-          if (data.address) setAddress(data.address);
-          if (data.email) setEmail(data.email);
-          if (data.zalo_qr_url) setZaloQrUrl(data.zalo_qr_url);
-        }
-      })
-      .catch((err) => console.error("Error fetching settings in contact page:", err));
-  }, []);
+export default async function ContactPage({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}) {
+  const resolvedParams = await params;
+  const lang = (resolvedParams.lang || "vi") as LanguageCode;
+
+  const settings = await getSettings();
+  
+  const phoneNumber = settings?.phone_number || "0901234567";
+  const address = settings?.address || "123 Đường Phan Chu Trinh, TP. Buôn Ma Thuột, Đắk Lắk";
+  const email = settings?.email || "contact@nongsansach.vn";
+  const zaloQrUrl = settings?.zalo_qr_url || "";
 
   const t = getTranslation(lang);
 
@@ -81,11 +104,7 @@ export default function ContactPage() {
             <div>
               <h3 className="font-bold text-slate-800 text-sm">{t.addressLabel}</h3>
               <p className="text-xs text-slate-500 mt-0.5">
-                {lang === "vi" 
-                  ? address 
-                  : lang === "en"
-                  ? "123 Phan Chu Trinh Street, Buon Ma Thuot City, Dak Lak Province"
-                  : "达乐省邦美蜀市潘周桢路123号"}
+                {getLocalizedAddress(address, lang)}
               </p>
             </div>
           </li>

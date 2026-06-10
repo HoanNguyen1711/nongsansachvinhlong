@@ -17,6 +17,25 @@ const formatPhone = (phoneStr: string) => {
   return phoneStr;
 };
 
+const getLocalizedAddress = (address: string | undefined | null, lang: LanguageCode): string => {
+  const addr = address || "";
+  if (lang === "vi") return addr;
+  
+  // Check if it's the Buon Ma Thuot default
+  if (addr.includes("Phan Chu Trinh") || addr.includes("Buôn Ma Thuột")) {
+    if (lang === "en") return "123 Phan Chu Trinh Street, Buon Ma Thuot City, Dak Lak Province";
+    if (lang === "zh") return "达乐省邦美蜀市潘周桢路123号";
+  }
+  
+  // Check if it's the Vinh Long default
+  if (addr.includes("Phạm Hùng") || addr.includes("Vĩnh Long")) {
+    if (lang === "en") return "123 Pham Hung Street, Ward 9, Vinh Long City, Vinh Long Province";
+    if (lang === "zh") return "永隆省永隆市九坊范雄路123号";
+  }
+  
+  return addr;
+};
+
 export const Footer: React.FC<FooterProps> = ({ 
   phone = "0901234567",
   address = "123 Đường Phạm Hùng, Phường 9, TP. Vĩnh Long, Tỉnh Vĩnh Long",
@@ -88,11 +107,7 @@ export const Footer: React.FC<FooterProps> = ({
               <li className="flex items-start gap-2">
                 <MapPin className="h-5 w-5 text-emerald-400 shrink-0" />
                 <span>
-                  {lang === "vi" 
-                    ? address 
-                    : lang === "en"
-                    ? "123 Pham Hung Street, Ward 9, Vinh Long City, Vinh Long Province"
-                    : "永隆省永隆市九坊范雄路123号"}
+                  {getLocalizedAddress(address, lang)}
                 </span>
               </li>
               <li className="flex items-center gap-2">
