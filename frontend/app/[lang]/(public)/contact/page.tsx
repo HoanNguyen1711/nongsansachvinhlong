@@ -29,15 +29,21 @@ const getLocalizedAddress = (address: string | undefined | null, lang: LanguageC
   if (lang === "vi") return addr;
   
   // Check if it's the Buon Ma Thuot default
-  if (addr.includes("Phan Chu Trinh") || addr.includes("Buôn Ma Thuột")) {
+  if (addr.includes("Phan Chu Trinh") && addr.includes("Buôn Ma Thuột")) {
     if (lang === "en") return "123 Phan Chu Trinh Street, Buon Ma Thuot City, Dak Lak Province";
     if (lang === "zh") return "达乐省邦美蜀市潘周桢路123号";
   }
   
-  // Check if it's the Vinh Long default
-  if (addr.includes("Phạm Hùng") || addr.includes("Vĩnh Long")) {
+  // Check if it's the Pham Hung, Vinh Long default
+  if (addr.includes("Phạm Hùng") && addr.includes("Phường 9")) {
     if (lang === "en") return "123 Pham Hung Street, Ward 9, Vinh Long City, Vinh Long Province";
     if (lang === "zh") return "永隆省永隆市九坊范雄路123号";
+  }
+
+  // Check if it's the Long Thuan, Long Ho, Vinh Long address
+  if (addr.includes("Long Thuận") && addr.includes("Long Hồ")) {
+    if (lang === "en") return "2B/1 Long Thuan Hamlet, Long Ho Commune, Vinh Long Province, Vietnam";
+    if (lang === "zh") return "越南永隆省龙湖社龙顺邑2B/1";
   }
   
   return addr;
