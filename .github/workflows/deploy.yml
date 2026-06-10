@@ -52,21 +52,17 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            # Di chuyển vào thư mục chứa docker-compose trên VPS
+            # Navigate to the project directory on VPS
             cd /home/hoan/nongsansachvinhlong
             
-            # Cập nhật cấu hình mới nhất từ GitHub (docker-compose.yml, Caddyfile,...)
+            # Pull the latest configuration files from GitHub (docker-compose.yml, Caddyfile, etc.)
             git pull origin main
             
-            # Đăng nhập Docker Hub trên VPS để tải image Private (nếu có)
-            echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u hoan171188 --password-stdin
-            
-            # Kéo (pull) các image mới nhất vừa build từ Docker Hub về VPS
+            # Pull the latest Docker images from Docker Hub
             docker compose pull
             
-            # Khởi chạy lại các container ở chế độ chạy ngầm (detached)
-            # Docker Compose sẽ tự động đọc cấu hình môi trường từ file .env đang nằm sẵn trên VPS
+            # Restart the containers in detached mode (automatically reading environment variables from .env on VPS)
             docker compose up -d
             
-            # Dọn dẹp các Docker image cũ không còn sử dụng để giải phóng dung lượng ổ cứng
+            # Remove unused and dangling Docker images to free disk space
             docker image prune -f
