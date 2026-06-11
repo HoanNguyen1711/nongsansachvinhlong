@@ -10,7 +10,7 @@ const beVietnamPro = Be_Vietnam_Pro({
 });
 
 export const metadata: Metadata = {
-  title: "Nông Sản Sạch | Truy Xuất Minh Bạch – Chất Lượng Bền Vững",
+  title: "Nông Sản Sạch | Sạch • Chất Lượng • Bền Vững • Toàn Cầu",
   description: "Chuyên cung cấp các sản phẩm nông sản sạch, trái cây xuất khẩu, hạt dinh dưỡng và nông sản hữu cơ chất lượng cao đạt tiêu chuẩn toàn cầu.",
 };
 

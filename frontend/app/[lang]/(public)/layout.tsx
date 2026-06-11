@@ -4,8 +4,36 @@ import Footer from "@/components/common/footer";
 import { FloatingButtons } from "@/components/common/floating-buttons";
 import { cookies } from "next/headers";
 import { getLanguage, LanguageCode } from "@/lib/i18n";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}): Promise<Metadata> {
+  const resolvedParams = await params;
+  const lang = resolvedParams.lang || "vi";
+
+  if (lang === "en") {
+    return {
+      title: "Clean Agriculture | Clean • Quality • Sustainable • Global",
+      description: "Specializing in providing clean agricultural products, exported fruits, nutritious nuts, and high-quality organic agricultural products meeting global standards.",
+    };
+  } else if (lang === "zh") {
+    return {
+      title: "清洁农产品 | 清洁 • 品质 • 可持续 • 全球",
+      description: "专业提供清洁农产品、出口水果、营养坚果以及符合全球标准的高品质有机农产品。",
+    };
+  }
+
+  // Default to Vietnamese (vi)
+  return {
+    title: "Nông Sản Sạch | Sạch • Chất Lượng • Bền Vững • Toàn Cầu",
+    description: "Chuyên cung cấp các sản phẩm nông sản sạch, trái cây xuất khẩu, hạt dinh dưỡng và nông sản hữu cơ chất lượng cao đạt tiêu chuẩn toàn cầu.",
+  };
+}
 
 async function getSettings() {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://backend:8000";
