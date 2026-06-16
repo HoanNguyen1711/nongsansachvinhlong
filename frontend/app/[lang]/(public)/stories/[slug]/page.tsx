@@ -194,7 +194,7 @@ export default async function BlogDetailPage({ params }: Props) {
   };
 
   return (
-    <article className="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8 space-y-6">
+    <article className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 space-y-6">
       {/* Navigation */}
       <div>
         <Link href={getLocalizedHref("/stories", lang)} className="inline-flex items-center gap-1 text-sm font-semibold text-slate-500 hover:text-primary transition-colors">
