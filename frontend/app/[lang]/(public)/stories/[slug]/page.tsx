@@ -247,31 +247,11 @@ export default async function BlogDetailPage({ params }: Props) {
           )}
         </div>
 
-        {/* Content Body - Simple markdown rendering emulation with rich styles */}
-        <div className="prose max-w-none text-slate-600 text-sm sm:text-base leading-relaxed space-y-6">
-          {localizedContent.split("\n\n").map((paragraph: string, index: number) => {
-            const trimmed = paragraph.trim();
-            if (trimmed.startsWith("###")) {
-              return (
-                <h3 key={index} className="text-xl font-bold text-slate-800 pt-4">
-                  {trimmed.replace("###", "").trim()}
-                </h3>
-              );
-            }
-            if (trimmed.startsWith("##")) {
-              return (
-                <h2 key={index} className="text-2xl font-bold text-slate-800 pt-6">
-                  {trimmed.replace("##", "").trim()}
-                </h2>
-              );
-            }
-            return (
-              <p key={index} className="whitespace-pre-line">
-                {trimmed}
-              </p>
-            );
-          })}
-        </div>
+        {/* Content Body - Render Rich Text HTML */}
+        <div 
+          className="blog-rich-content text-slate-600 text-sm sm:text-base leading-relaxed"
+          dangerouslySetInnerHTML={{ __html: localizedContent }}
+        />
       </div>
     </article>
   );

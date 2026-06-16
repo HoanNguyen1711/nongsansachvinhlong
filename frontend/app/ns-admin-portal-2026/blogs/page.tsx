@@ -1,8 +1,19 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { api } from "@/lib/api";
 import { Plus, Edit, Trash2, X, Upload, Check, AlertCircle, BookOpen } from "lucide-react";
+import dynamic from "next/dynamic";
+import "react-quill-new/dist/quill.snow.css";
+
+const ReactQuill = dynamic(() => import("react-quill-new"), {
+  ssr: false,
+  loading: () => (
+    <div className="p-4 border border-slate-200 rounded-2xl bg-slate-50 text-xs text-slate-500">
+      Đang tải bộ soạn thảo...
+    </div>
+  ),
+});
 
 interface Blog {
   id: number;
@@ -55,6 +66,54 @@ export default function AdminBlogsPage() {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"vi" | "en" | "zh">("vi");
+
+  // Quill Editor Modules config with custom image handler
+  const modules = useMemo(() => ({
+    toolbar: {
+      container: [
+        [{ header: [1, 2, 3, false] }],
+        ["bold", "italic", "underline", "strike", "blockquote"],
+        [{ list: "ordered" }, { list: "bullet" }],
+        ["link", "image"],
+        ["clean"],
+      ],
+      handlers: {
+        image: function (this: any) {
+          const quill = this.quill;
+          const input = document.createElement("input");
+          input.setAttribute("type", "file");
+          input.setAttribute("accept", "image/*");
+          input.click();
+
+          input.onchange = async () => {
+            const file = input.files?.[0];
+            if (!file) return;
+
+            // Size limit: 5MB
+            if (file.size > 5 * 1024 * 1024) {
+              alert("Dung lượng ảnh tối đa cho phép là 5MB.");
+              return;
+            }
+
+            try {
+              const data = await api.upload("/uploads", file);
+              const url = data.url;
+
+              const range = quill.getSelection();
+              if (range) {
+                quill.insertEmbed(range.index, "image", url);
+                quill.setSelection(range.index + 1);
+              } else {
+                quill.insertEmbed(quill.getLength(), "image", url);
+              }
+            } catch (err: any) {
+              alert(err.message || "Tải ảnh lên thất bại.");
+            }
+          };
+        },
+      },
+    },
+  }), []);
 
   // Auto-slugify Vietnamese text helper
   const slugify = (text: string) => {
@@ -452,14 +511,15 @@ export default function AdminBlogsPage() {
 
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-700">Nội dung chi tiết *</label>
-                    <textarea
-                      value={content}
-                      onChange={(e) => setContent(e.target.value)}
-                      placeholder="Nhập nội dung bài viết chi tiết tại đây (hỗ trợ phân cách dòng h3 bằng '### ')..."
-                      rows={8}
-                      className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none font-mono"
-                      required
-                    />
+                    <div className="quill-editor-wrapper">
+                      <ReactQuill
+                        value={content}
+                        onChange={setContent}
+                        modules={modules}
+                        placeholder="Nhập nội dung bài viết chi tiết tại đây..."
+                        theme="snow"
+                      />
+                    </div>
                   </div>
                 </div>
               )}
@@ -502,13 +562,15 @@ export default function AdminBlogsPage() {
 
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-700">Nội dung chi tiết (Tiếng Anh)</label>
-                    <textarea
-                      value={contentEn}
-                      onChange={(e) => setContentEn(e.target.value)}
-                      placeholder="Enter detailed English content here..."
-                      rows={8}
-                      className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none font-mono"
-                    />
+                    <div className="quill-editor-wrapper">
+                      <ReactQuill
+                        value={contentEn}
+                        onChange={setContentEn}
+                        modules={modules}
+                        placeholder="Enter detailed English content here..."
+                        theme="snow"
+                      />
+                    </div>
                   </div>
                 </div>
               )}
@@ -551,13 +613,15 @@ export default function AdminBlogsPage() {
 
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-700">Nội dung chi tiết (Tiếng Trung)</label>
-                    <textarea
-                      value={contentZh}
-                      onChange={(e) => setContentZh(e.target.value)}
-                      placeholder="在这里输入中文详细内容..."
-                      rows={8}
-                      className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none font-mono"
-                    />
+                    <div className="quill-editor-wrapper">
+                      <ReactQuill
+                        value={contentZh}
+                        onChange={setContentZh}
+                        modules={modules}
+                        placeholder="在这里输入中文详细内容..."
+                        theme="snow"
+                      />
+                    </div>
                   </div>
                 </div>
               )}

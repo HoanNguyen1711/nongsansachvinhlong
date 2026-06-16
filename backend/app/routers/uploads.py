@@ -18,6 +18,14 @@ def upload_image(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Định dạng file không hợp lệ. Chỉ chấp nhận các đuôi: JPG, JPEG, PNG, WEBP."
         )
+
+    # Validate file size (Max 5MB)
+    MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB in bytes
+    if file.size and file.size > MAX_FILE_SIZE:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Dung lượng file vượt quá giới hạn cho phép (tối đa 5MB)."
+        )
         
     try:
         url = save_and_compress_image(file)
