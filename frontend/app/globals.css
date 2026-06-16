@@ -118,6 +118,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 .quill-editor-wrapper .ql-editor {
   min-height: 250px;
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
 }
 .quill-editor-wrapper .ql-container.ql-snow {
   border: 1px solid #e2e8f0 !important;
@@ -130,6 +132,8 @@ h1, h2, h3, h4, h5, h6 {
 /* Public Blog Post Styles (WYSIWYG HTML Rendering) */
 .blog-rich-content {
   color: #334155; /* text-slate-700 */
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
 }
 .blog-rich-content p {
   margin-bottom: 1.25rem;
