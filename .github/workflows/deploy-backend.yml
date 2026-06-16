@@ -1,4 +1,4 @@
-name: Deploy to VPS
+name: Deploy Backend to VPS
 
 on:
   push:
@@ -6,10 +6,8 @@ on:
       - main
     paths:
       - 'backend/**'
-      - 'frontend/**'
-      - 'Caddyfile'
-      - 'docker-compose.yml'
-      - '.github/workflows/deploy.yml'
+      - '.github/workflows/deploy-backend.yml'
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
@@ -40,18 +38,8 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # 5. Build and Push Frontend Image
-      - name: Build and Push Frontend
-        uses: docker/build-push-action@v6
-        with:
-          context: ./frontend
-          push: true
-          tags: hoan171188/nongsanlongan:frontend
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      # 6. SSH into VPS and deploy pre-built images
-      - name: Deploy to VPS via SSH
+      # 5. SSH into VPS and deploy backend
+      - name: Deploy Backend via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -61,23 +49,23 @@ jobs:
             # Navigate to the project directory on VPS
             cd /home/hoan/nongsansachvinhlong
             
-            # Pull the latest configuration files from GitHub (docker-compose.yml, Caddyfile, etc.)
+            # Pull the latest configuration files from GitHub
             git pull origin main
             
-            # Pull the latest Docker images from Docker Hub
-            docker compose pull
+            # Pull the latest Backend image from Docker Hub
+            docker compose pull backend
             
-            # Restart the containers in detached mode (automatically reading environment variables from .env on VPS)
-            docker compose up -d
+            # Restart the backend container in detached mode
+            docker compose up -d backend
             
             # Remove unused and dangling Docker images to free disk space
             docker image prune -f
 
-      # 7. Send notification to Discord
+      # 6. Send notification to Discord
       - name: Discord Notification
         uses: sarisia/actions-status-discord@v1
         if: always()
         with:
           webhook: ${{ secrets.DISCORD_WEBHOOK }}
           status: ${{ job.status }}
-          title: "Deploy to VPS (Code Change)"
+          title: "Deploy Backend to VPS"

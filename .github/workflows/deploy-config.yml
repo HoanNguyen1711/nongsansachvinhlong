@@ -1,0 +1,48 @@
+name: Deploy Configuration to VPS
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'Caddyfile'
+      - 'docker-compose.yml'
+      - '.github/workflows/deploy-config.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy-config:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Checkout source code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. SSH into VPS, pull config, and reload Caddy / Docker Compose
+      - name: Deploy Config via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            # Navigate to the project directory on VPS
+            cd /home/hoan/nongsansachvinhlong
+            
+            # Pull the latest configuration files from GitHub (Caddyfile, docker-compose.yml)
+            git pull origin main
+            
+            # Recreate containers if compose config changed (very fast restart)
+            docker compose up -d
+            
+            # Reload Caddy config gracefully without downtime
+            docker compose exec -T caddy caddy reload --config /etc/caddy/Caddyfile
+
+      # 3. Send notification to Discord
+      - name: Discord Notification
+        uses: sarisia/actions-status-discord@v1
+        if: always()
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          status: ${{ job.status }}
+          title: "Deploy Config to VPS"
