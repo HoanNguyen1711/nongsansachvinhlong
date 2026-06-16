@@ -33,7 +33,7 @@ export const translations = {
     available: "Còn hàng",
     outOfStock: "Hết hàng",
     vietgapCert: "VietGAP",
-    contactWholesalePrice: "Liên hệ giá sỉ",
+    contactWholesalePrice: "Liên hệ",
     originalPriceSuffix: " đ",
     priceSuffix: " đ",
     backToStories: "Quay lại câu chuyện",
