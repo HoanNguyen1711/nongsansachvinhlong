@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { ArrowRight, CheckCircle2, ShieldCheck, Truck, MessageSquare, Star, Sparkles, Eye, Phone, Quote, Leaf, Globe, Award } from "lucide-react";
 import { getTranslation, getLocalizedValue, getLocalizedCategoryName, getLocalizedHref, LanguageCode } from "@/lib/i18n";
 import HeroSlider from "@/components/homepage/hero-slider";
+import TestimonialsSlider from "@/components/homepage/testimonials-slider";
 
 export const dynamic = "force-dynamic";
 
@@ -526,44 +527,7 @@ function renderDefaultLayout(lang: LanguageCode, settings: any, phone: string, d
           <p className="text-slate-500 text-sm">{t.testimonialSubtitle}</p>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-          {displayTestimonials.map((tItem) => {
-            const localizedContent = getLocalizedValue(tItem, "content", lang);
-            const localizedRegion = getLocalizedValue(tItem, "region", lang);
-            return (
-              <div key={tItem.id} className="rounded-3xl border border-border bg-white p-6 space-y-4 flex flex-col justify-between">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-emerald-50 border border-border overflow-hidden flex items-center justify-center shrink-0">
-                      {tItem.avatar_url ? (
-                        <img src={tItem.avatar_url} alt={tItem.name} className="h-full w-full object-cover" />
-                      ) : (
-                        <MessageSquare className="h-4 w-4 text-primary" />
-                      )}
-                    </div>
-                    <div>
-                      <div className="font-semibold text-slate-800 text-sm">{tItem.name}</div>
-                      {localizedRegion && <div className="text-[10px] text-slate-400 font-semibold">{localizedRegion}</div>}
-                    </div>
-                  </div>
-                  
-                  <div className="flex gap-0.5 text-amber-500">
-                    {Array.from({ length: 5 }).map((_, idx) => (
-                      <Star
-                        key={idx}
-                        className={`h-4 w-4 ${idx < tItem.rating ? "fill-current" : "text-slate-200"}`}
-                      />
-                    ))}
-                  </div>
-                  
-                  <p className="text-slate-600 text-sm italic">
-                    "{localizedContent}"
-                  </p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        <TestimonialsSlider testimonials={displayTestimonials} lang={lang} layout="default" />
       </section>
 
       {/* 6. Closing Zalo QR CTA Card */}
@@ -906,43 +870,7 @@ function renderGridLayout(lang: LanguageCode, settings: any, phone: string, disp
           <p className="text-slate-500 text-sm">{t.testimonialSubtitle}</p>
         </div>
 
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-          {displayTestimonials.map((tItem) => {
-            const localizedContent = getLocalizedValue(tItem, "content", lang);
-            const localizedRegion = getLocalizedValue(tItem, "region", lang);
-            return (
-              <div key={tItem.id} className="relative rounded-3xl border border-border bg-white p-8 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
-                <Quote className="absolute top-6 right-6 h-8 w-8 text-slate-100 pointer-events-none" />
-                <div className="space-y-4">
-                  <div className="flex gap-0.5 text-amber-500">
-                    {Array.from({ length: 5 }).map((_, idx) => (
-                      <Star
-                        key={idx}
-                        className={`h-4 w-4 ${idx < tItem.rating ? "fill-current" : "text-slate-200"}`}
-                      />
-                    ))}
-                  </div>
-                  <p className="text-slate-600 text-sm leading-relaxed italic">
-                    "{localizedContent}"
-                  </p>
-                </div>
-                <div className="flex items-center gap-3 pt-6 mt-6 border-t border-slate-100">
-                  <div className="h-10 w-10 rounded-full bg-emerald-50 border border-border overflow-hidden flex items-center justify-center shrink-0">
-                    {tItem.avatar_url ? (
-                      <img src={tItem.avatar_url} alt={tItem.name} className="h-full w-full object-cover" />
-                    ) : (
-                      <MessageSquare className="h-4 w-4 text-emerald-600" />
-                    )}
-                  </div>
-                  <div>
-                    <div className="font-bold text-slate-800 text-xs">{tItem.name}</div>
-                    {localizedRegion && <div className="text-[10px] text-slate-400 font-semibold mt-0.5">{localizedRegion}</div>}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        <TestimonialsSlider testimonials={displayTestimonials} lang={lang} layout="grid" />
       </section>
 
       {/* Call to action card */}
@@ -1270,43 +1198,7 @@ function renderEditorialLayout(lang: LanguageCode, settings: any, phone: string,
           <p className="text-slate-500 text-sm">{t.testimonialSubtitle}</p>
         </div>
 
-        <div className="space-y-8">
-          {displayTestimonials.map((tItem) => {
-            const localizedContent = getLocalizedValue(tItem, "content", lang);
-            const localizedRegion = getLocalizedValue(tItem, "region", lang);
-            return (
-              <div key={tItem.id} className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center bg-white p-8 rounded-3xl border border-border shadow-sm">
-                <div className="md:col-span-3 flex flex-col items-center text-center space-y-3">
-                  <div className="h-16 w-16 rounded-full bg-emerald-50 border border-border overflow-hidden flex items-center justify-center shrink-0">
-                    {tItem.avatar_url ? (
-                      <img src={tItem.avatar_url} alt={tItem.name} className="h-full w-full object-cover" />
-                    ) : (
-                      <MessageSquare className="h-6 w-6 text-primary" />
-                    )}
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-slate-800 text-sm">{tItem.name}</h4>
-                    {localizedRegion && <p className="text-[10px] text-slate-400 font-semibold mt-0.5">{localizedRegion}</p>}
-                  </div>
-                </div>
-                
-                <div className="md:col-span-9 space-y-4 md:border-l md:border-slate-100 md:pl-8">
-                  <div className="flex gap-0.5 text-amber-500">
-                    {Array.from({ length: 5 }).map((_, idx) => (
-                      <Star
-                        key={idx}
-                        className={`h-4 w-4 ${idx < tItem.rating ? "fill-current" : "text-slate-200"}`}
-                      />
-                    ))}
-                  </div>
-                  <p className="text-slate-600 text-sm italic leading-relaxed font-serif">
-                    "{localizedContent}"
-                  </p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        <TestimonialsSlider testimonials={displayTestimonials} lang={lang} layout="editorial" />
       </section>
 
       {/* Editorial footer CTA card */}
