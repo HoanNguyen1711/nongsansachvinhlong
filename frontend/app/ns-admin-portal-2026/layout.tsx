@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { api, getAuthToken, logoutAdmin } from "@/lib/api";
-import { LayoutDashboard, ShoppingBag, BookOpen, LogOut, Home, Leaf, ShieldAlert, Tag, Settings, Users, Key, MessageSquare } from "lucide-react";
+import { LayoutDashboard, ShoppingBag, BookOpen, LogOut, Home, Leaf, ShieldAlert, Tag, Settings, Users, Key, MessageSquare, BarChart3 } from "lucide-react";
 
 interface UserProfile {
   id: number;
@@ -58,6 +58,7 @@ export default function AdminLayout({
 
   const menuItems = [
     { name: "Tổng quan", path: "/ns-admin-portal-2026", icon: LayoutDashboard },
+    { name: "Thống kê truy cập", path: "/ns-admin-portal-2026/analytics", icon: BarChart3 },
     { name: "Quản lý sản phẩm", path: "/ns-admin-portal-2026/products", icon: ShoppingBag },
     { name: "Danh mục sản phẩm", path: "/ns-admin-portal-2026/categories", icon: Tag },
     { name: "Quản lý bài viết", path: "/ns-admin-portal-2026/blogs", icon: BookOpen },

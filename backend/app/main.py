@@ -6,7 +6,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.core.config import settings
 from app.core.database import init_db
-from app.routers import auth, products, blogs, uploads, categories, blog_categories, users, testimonials
+from app.routers import auth, products, blogs, uploads, categories, blog_categories, users, testimonials, analytics
 from app.routers.settings import router as settings_router
 
 @asynccontextmanager
@@ -49,6 +49,7 @@ app.include_router(uploads.router, prefix=settings.API_V1_STR)
 app.include_router(settings_router, prefix=settings.API_V1_STR)
 app.include_router(users.router, prefix=settings.API_V1_STR)
 app.include_router(testimonials.router, prefix=settings.API_V1_STR)
+app.include_router(analytics.router, prefix=settings.API_V1_STR)
 
 # Mount directory to serve uploaded static files/images
 # Example: http://localhost:8000/static/uploads/img_name.webp
