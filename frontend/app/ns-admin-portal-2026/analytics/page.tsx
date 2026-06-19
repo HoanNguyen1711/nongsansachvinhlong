@@ -39,6 +39,32 @@ interface AnalyticsData {
   countries: CountryStat[];
 }
 
+const getDeviceColor = (device: string) => {
+  switch (device.toLowerCase()) {
+    case "mobile":
+      return "#10b981";
+    case "desktop":
+      return "#60a5fa";
+    case "tablet":
+      return "#fbbf24";
+    default:
+      return "#a855f7";
+  }
+};
+
+const getDeviceBgClass = (device: string) => {
+  switch (device.toLowerCase()) {
+    case "mobile":
+      return "bg-emerald-500";
+    case "desktop":
+      return "bg-blue-400";
+    case "tablet":
+      return "bg-amber-400";
+    default:
+      return "bg-purple-500";
+  }
+};
+
 export default function AdminAnalyticsPage() {
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -465,11 +491,7 @@ CLOUDFLARE_API_TOKEN=your_cloudflare_api_token_here`}
               {data.devices.map((d, idx) => (
                 <div key={idx} className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2">
-                    <span className={`h-2.5 w-2.5 rounded-full ${
-                      d.device === "Mobile" ? "bg-emerald-500" :
-                      d.device === "Desktop" ? "bg-blue-400" :
-                      "bg-amber-400"
-                    }`}></span>
+                    <span className={`h-2.5 w-2.5 rounded-full ${getDeviceBgClass(d.device)}`}></span>
                     <span className="font-bold text-slate-600">{d.device}</span>
                   </div>
                   <span className="font-bold text-slate-500">{d.percentage}%</span>
@@ -480,13 +502,30 @@ CLOUDFLARE_API_TOKEN=your_cloudflare_api_token_here`}
                 <div className="relative h-24 w-24 flex items-center justify-center">
                   {/* Simulated Donut Chart using SVG */}
                   <svg viewBox="0 0 36 36" className="h-full w-full transform -rotate-90">
-                    <circle cx="18" cy="18" r="15.91" fill="none" stroke="#e2e8f0" strokeWidth="3" />
-                    {/* Mobile: 60% */}
-                    <circle cx="18" cy="18" r="15.91" fill="none" stroke="#10b981" strokeWidth="3" strokeDasharray="60 40" strokeDashoffset="0" />
-                    {/* Desktop: 35% */}
-                    <circle cx="18" cy="18" r="15.91" fill="none" stroke="#60a5fa" strokeWidth="3" strokeDasharray="35 65" strokeDashoffset="-60" />
-                    {/* Tablet: 5% */}
-                    <circle cx="18" cy="18" r="15.91" fill="none" stroke="#fbbf24" strokeWidth="3" strokeDasharray="5 95" strokeDashoffset="-95" />
+                    <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#e2e8f0" strokeWidth="3" />
+                    {(() => {
+                      let accumulatedPercentage = 0;
+                      return data.devices.map((d, idx) => {
+                        const pct = d.percentage;
+                        const dashArray = `${pct} ${100 - pct}`;
+                        const dashOffset = -accumulatedPercentage;
+                        accumulatedPercentage += pct;
+                        const color = getDeviceColor(d.device);
+                        return (
+                          <circle
+                            key={idx}
+                            cx="18"
+                            cy="18"
+                            r="15.9155"
+                            fill="none"
+                            stroke={color}
+                            strokeWidth="3"
+                            strokeDasharray={dashArray}
+                            strokeDashoffset={dashOffset}
+                          />
+                        );
+                      });
+                    })()}
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
                     <span className="text-[10px] text-slate-400 font-bold uppercase">Mobile</span>
