@@ -55,8 +55,8 @@ export default function TestimonialsSlider({ testimonials, lang, layout }: Testi
     if (layout === "grid") {
       return (
         <div
-          key={tItem.id}
-          className="relative rounded-3xl border border-border bg-white p-8 shadow-sm flex flex-col justify-between hover:shadow-md transition-all duration-300"
+          key={`${tItem.id}-${startIndex}`}
+          className="relative rounded-3xl border border-border bg-white p-8 shadow-sm flex flex-col justify-between hover:shadow-md transition-all duration-300 min-h-[250px] sm:min-h-[290px] md:min-h-[310px] animate-testimonial opacity-0"
         >
           <Quote className="absolute top-6 right-6 h-8 w-8 text-slate-100 pointer-events-none" />
           <div className="space-y-4">
@@ -92,8 +92,8 @@ export default function TestimonialsSlider({ testimonials, lang, layout }: Testi
     if (layout === "editorial") {
       return (
         <div
-          key={tItem.id}
-          className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center bg-white p-8 rounded-3xl border border-border shadow-sm hover:shadow-md transition-shadow duration-300 w-full"
+          key={`${tItem.id}-${startIndex}`}
+          className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center bg-white p-8 rounded-3xl border border-border shadow-sm hover:shadow-md transition-shadow duration-300 w-full min-h-[160px] sm:min-h-[180px] animate-testimonial opacity-0"
         >
           <div className="md:col-span-3 flex flex-col items-center text-center space-y-3">
             <div className="h-16 w-16 rounded-full bg-emerald-50 border border-border overflow-hidden flex items-center justify-center shrink-0">
@@ -129,8 +129,8 @@ export default function TestimonialsSlider({ testimonials, lang, layout }: Testi
     // Default Layout Card
     return (
       <div
-        key={tItem.id}
-        className="rounded-3xl border border-border bg-white p-6 space-y-4 flex flex-col justify-between hover:shadow-md transition-shadow duration-300"
+        key={`${tItem.id}-${startIndex}`}
+        className="rounded-3xl border border-border bg-white p-6 space-y-4 flex flex-col justify-between hover:shadow-md transition-shadow duration-300 min-h-[200px] sm:min-h-[240px] md:min-h-[260px] animate-testimonial opacity-0"
       >
         <div className="space-y-4">
           <div className="flex items-center gap-3">
@@ -166,6 +166,17 @@ export default function TestimonialsSlider({ testimonials, lang, layout }: Testi
 
   return (
     <div className="relative group w-full px-1">
+      {/* CSS Animation Injector */}
+      <style>{`
+        @keyframes testimonialFade {
+          0% { opacity: 0; transform: scale(0.98) translateY(6px); }
+          100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .animate-testimonial {
+          animation: testimonialFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+      `}</style>
+
       {/* Testimonials Display Grid */}
       <div
         className={
