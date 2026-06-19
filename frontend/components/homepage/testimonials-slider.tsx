@@ -198,22 +198,6 @@ export default function TestimonialsSlider({ testimonials, lang, layout }: Testi
           </button>
         </>
       )}
-
-      {/* Dots Indicator */}
-      {showNavigation && (
-        <div className="flex justify-center gap-1.5 pt-6">
-          {testimonials.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setStartIndex(index)}
-              className={`h-2 rounded-full transition-all duration-300 ${
-                startIndex === index ? "w-6 bg-primary" : "w-2 bg-slate-200 hover:bg-slate-300"
-              }`}
-              aria-label={`Go to slide ${index + 1}`}
-            />
-          ))}
-        </div>
-      )}
     </div>
   );
 }
