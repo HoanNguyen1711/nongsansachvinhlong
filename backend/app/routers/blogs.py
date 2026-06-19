@@ -13,16 +13,32 @@ router = APIRouter(prefix="/blogs", tags=["blogs"])
 def read_blogs(
     db: Annotated[Session, Depends(get_db)],
     only_published: bool = True,
+    category: Optional[str] = Query(None),
     offset: int = 0,
     limit: int = 100
 ):
     statement = select(Blog)
     if only_published:
         statement = statement.where(Blog.is_published == True)
+    if category:
+        statement = statement.where(Blog.category == category)
         
     statement = statement.offset(offset).limit(limit).order_by(Blog.created_at.desc())
     blogs = db.exec(statement).all()
     return blogs
+
+@router.get("/categories")
+def read_blog_categories(db: Annotated[Session, Depends(get_db)]):
+    statement = select(Blog.category, Blog.category_en, Blog.category_zh).where(Blog.is_published == True).distinct()
+    results = db.exec(statement).all()
+    return [
+        {
+            "category": r[0],
+            "category_en": r[1] or r[0],
+            "category_zh": r[2] or r[0]
+        }
+        for r in results if r[0]
+    ]
 
 @router.get("/{slug}", response_model=BlogPublic)
 def read_blog_by_slug(slug: str, db: Annotated[Session, Depends(get_db)]):

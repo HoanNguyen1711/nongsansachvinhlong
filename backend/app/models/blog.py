@@ -19,6 +19,9 @@ class BlogBase(SQLModel):
     tag_en: Optional[str] = Field(default=None)
     tag_zh: Optional[str] = Field(default=None)
     tag_color: Optional[str] = Field(default="emerald")
+    category: Optional[str] = Field(default=None)
+    category_en: Optional[str] = Field(default=None)
+    category_zh: Optional[str] = Field(default=None)
 
 class Blog(BlogBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -45,6 +48,9 @@ class BlogUpdate(SQLModel):
     tag_en: Optional[str] = None
     tag_zh: Optional[str] = None
     tag_color: Optional[str] = None
+    category: Optional[str] = None
+    category_en: Optional[str] = None
+    category_zh: Optional[str] = None
 
 class BlogPublic(BlogBase):
     id: int

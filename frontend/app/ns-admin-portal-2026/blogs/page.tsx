@@ -34,6 +34,9 @@ interface Blog {
   tag_en?: string | null;
   tag_zh?: string | null;
   tag_color?: string | null;
+  category?: string | null;
+  category_en?: string | null;
+  category_zh?: string | null;
 }
 
 export default function AdminBlogsPage() {
@@ -62,6 +65,9 @@ export default function AdminBlogsPage() {
   const [tagEn, setTagEn] = useState("");
   const [tagZh, setTagZh] = useState("");
   const [tagColor, setTagColor] = useState("emerald");
+  const [category, setCategory] = useState("");
+  const [categoryEn, setCategoryEn] = useState("");
+  const [categoryZh, setCategoryZh] = useState("");
 
   const [uploadingImage, setUploadingImage] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
@@ -171,6 +177,9 @@ export default function AdminBlogsPage() {
     setTagEn("");
     setTagZh("");
     setTagColor("emerald");
+    setCategory("");
+    setCategoryEn("");
+    setCategoryZh("");
     setFormError(null);
     setActiveTab("vi");
     setIsModalOpen(true);
@@ -194,6 +203,9 @@ export default function AdminBlogsPage() {
     setTagEn(blog.tag_en || "");
     setTagZh(blog.tag_zh || "");
     setTagColor(blog.tag_color || "emerald");
+    setCategory(blog.category || "");
+    setCategoryEn(blog.category_en || "");
+    setCategoryZh(blog.category_zh || "");
     setFormError(null);
     setActiveTab("vi");
     setIsModalOpen(true);
@@ -246,6 +258,9 @@ export default function AdminBlogsPage() {
       tag_en: tagEn || null,
       tag_zh: tagZh || null,
       tag_color: tagColor || "emerald",
+      category: category || null,
+      category_en: categoryEn || null,
+      category_zh: categoryZh || null,
     };
 
     try {
@@ -331,6 +346,21 @@ export default function AdminBlogsPage() {
                           
                           {/* Tags Display */}
                           <div className="flex flex-wrap gap-1.5 mt-1.5">
+                            {blog.category && (
+                              <span className="bg-slate-100 text-slate-800 border border-slate-200 rounded-full px-2 py-0.5 text-[9px] font-semibold">
+                                Chuyên mục: {blog.category}
+                              </span>
+                            )}
+                            {blog.category_en && (
+                              <span className="bg-slate-100 text-slate-600 border border-slate-200 rounded-full px-2 py-0.5 text-[9px]">
+                                CM EN: {blog.category_en}
+                              </span>
+                            )}
+                            {blog.category_zh && (
+                              <span className="bg-slate-100 text-slate-600 border border-slate-200 rounded-full px-2 py-0.5 text-[9px]">
+                                CM ZH: {blog.category_zh}
+                              </span>
+                            )}
                             {blog.tag && (
                               <span className={`border rounded-full px-2 py-0.5 text-[9px] font-semibold ${
                                 blog.tag_color === "blue" ? "bg-blue-50 text-blue-700 border-blue-100" :
@@ -486,15 +516,27 @@ export default function AdminBlogsPage() {
                     </div>
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-700">Nhãn / Tag bài viết (Ví dụ: Kinh nghiệm làm nông)</label>
-                    <input
-                      type="text"
-                      value={tag}
-                      onChange={(e) => setTag(e.target.value)}
-                      placeholder="Ví dụ: Kinh nghiệm làm nông"
-                      className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none"
-                    />
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Chuyên mục bài viết (Ví dụ: Câu chuyện nhà nông)</label>
+                      <input
+                        type="text"
+                        value={category}
+                        onChange={(e) => setCategory(e.target.value)}
+                        placeholder="Ví dụ: Câu chuyện nhà nông"
+                        className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Nhãn / Tag bài viết (Ví dụ: Kinh nghiệm làm nông)</label>
+                      <input
+                        type="text"
+                        value={tag}
+                        onChange={(e) => setTag(e.target.value)}
+                        placeholder="Ví dụ: Kinh nghiệm làm nông"
+                        className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none"
+                      />
+                    </div>
                   </div>
 
                   <div className="space-y-1">
@@ -538,15 +580,27 @@ export default function AdminBlogsPage() {
                     />
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-700">Nhãn / Tag bài viết (Tiếng Anh)</label>
-                    <input
-                      type="text"
-                      value={tagEn}
-                      onChange={(e) => setTagEn(e.target.value)}
-                      placeholder="e.g. Farmer's Experience"
-                      className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none"
-                    />
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Chuyên mục bài viết (Tiếng Anh)</label>
+                      <input
+                        type="text"
+                        value={categoryEn}
+                        onChange={(e) => setCategoryEn(e.target.value)}
+                        placeholder="e.g. Farmer Stories"
+                        className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Nhãn / Tag bài viết (Tiếng Anh)</label>
+                      <input
+                        type="text"
+                        value={tagEn}
+                        onChange={(e) => setTagEn(e.target.value)}
+                        placeholder="e.g. Farmer's Experience"
+                        className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none"
+                      />
+                    </div>
                   </div>
 
                   <div className="space-y-1">
@@ -589,15 +643,27 @@ export default function AdminBlogsPage() {
                     />
                   </div>
 
-                  <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-700">Nhãn / Tag bài viết (Tiếng Trung)</label>
-                    <input
-                      type="text"
-                      value={tagZh}
-                      onChange={(e) => setTagZh(e.target.value)}
-                      placeholder="例如：农人经验"
-                      className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none"
-                    />
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Chuyên mục bài viết (Tiếng Trung)</label>
+                      <input
+                        type="text"
+                        value={categoryZh}
+                        onChange={(e) => setCategoryZh(e.target.value)}
+                        placeholder="例如：农人故事"
+                        className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-bold text-slate-700">Nhãn / Tag bài viết (Tiếng Trung)</label>
+                      <input
+                        type="text"
+                        value={tagZh}
+                        onChange={(e) => setTagZh(e.target.value)}
+                        placeholder="例如：农人经验"
+                        className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none"
+                      />
+                    </div>
                   </div>
 
                   <div className="space-y-1">

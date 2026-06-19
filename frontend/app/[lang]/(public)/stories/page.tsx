@@ -1,7 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { cookies } from "next/headers";
-import { ArrowRight, BookOpen } from "lucide-react";
+import { ArrowRight, BookOpen, X } from "lucide-react";
 import { getTranslation, getLocalizedValue, getLocalizedHref, LanguageCode } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
@@ -21,17 +20,43 @@ interface Blog {
   tag_en?: string | null;
   tag_zh?: string | null;
   tag_color?: string | null;
+  category?: string | null;
+  category_en?: string | null;
+  category_zh?: string | null;
 }
 
-async function getBlogs(): Promise<Blog[]> {
+interface CategoryItem {
+  category: string;
+  category_en: string;
+  category_zh: string;
+}
+
+async function getBlogs(category?: string): Promise<Blog[]> {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://backend:8000";
   try {
-    const res = await fetch(`${apiUrl}/api/blogs`, { next: { revalidate: 30 } });
+    const url = new URL(`${apiUrl}/api/blogs`);
+    if (category) {
+      url.searchParams.append("category", category);
+    }
+    const res = await fetch(url.toString(), { next: { revalidate: 30 } });
     if (res.ok) {
       return await res.json();
     }
   } catch (error) {
     console.error("Error fetching blogs:", error);
+  }
+  return [];
+}
+
+async function getCategories(): Promise<CategoryItem[]> {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://backend:8000";
+  try {
+    const res = await fetch(`${apiUrl}/api/blogs/categories/`, { next: { revalidate: 30 } });
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (error) {
+    console.error("Error fetching categories:", error);
   }
   return [];
 }
@@ -48,6 +73,9 @@ const MOCKUP_BLOGS: Blog[] = [
     summary_zh: "牛油果营养丰富，但很容易买到水汪汪或发苦的果实。探索得乐省果农分享的5个黄金秘诀，帮助您挑选出最完美的牛油果。",
     created_at: "2024-05-20T10:00:00Z",
     image_url: null,
+    category: "Cẩm nang ẩm thực",
+    category_en: "Food Guide",
+    category_zh: "美食指南",
   },
   {
     id: 2,
@@ -60,6 +88,9 @@ const MOCKUP_BLOGS: Blog[] = [
     summary_zh: "香脆、营养丰富的夏威夷果背后，是一套严格的种植和加工流程：从施用有机肥，到自然风干以及确保食品安全的采收技术。",
     created_at: "2024-05-18T08:30:00Z",
     image_url: null,
+    category: "Kinh nghiệm nhà nông",
+    category_en: "Farmer experience",
+    category_zh: "农人经验",
   },
   {
     id: 3,
@@ -72,19 +103,47 @@ const MOCKUP_BLOGS: Blog[] = [
     summary_zh: "夏威夷果被誉为干果皇后。与“Nông Sản Sạch”一起探索每天食用夏威夷果对心脏健康、大脑功能和美容护肤带来的惊喜益处。",
     created_at: "2024-05-15T14:00:00Z",
     image_url: null,
+    category: "Kinh nghiệm nhà nông",
+    category_en: "Farmer experience",
+    category_zh: "农人经验",
   }
 ];
 
 interface PageProps {
   params: Promise<{ lang: string }>;
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-export default async function BlogsPage({ params }: PageProps) {
+export default async function BlogsPage({ params, searchParams }: PageProps) {
   const resolvedParams = await params;
+  const resolvedSearchParams = await searchParams;
   const lang = (resolvedParams.lang || "vi") as LanguageCode;
+  const category = typeof resolvedSearchParams.category === "string" ? resolvedSearchParams.category : undefined;
 
-  const apiBlogs = await getBlogs();
-  const displayBlogs = apiBlogs.length > 0 ? apiBlogs : MOCKUP_BLOGS;
+  const apiBlogs = await getBlogs(category);
+  const categoriesList = await getCategories();
+
+  // Filter mockup blogs if api returned empty (useful in local dev without db values)
+  let displayBlogs = apiBlogs;
+  if (apiBlogs.length === 0) {
+    if (!category) {
+      displayBlogs = MOCKUP_BLOGS;
+    } else {
+      displayBlogs = MOCKUP_BLOGS.filter(b => b.category === category);
+    }
+  }
+
+  // Find localized name for the category to show in the header card
+  let localizedCategoryName = category;
+  if (category) {
+    const match = categoriesList.find(c => c.category === category) || 
+                  MOCKUP_BLOGS.find(b => b.category === category);
+    if (match) {
+      if (lang === "en") localizedCategoryName = match.category_en || match.category || category;
+      else if (lang === "zh") localizedCategoryName = match.category_zh || match.category || category;
+      else localizedCategoryName = match.category || category;
+    }
+  }
 
   const t = getTranslation(lang);
 
@@ -140,6 +199,32 @@ export default async function BlogsPage({ params }: PageProps) {
           </p>
         </div>
       </div>
+
+      {/* Category Filter Header Card */}
+      {category && (
+        <div className="flex items-center justify-between rounded-3xl bg-emerald-50/50 border border-emerald-100/50 p-5">
+          <div className="flex items-center gap-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-600/10 text-emerald-700">
+              <BookOpen className="h-6 w-6" />
+            </div>
+            <div>
+              <p className="text-[10px] sm:text-xs uppercase tracking-wider font-extrabold text-emerald-600">
+                {lang === "vi" ? "Chuyên mục" : lang === "en" ? "Category" : "专题"}
+              </p>
+              <h2 className="text-base sm:text-lg font-black text-emerald-950">
+                {localizedCategoryName}
+              </h2>
+            </div>
+          </div>
+          <Link
+            href={getLocalizedHref("/stories", lang)}
+            className="flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-900 border border-slate-200 transition-colors shadow-sm"
+          >
+            <span>{lang === "vi" ? "Xóa bộ lọc" : lang === "en" ? "Clear Filter" : "清除筛选"}</span>
+            <X className="h-4 w-4" />
+          </Link>
+        </div>
+      )}
 
       {/* Blogs Grid */}
       {displayBlogs.length > 0 ? (
@@ -209,7 +294,7 @@ export default async function BlogsPage({ params }: PageProps) {
       ) : (
         <div className="text-center py-20 border border-dashed border-border rounded-3xl bg-slate-50/50">
           <p className="text-slate-500 text-sm">
-            {lang === "vi" ? "Chưa có bài viết nào được đăng tải." : lang === "en" ? "No posts have been published yet." : "尚未发布任何文章。"}
+            {lang === "vi" ? "Chưa có bài viết nào được đăng tải trong chuyên mục này." : lang === "en" ? "No posts have been published yet in this category." : "此专题下尚未发布任何文章。"}
           </p>
         </div>
       )}
