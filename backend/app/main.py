@@ -6,7 +6,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.core.config import settings
 from app.core.database import init_db
-from app.routers import auth, products, blogs, uploads, categories, users, testimonials
+from app.routers import auth, products, blogs, uploads, categories, blog_categories, users, testimonials
 from app.routers.settings import router as settings_router
 
 @asynccontextmanager
@@ -43,6 +43,7 @@ app.add_middleware(
 app.include_router(auth.router, prefix=settings.API_V1_STR)
 app.include_router(products.router, prefix=settings.API_V1_STR)
 app.include_router(categories.router, prefix=settings.API_V1_STR)
+app.include_router(blog_categories.router, prefix=settings.API_V1_STR)
 app.include_router(blogs.router, prefix=settings.API_V1_STR)
 app.include_router(uploads.router, prefix=settings.API_V1_STR)
 app.include_router(settings_router, prefix=settings.API_V1_STR)

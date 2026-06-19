@@ -69,6 +69,17 @@ export default function AdminBlogsPage() {
   const [categoryEn, setCategoryEn] = useState("");
   const [categoryZh, setCategoryZh] = useState("");
 
+  interface BlogCategory {
+    id: number;
+    name: string;
+    name_en?: string;
+    name_zh?: string;
+    slug: string;
+  }
+
+  const [blogCategories, setBlogCategories] = useState<BlogCategory[]>([]);
+  const [selectedFilterCategory, setSelectedFilterCategory] = useState("");
+
   const [uploadingImage, setUploadingImage] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"vi" | "en" | "zh">("vi");
@@ -155,9 +166,24 @@ export default function AdminBlogsPage() {
     }
   };
 
+  const fetchBlogCategories = async () => {
+    try {
+      const data = await api.get("/blog-categories");
+      setBlogCategories(data);
+    } catch (err) {
+      console.error("Failed to load blog categories", err);
+    }
+  };
+
   useEffect(() => {
     fetchBlogs();
+    fetchBlogCategories();
   }, []);
+
+  const filteredBlogs = useMemo(() => {
+    if (!selectedFilterCategory) return blogs;
+    return blogs.filter((b) => b.category === selectedFilterCategory);
+  }, [blogs, selectedFilterCategory]);
 
   const openAddModal = () => {
     setEditingBlog(null);
@@ -294,6 +320,28 @@ export default function AdminBlogsPage() {
         </button>
       </div>
 
+      {/* Filters Toolbar */}
+      <div className="flex flex-wrap gap-4 items-center justify-between bg-white border border-border rounded-3xl p-4 shadow-sm">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-bold text-slate-500">Lọc theo chuyên mục:</span>
+          <select
+            value={selectedFilterCategory}
+            onChange={(e) => setSelectedFilterCategory(e.target.value)}
+            className="rounded-2xl border border-border bg-slate-50 px-4 py-2 text-xs focus:border-primary focus:bg-white focus:outline-none min-w-[200px]"
+          >
+            <option value="">Tất cả chuyên mục</option>
+            {blogCategories.map((c) => (
+              <option key={c.id} value={c.name}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="text-xs text-slate-400 font-semibold">
+          Hiển thị: {filteredBlogs.length} / {blogs.length} bài viết
+        </div>
+      </div>
+
       {error && (
         <div className="flex items-center gap-2 rounded-2xl bg-red-50 p-4 text-xs text-red-700 border border-red-100">
           <AlertCircle className="h-5 w-5 shrink-0" />
@@ -321,8 +369,8 @@ export default function AdminBlogsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-700">
-                {blogs.length > 0 ? (
-                  blogs.map((blog) => (
+                {filteredBlogs.length > 0 ? (
+                  filteredBlogs.map((blog) => (
                     <tr key={blog.id} className="hover:bg-slate-50/50 transition-colors">
                       <td className="px-6 py-4 shrink-0">
                         <div className="h-12 w-20 rounded-xl bg-slate-100 overflow-hidden border border-border flex items-center justify-center text-[10px] text-slate-400">
@@ -421,7 +469,7 @@ export default function AdminBlogsPage() {
                 ) : (
                   <tr>
                     <td colSpan={5} className="text-center py-10 text-slate-400">
-                      Chưa có bài viết nào. Hãy bấm "Thêm bài viết" để bắt đầu.
+                      Không tìm thấy bài viết nào phù hợp.
                     </td>
                   </tr>
                 )}
@@ -516,27 +564,15 @@ export default function AdminBlogsPage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-700">Chuyên mục bài viết (Ví dụ: Câu chuyện nhà nông)</label>
-                      <input
-                        type="text"
-                        value={category}
-                        onChange={(e) => setCategory(e.target.value)}
-                        placeholder="Ví dụ: Câu chuyện nhà nông"
-                        className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-700">Nhãn / Tag bài viết (Ví dụ: Kinh nghiệm làm nông)</label>
-                      <input
-                        type="text"
-                        value={tag}
-                        onChange={(e) => setTag(e.target.value)}
-                        placeholder="Ví dụ: Kinh nghiệm làm nông"
-                        className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none"
-                      />
-                    </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-700">Nhãn / Tag bài viết (Ví dụ: Kinh nghiệm làm nông)</label>
+                    <input
+                      type="text"
+                      value={tag}
+                      onChange={(e) => setTag(e.target.value)}
+                      placeholder="Ví dụ: Kinh nghiệm làm nông"
+                      className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none"
+                    />
                   </div>
 
                   <div className="space-y-1">
@@ -580,27 +616,15 @@ export default function AdminBlogsPage() {
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-700">Chuyên mục bài viết (Tiếng Anh)</label>
-                      <input
-                        type="text"
-                        value={categoryEn}
-                        onChange={(e) => setCategoryEn(e.target.value)}
-                        placeholder="e.g. Farmer Stories"
-                        className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-700">Nhãn / Tag bài viết (Tiếng Anh)</label>
-                      <input
-                        type="text"
-                        value={tagEn}
-                        onChange={(e) => setTagEn(e.target.value)}
-                        placeholder="e.g. Farmer's Experience"
-                        className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none"
-                      />
-                    </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-700">Nhãn / Tag bài viết (Tiếng Anh)</label>
+                    <input
+                      type="text"
+                      value={tagEn}
+                      onChange={(e) => setTagEn(e.target.value)}
+                      placeholder="e.g. Farmer's Experience"
+                      className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none"
+                    />
                   </div>
 
                   <div className="space-y-1">
@@ -643,27 +667,15 @@ export default function AdminBlogsPage() {
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-700">Chuyên mục bài viết (Tiếng Trung)</label>
-                      <input
-                        type="text"
-                        value={categoryZh}
-                        onChange={(e) => setCategoryZh(e.target.value)}
-                        placeholder="例如：农人故事"
-                        className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-xs font-bold text-slate-700">Nhãn / Tag bài viết (Tiếng Trung)</label>
-                      <input
-                        type="text"
-                        value={tagZh}
-                        onChange={(e) => setTagZh(e.target.value)}
-                        placeholder="例如：农人经验"
-                        className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none"
-                      />
-                    </div>
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-700">Nhãn / Tag bài viết (Tiếng Trung)</label>
+                    <input
+                      type="text"
+                      value={tagZh}
+                      onChange={(e) => setTagZh(e.target.value)}
+                      placeholder="例如：农人经验"
+                      className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none"
+                    />
                   </div>
 
                   <div className="space-y-1">
@@ -691,6 +703,35 @@ export default function AdminBlogsPage() {
                   </div>
                 </div>
               )}
+
+              {/* Blog Category Selection (Common) */}
+              <div className="space-y-1 pt-2">
+                <label className="text-xs font-bold text-slate-700">Chuyên mục bài viết</label>
+                <select
+                  value={category}
+                  onChange={(e) => {
+                    const selectedVal = e.target.value;
+                    setCategory(selectedVal);
+                    // Find matching category to auto-fill translated values
+                    const catObj = blogCategories.find(c => c.name === selectedVal);
+                    if (catObj) {
+                      setCategoryEn(catObj.name_en || "");
+                      setCategoryZh(catObj.name_zh || "");
+                    } else {
+                      setCategoryEn("");
+                      setCategoryZh("");
+                    }
+                  }}
+                  className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none"
+                >
+                  <option value="">-- Không có chuyên mục --</option>
+                  {blogCategories.map((c) => (
+                    <option key={c.id} value={c.name}>
+                      {c.name} {c.name_en ? `(${c.name_en})` : ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
               {/* Image Upload Area (Common) */}
               <div className="space-y-2 pt-2">

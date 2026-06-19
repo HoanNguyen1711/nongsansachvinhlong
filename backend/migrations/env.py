@@ -24,6 +24,7 @@ from app.core.config import settings
 from app.models.user import User
 from app.models.product import Product
 from app.models.blog import Blog
+from app.models.blog_category import BlogCategory
 from app.models.category import Category
 from app.models.setting import Setting
 from app.models.testimonial import Testimonial
