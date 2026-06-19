@@ -200,7 +200,7 @@ export default async function BlogsPage({ params, searchParams }: PageProps) {
         </div>
       </div>
 
-      {/* Category Filter Header Card */}
+      {/* Category Header Card */}
       {category && (
         <div className="flex items-center justify-between rounded-3xl bg-emerald-50/50 border border-emerald-100/50 p-5">
           <div className="flex items-center gap-4">
@@ -216,13 +216,6 @@ export default async function BlogsPage({ params, searchParams }: PageProps) {
               </h2>
             </div>
           </div>
-          <Link
-            href={getLocalizedHref("/stories", lang)}
-            className="flex items-center gap-1.5 rounded-full bg-white px-4 py-2 text-xs font-bold text-slate-600 hover:text-slate-900 border border-slate-200 transition-colors shadow-sm"
-          >
-            <span>{lang === "vi" ? "Xóa bộ lọc" : lang === "en" ? "Clear Filter" : "清除筛选"}</span>
-            <X className="h-4 w-4" />
-          </Link>
         </div>
       )}
 
