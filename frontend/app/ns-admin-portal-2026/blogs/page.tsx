@@ -43,6 +43,13 @@ export default function AdminBlogsPage() {
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [readonly, setReadonly] = useState(false);
+
+  useEffect(() => {
+    api.get("/auth/me")
+      .then((me) => setReadonly(me.readonly))
+      .catch((err) => console.error("Error fetching user role:", err));
+  }, []);
 
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -311,13 +318,15 @@ export default function AdminBlogsPage() {
           <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">Bài Viết</h1>
           <p className="text-xs text-slate-500 mt-1">Quản lý các câu chuyện nhà vườn và cẩm nang nông nghiệp.</p>
         </div>
-        <button
-          onClick={openAddModal}
-          className="flex items-center gap-1 rounded-full bg-primary px-5 py-3 text-xs font-bold text-primary-foreground shadow-sm hover:scale-105 active:scale-95 transition-transform"
-        >
-          <Plus className="h-4 w-4" />
-          <span>Thêm bài viết</span>
-        </button>
+        {!readonly && (
+          <button
+            onClick={openAddModal}
+            className="flex items-center gap-1 rounded-full bg-primary px-5 py-3 text-xs font-bold text-primary-foreground shadow-sm hover:scale-105 active:scale-95 transition-transform"
+          >
+            <Plus className="h-4 w-4" />
+            <span>Thêm bài viết</span>
+          </button>
+        )}
       </div>
 
       {/* Filters Toolbar */}
@@ -449,20 +458,26 @@ export default function AdminBlogsPage() {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right space-x-2">
-                        <button
-                          onClick={() => openEditModal(blog)}
-                          className="inline-flex rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-primary transition-colors"
-                          title="Sửa bài viết"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(blog.id)}
-                          className="inline-flex rounded-lg p-2 text-slate-500 hover:bg-red-50 hover:text-red-600 transition-colors"
-                          title="Xóa bài viết"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
+                        {!readonly ? (
+                          <>
+                            <button
+                              onClick={() => openEditModal(blog)}
+                              className="inline-flex rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-primary transition-colors"
+                              title="Sửa bài viết"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(blog.id)}
+                              className="inline-flex rounded-lg p-2 text-slate-500 hover:bg-red-50 hover:text-red-600 transition-colors"
+                              title="Xóa bài viết"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </>
+                        ) : (
+                          <span className="text-[10px] text-slate-400 font-medium">Chỉ xem</span>
+                        )}
                       </td>
                     </tr>
                   ))

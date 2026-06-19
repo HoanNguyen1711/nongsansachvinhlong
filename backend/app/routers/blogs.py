@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlmodel import Session, select
 from app.core.database import get_db
 from app.models.blog import Blog, BlogCreate, BlogUpdate, BlogPublic
-from app.routers.auth import get_current_user
+from app.routers.auth import get_current_user, require_role_write
 from app.models.user import User
 
 router = APIRouter(prefix="/blogs", tags=["blogs"])
@@ -54,7 +54,7 @@ def read_blog_by_slug(slug: str, db: Annotated[Session, Depends(get_db)]):
 @router.post("/", response_model=BlogPublic, status_code=status.HTTP_201_CREATED)
 def create_blog(
     blog_in: BlogCreate,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_role_write(["super_admin", "admin", "content_editor"]))],
     db: Annotated[Session, Depends(get_db)]
 ):
     # Check if slug exists
@@ -75,7 +75,7 @@ def create_blog(
 def update_blog(
     blog_id: int,
     blog_in: BlogUpdate,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_role_write(["super_admin", "admin", "content_editor"]))],
     db: Annotated[Session, Depends(get_db)]
 ):
     db_blog = db.get(Blog, blog_id)
@@ -108,7 +108,7 @@ def update_blog(
 @router.delete("/{blog_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_blog(
     blog_id: int,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_role_write(["super_admin", "admin", "content_editor"]))],
     db: Annotated[Session, Depends(get_db)]
 ):
     db_blog = db.get(Blog, blog_id)

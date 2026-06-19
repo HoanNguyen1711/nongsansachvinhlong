@@ -38,6 +38,31 @@ def get_current_user(
         raise HTTPException(status_code=400, detail="Tài khoản đã bị khóa")
     return user
 
+def require_role(allowed_roles: list[str]):
+    def dependency(current_user: Annotated[User, Depends(get_current_user)]):
+        if current_user.role not in allowed_roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Bạn không có quyền thực hiện chức năng này."
+            )
+        return current_user
+    return dependency
+
+def require_role_write(allowed_roles: list[str]):
+    def dependency(current_user: Annotated[User, Depends(get_current_user)]):
+        if current_user.role not in allowed_roles:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Bạn không có quyền thực hiện chức năng này."
+            )
+        if current_user.readonly:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Tài khoản ở chế độ chỉ đọc. Không thể thực hiện thao tác này."
+            )
+        return current_user
+    return dependency
+
 @router.post("/login")
 def login(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],

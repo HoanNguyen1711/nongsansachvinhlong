@@ -9,6 +9,8 @@ interface UserProfile {
   username: string;
   is_active: boolean;
   is_superuser: boolean;
+  role: string;
+  readonly: boolean;
 }
 
 export default function AdminUsersPage() {
@@ -24,6 +26,8 @@ export default function AdminUsersPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [role, setRole] = useState("content_editor");
+  const [readonly, setReadonly] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -52,6 +56,8 @@ export default function AdminUsersPage() {
     setUsername("");
     setPassword("");
     setConfirmPassword("");
+    setRole("content_editor");
+    setReadonly(false);
     setFormError(null);
     setIsModalOpen(true);
   };
@@ -89,7 +95,7 @@ export default function AdminUsersPage() {
 
     setSubmitting(true);
     setFormError(null);
-    const payload = { username, password };
+    const payload = { username, password, role, readonly };
 
     try {
       const created = await api.post("/users", payload);
@@ -112,13 +118,15 @@ export default function AdminUsersPage() {
             Danh sách nhân viên quản lý website và phân quyền truy cập.
           </p>
         </div>
-        <button
-          onClick={openAddModal}
-          className="flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground shadow-sm hover:opacity-90 active:scale-95 transition-transform shrink-0"
-        >
-          <Plus className="h-4 w-4" />
-          <span>Thêm Nhân Viên</span>
-        </button>
+        {!currentUser?.readonly && (
+          <button
+            onClick={openAddModal}
+            className="flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground shadow-sm hover:opacity-90 active:scale-95 transition-transform shrink-0"
+          >
+            <Plus className="h-4 w-4" />
+            <span>Thêm Nhân Viên</span>
+          </button>
+        )}
       </div>
 
       {/* Error block */}
@@ -137,6 +145,7 @@ export default function AdminUsersPage() {
               <tr className="border-b border-border bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-400">
                 <th className="px-6 py-4">Tên đăng nhập</th>
                 <th className="px-6 py-4">Vai trò</th>
+                <th className="px-6 py-4">Chế độ</th>
                 <th className="px-6 py-4">Trạng thái</th>
                 <th className="px-6 py-4 text-right">Thao tác</th>
               </tr>
@@ -171,11 +180,22 @@ export default function AdminUsersPage() {
                     </td>
                     <td className="px-6 py-4">
                       <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold leading-5 ${
-                        userItem.is_superuser
-                          ? "bg-amber-100 text-amber-800"
-                          : "bg-emerald-100 text-emerald-800"
+                        userItem.role === "super_admin" ? "bg-amber-100 text-amber-800" :
+                        userItem.role === "admin" ? "bg-blue-100 text-blue-800" :
+                        userItem.role === "product_manager" ? "bg-emerald-100 text-emerald-800" :
+                        "bg-slate-100 text-slate-800"
                       }`}>
-                        {userItem.is_superuser ? "Quản trị viên" : "Nhân viên"}
+                        {userItem.role === "super_admin" ? "Quản trị tối cao" :
+                         userItem.role === "admin" ? "Quản trị viên" :
+                         userItem.role === "product_manager" ? "Quản lý sản phẩm" :
+                         "Biên tập viên"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-bold leading-5 ${
+                        userItem.readonly ? "bg-purple-100 text-purple-800" : "bg-green-100 text-green-800"
+                      }`}>
+                        {userItem.readonly ? "Chỉ xem (Read-only)" : "Đọc & Ghi"}
                       </span>
                     </td>
                     <td className="px-6 py-4">
@@ -189,7 +209,7 @@ export default function AdminUsersPage() {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        {userItem.id !== currentUser?.id && (
+                        {userItem.id !== currentUser?.id && !currentUser?.readonly && (
                           <button
                             onClick={() => handleDelete(userItem)}
                             className="rounded-lg p-1.5 text-red-500 hover:bg-red-50 transition-colors"
@@ -273,12 +293,32 @@ export default function AdminUsersPage() {
                 />
               </div>
 
-              <div className="rounded-2xl bg-slate-50 p-4 border border-slate-100 space-y-1">
-                <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Phân quyền mặc định</p>
-                <p className="text-xs text-slate-600 font-semibold">Vai trò: Nhân viên quản lý</p>
-                <p className="text-[10px] text-slate-400">
-                  Tài khoản nhân viên có đầy đủ quyền quản lý nội dung (sản phẩm, danh mục, bài viết, cấu hình) nhưng không thể quản lý tài khoản nhân viên khác.
-                </p>
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700">Vai trò *</label>
+                <select
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                  className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none"
+                  required
+                >
+                  <option value="admin">Quản trị viên (Admin)</option>
+                  <option value="product_manager">Quản lý sản phẩm</option>
+                  <option value="content_editor">Biên tập viên nội dung</option>
+                  <option value="super_admin">Quản trị tối cao (Super Admin)</option>
+                </select>
+              </div>
+
+              <div className="flex items-center gap-2 py-2">
+                <input
+                  type="checkbox"
+                  id="readonly-checkbox"
+                  checked={readonly}
+                  onChange={(e) => setReadonly(e.target.checked)}
+                  className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
+                />
+                <label htmlFor="readonly-checkbox" className="text-xs font-bold text-slate-700 select-none cursor-pointer">
+                  Chỉ xem (Read-only) - Không được phép Sửa/Thêm/Xóa
+                </label>
               </div>
 
               <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 mt-6">

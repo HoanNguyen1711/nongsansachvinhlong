@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends
 from sqlmodel import Session
 from app.core.database import get_db
 from app.core.config import settings
-from app.routers.auth import get_current_user
+from app.routers.auth import get_current_user, require_role
 from app.models.user import User
 
 router = APIRouter(prefix="/analytics", tags=["analytics"])
@@ -31,7 +31,7 @@ def query_cloudflare(query: str, variables: dict, token: str) -> dict:
 
 @router.get("/")
 def get_analytics(
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_role(["super_admin", "admin"]))],
     db: Annotated[Session, Depends(get_db)]
 ):
     # Determine the time ranges (last 7 days)

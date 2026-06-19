@@ -8,10 +8,14 @@ class User(SQLModel, table=True):
     hashed_password: str
     is_active: bool = Field(default=True)
     is_superuser: bool = Field(default=False)
+    role: str = Field(default="content_editor")
+    readonly: bool = Field(default=False)
 
 class UserCreate(BaseModel):
     username: str
     password: str
+    role: str = "content_editor"
+    readonly: bool = False
 
 class UserChangePassword(BaseModel):
     old_password: str
@@ -22,4 +26,6 @@ class UserPublic(BaseModel):
     username: str
     is_active: bool
     is_superuser: bool
+    role: str
+    readonly: bool
 

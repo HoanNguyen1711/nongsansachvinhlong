@@ -1,6 +1,6 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status
-from app.routers.auth import get_current_user
+from app.routers.auth import get_current_user, require_role_write
 from app.models.user import User
 from app.utils.image import save_and_compress_image
 
@@ -8,7 +8,7 @@ router = APIRouter(prefix="/uploads", tags=["uploads"])
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 def upload_image(
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_role_write(["super_admin", "admin", "product_manager", "content_editor"]))],
     file: UploadFile = File(...)
 ):
     # Validate file type

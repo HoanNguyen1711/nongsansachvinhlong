@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 from app.core.database import get_db
 from app.models.setting import Setting, SettingUpdate, SettingPublic
-from app.routers.auth import get_current_user
+from app.routers.auth import get_current_user, require_role_write
 from app.models.user import User
 
 router = APIRouter(prefix="/settings", tags=["settings"])
@@ -28,7 +28,7 @@ def read_setting_by_key(key: str, db: Annotated[Session, Depends(get_db)]):
 @router.put("/", response_model=Dict[str, str])
 def update_settings(
     settings_in: Dict[str, str],
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_role_write(["super_admin", "admin"]))],
     db: Annotated[Session, Depends(get_db)]
 ):
     for key, value in settings_in.items():

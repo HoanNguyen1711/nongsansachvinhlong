@@ -4,7 +4,7 @@ from sqlmodel import Session, select, update
 from app.core.database import get_db
 from app.models.blog_category import BlogCategory, BlogCategoryCreate, BlogCategoryUpdate, BlogCategoryPublic
 from app.models.blog import Blog
-from app.routers.auth import get_current_user
+from app.routers.auth import get_current_user, require_role_write
 from app.models.user import User
 
 router = APIRouter(prefix="/blog-categories", tags=["blog-categories"])
@@ -18,7 +18,7 @@ def read_blog_categories(db: Annotated[Session, Depends(get_db)]):
 @router.post("/", response_model=BlogCategoryPublic, status_code=status.HTTP_201_CREATED)
 def create_blog_category(
     category_in: BlogCategoryCreate,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_role_write(["super_admin", "admin", "content_editor"]))],
     db: Annotated[Session, Depends(get_db)]
 ):
     # Check if slug or name already exists
@@ -45,7 +45,7 @@ def create_blog_category(
 def update_blog_category(
     category_id: int,
     category_in: BlogCategoryUpdate,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_role_write(["super_admin", "admin", "content_editor"]))],
     db: Annotated[Session, Depends(get_db)]
 ):
     db_category = db.get(BlogCategory, category_id)
@@ -99,7 +99,7 @@ def update_blog_category(
 @router.delete("/{category_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_blog_category(
     category_id: int,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_role_write(["super_admin", "admin", "content_editor"]))],
     db: Annotated[Session, Depends(get_db)]
 ):
     db_category = db.get(BlogCategory, category_id)

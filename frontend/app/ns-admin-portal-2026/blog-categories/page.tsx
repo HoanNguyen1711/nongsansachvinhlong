@@ -17,6 +17,14 @@ export default function AdminBlogCategoriesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [readonly, setReadonly] = useState(false);
+
+  useEffect(() => {
+    api.get("/auth/me")
+      .then((me) => setReadonly(me.readonly))
+      .catch((err) => console.error(err));
+  }, []);
+
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<BlogCategory | null>(null);
@@ -144,13 +152,15 @@ export default function AdminBlogCategoriesPage() {
             Quản lý các chuyên mục phân loại câu chuyện nhà vườn và cẩm nang nông nghiệp.
           </p>
         </div>
-        <button
-          onClick={openAddModal}
-          className="flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground shadow-sm hover:opacity-90 active:scale-95 transition-transform shrink-0"
-        >
-          <Plus className="h-4 w-4" />
-          <span>Thêm Chuyên Mục</span>
-        </button>
+        {!readonly && (
+          <button
+            onClick={openAddModal}
+            className="flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground shadow-sm hover:opacity-90 active:scale-95 transition-transform shrink-0"
+          >
+            <Plus className="h-4 w-4" />
+            <span>Thêm Chuyên Mục</span>
+          </button>
+        )}
       </div>
 
       {error && (
@@ -203,20 +213,26 @@ export default function AdminBlogCategoriesPage() {
                     <td className="px-6 py-4 text-slate-400 font-mono">/{cat.slug}</td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => openEditModal(cat)}
-                          className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-800 transition-colors"
-                          title="Chỉnh sửa"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(cat.id)}
-                          className="rounded-lg p-1.5 text-red-500 hover:bg-red-50 transition-colors"
-                          title="Xóa"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
+                        {!readonly ? (
+                          <>
+                            <button
+                              onClick={() => openEditModal(cat)}
+                              className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-800 transition-colors"
+                              title="Chỉnh sửa"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(cat.id)}
+                              className="rounded-lg p-1.5 text-red-500 hover:bg-red-50 transition-colors"
+                              title="Xóa"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </>
+                        ) : (
+                          <span className="text-[10px] text-slate-400 font-medium">Chỉ xem</span>
+                        )}
                       </div>
                     </td>
                   </tr>
