@@ -43,7 +43,7 @@ export const Navbar: React.FC<NavbarProps> = ({ phone = "0901234567", lang: init
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await fetch("/api/blogs/categories/");
+        const response = await fetch("/api/blogs/categories");
         if (response.ok) {
           const data = await response.json();
           setCategories(data);

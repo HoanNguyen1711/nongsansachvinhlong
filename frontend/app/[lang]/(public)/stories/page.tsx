@@ -51,7 +51,7 @@ async function getBlogs(category?: string): Promise<Blog[]> {
 async function getCategories(): Promise<CategoryItem[]> {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://backend:8000";
   try {
-    const res = await fetch(`${apiUrl}/api/blogs/categories/`, { next: { revalidate: 30 } });
+    const res = await fetch(`${apiUrl}/api/blogs/categories`, { next: { revalidate: 30 } });
     if (res.ok) {
       return await res.json();
     }
