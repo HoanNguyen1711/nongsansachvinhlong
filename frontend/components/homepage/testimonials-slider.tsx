@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, MessageSquare, Star, Quote } from "lucide-react";
 import { getLocalizedValue, LanguageCode } from "@/lib/i18n";
 
@@ -25,27 +25,41 @@ interface TestimonialsSliderProps {
 
 export default function TestimonialsSlider({ testimonials, lang, layout }: TestimonialsSliderProps) {
   const [startIndex, setStartIndex] = useState(0);
+  const [itemsPerView, setItemsPerView] = useState(3);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setItemsPerView(3);
+      } else if (window.innerWidth >= 640) {
+        setItemsPerView(2);
+      } else {
+        setItemsPerView(1);
+      }
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   if (!testimonials || testimonials.length === 0) return null;
 
-  const showNavigation = testimonials.length > 3;
+  const showNavigation = testimonials.length > itemsPerView;
+  const maxIndex = testimonials.length - itemsPerView;
 
-  const visibleTestimonials: Testimonial[] = [];
-  if (testimonials.length <= 3) {
-    visibleTestimonials.push(...testimonials);
-  } else {
-    for (let i = 0; i < 3; i++) {
-      const idx = (startIndex + i) % testimonials.length;
-      visibleTestimonials.push(testimonials[idx]);
+  // Reset startIndex if it exceeds new maxIndex on window resize
+  useEffect(() => {
+    if (startIndex > maxIndex) {
+      setStartIndex(Math.max(0, maxIndex));
     }
-  }
+  }, [itemsPerView, maxIndex, startIndex]);
 
   const handlePrev = () => {
-    setStartIndex((prev) => (prev - 1 + testimonials.length) % testimonials.length);
+    setStartIndex((prev) => (prev === 0 ? maxIndex : prev - 1));
   };
 
   const handleNext = () => {
-    setStartIndex((prev) => (prev + 1) % testimonials.length);
+    setStartIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
   };
 
   const renderCard = (tItem: Testimonial) => {
@@ -55,11 +69,10 @@ export default function TestimonialsSlider({ testimonials, lang, layout }: Testi
     if (layout === "grid") {
       return (
         <div
-          key={`${tItem.id}-${startIndex}`}
-          className="relative rounded-3xl border border-border bg-white p-8 shadow-sm flex flex-col justify-between hover:shadow-md transition-all duration-300 min-h-[250px] sm:min-h-[290px] md:min-h-[310px] animate-testimonial opacity-0"
+          className="relative rounded-3xl border border-border bg-white p-8 shadow-sm flex flex-col justify-between hover:shadow-md transition-all duration-300 min-h-[250px] sm:min-h-[290px] md:min-h-[310px] h-full w-full"
         >
           <Quote className="absolute top-6 right-6 h-8 w-8 text-slate-100 pointer-events-none" />
-          <div className="space-y-4">
+          <div className="space-y-4 flex-1">
             <div className="flex gap-0.5 text-amber-500">
               {Array.from({ length: 5 }).map((_, idx) => (
                 <Star
@@ -72,7 +85,7 @@ export default function TestimonialsSlider({ testimonials, lang, layout }: Testi
               "{localizedContent}"
             </p>
           </div>
-          <div className="flex items-center gap-3 pt-6 mt-6 border-t border-slate-100">
+          <div className="flex items-center gap-3 pt-6 mt-6 border-t border-slate-100 shrink-0">
             <div className="h-10 w-10 rounded-full bg-emerald-50 border border-border overflow-hidden flex items-center justify-center shrink-0">
               {tItem.avatar_url ? (
                 <img src={tItem.avatar_url} alt={tItem.name} className="h-full w-full object-cover" />
@@ -92,10 +105,9 @@ export default function TestimonialsSlider({ testimonials, lang, layout }: Testi
     if (layout === "editorial") {
       return (
         <div
-          key={`${tItem.id}-${startIndex}`}
-          className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center bg-white p-8 rounded-3xl border border-border shadow-sm hover:shadow-md transition-shadow duration-300 w-full min-h-[160px] sm:min-h-[180px] animate-testimonial opacity-0"
+          className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center bg-white p-8 rounded-3xl border border-border shadow-sm hover:shadow-md transition-shadow duration-300 w-full min-h-[160px] sm:min-h-[180px] h-full"
         >
-          <div className="md:col-span-3 flex flex-col items-center text-center space-y-3">
+          <div className="md:col-span-3 flex flex-col items-center text-center space-y-3 shrink-0">
             <div className="h-16 w-16 rounded-full bg-emerald-50 border border-border overflow-hidden flex items-center justify-center shrink-0">
               {tItem.avatar_url ? (
                 <img src={tItem.avatar_url} alt={tItem.name} className="h-full w-full object-cover" />
@@ -109,7 +121,7 @@ export default function TestimonialsSlider({ testimonials, lang, layout }: Testi
             </div>
           </div>
 
-          <div className="md:col-span-9 space-y-4 md:border-l md:border-slate-100 md:pl-8">
+          <div className="md:col-span-9 space-y-4 md:border-l md:border-slate-100 md:pl-8 flex-1 flex flex-col justify-center">
             <div className="flex gap-0.5 text-amber-500">
               {Array.from({ length: 5 }).map((_, idx) => (
                 <Star
@@ -129,10 +141,9 @@ export default function TestimonialsSlider({ testimonials, lang, layout }: Testi
     // Default Layout Card
     return (
       <div
-        key={`${tItem.id}-${startIndex}`}
-        className="rounded-3xl border border-border bg-white p-6 space-y-4 flex flex-col justify-between hover:shadow-md transition-shadow duration-300 min-h-[200px] sm:min-h-[240px] md:min-h-[260px] animate-testimonial opacity-0"
+        className="rounded-3xl border border-border bg-white p-6 space-y-4 flex flex-col justify-between hover:shadow-md transition-shadow duration-300 min-h-[200px] sm:min-h-[240px] md:min-h-[260px] h-full w-full"
       >
-        <div className="space-y-4">
+        <div className="space-y-4 flex-1">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-full bg-emerald-50 border border-border overflow-hidden flex items-center justify-center shrink-0">
               {tItem.avatar_url ? (
@@ -166,28 +177,24 @@ export default function TestimonialsSlider({ testimonials, lang, layout }: Testi
 
   return (
     <div className="relative group w-full px-1">
-      {/* CSS Animation Injector */}
-      <style>{`
-        @keyframes testimonialFade {
-          0% { opacity: 0; transform: scale(0.98) translateY(6px); }
-          100% { opacity: 1; transform: scale(1) translateY(0); }
-        }
-        .animate-testimonial {
-          animation: testimonialFade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-      `}</style>
-
-      {/* Testimonials Display Grid */}
-      <div
-        className={
-          layout === "editorial"
-            ? "space-y-6"
-            : layout === "grid"
-            ? "grid grid-cols-1 gap-8 md:grid-cols-3"
-            : "grid grid-cols-1 gap-6 sm:grid-cols-3"
-        }
-      >
-        {visibleTestimonials.map((tItem) => renderCard(tItem))}
+      {/* Testimonials Display Slider Wrapper */}
+      <div className="overflow-hidden w-full py-2">
+        <div
+          className="flex items-stretch transition-transform duration-500 ease-out"
+          style={{
+            transform: `translateX(-${startIndex * (100 / itemsPerView)}%)`,
+          }}
+        >
+          {testimonials.map((tItem) => (
+            <div
+              key={tItem.id}
+              style={{ width: `${100 / itemsPerView}%` }}
+              className="shrink-0 px-3 flex flex-col justify-stretch"
+            >
+              {renderCard(tItem)}
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Navigation Buttons */}
@@ -195,14 +202,14 @@ export default function TestimonialsSlider({ testimonials, lang, layout }: Testi
         <>
           <button
             onClick={handlePrev}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-12 bg-white text-slate-700 hover:text-primary rounded-full p-3 shadow-md border border-slate-100 hover:scale-105 active:scale-95 transition-all opacity-0 group-hover:opacity-100 z-10 duration-200"
+            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-6 sm:-translate-x-12 bg-white text-slate-700 hover:text-primary rounded-full p-3 shadow-md border border-slate-100 hover:scale-105 active:scale-95 transition-all opacity-0 group-hover:opacity-100 z-10 duration-200"
             aria-label="Previous testimonial"
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
           <button
             onClick={handleNext}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-12 bg-white text-slate-700 hover:text-primary rounded-full p-3 shadow-md border border-slate-100 hover:scale-105 active:scale-95 transition-all opacity-0 group-hover:opacity-100 z-10 duration-200"
+            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-6 sm:translate-x-12 bg-white text-slate-700 hover:text-primary rounded-full p-3 shadow-md border border-slate-100 hover:scale-105 active:scale-95 transition-all opacity-0 group-hover:opacity-100 z-10 duration-200"
             aria-label="Next testimonial"
           >
             <ChevronRight className="h-5 w-5" />
