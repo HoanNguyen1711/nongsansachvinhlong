@@ -161,12 +161,6 @@ export const Navbar: React.FC<NavbarProps> = ({ phone = "0901234567", lang: init
                     
                     {/* Hover Dropdown */}
                     <div className="absolute left-0 mt-1 hidden group-hover:block w-52 rounded-2xl border border-border bg-background p-1.5 shadow-lg ring-1 ring-black/5 animate-in fade-in slide-in-from-top-1 duration-150 z-50">
-                      <Link
-                        href={getLocalizedHref("/stories", lang)}
-                        className="flex w-full items-center rounded-xl px-3 py-2 text-left text-xs font-semibold text-foreground/80 hover:bg-accent hover:text-primary transition-colors"
-                      >
-                        {lang === "vi" ? "Tất cả câu chuyện" : lang === "en" ? "All Stories" : "所有故事"}
-                      </Link>
                       {categories.map((cat, idx) => {
                         const localizedName = getLocalizedCategory(cat, lang);
                         const href = `${getLocalizedHref("/stories", lang)}?category=${encodeURIComponent(cat.category)}`;
@@ -299,13 +293,6 @@ export const Navbar: React.FC<NavbarProps> = ({ phone = "0901234567", lang: init
                   
                   {mobileStoriesOpen && (
                     <div className="pl-4 border-l border-slate-100 ml-4 space-y-1">
-                      <Link
-                        href={getLocalizedHref("/stories", lang)}
-                        onClick={() => setIsOpen(false)}
-                        className="block rounded-lg px-4 py-1.5 text-sm font-semibold text-foreground/75 hover:bg-accent hover:text-primary"
-                      >
-                        {lang === "vi" ? "Tất cả câu chuyện" : lang === "en" ? "All Stories" : "所有故事"}
-                      </Link>
                       {categories.map((cat, idx) => {
                         const localizedName = getLocalizedCategory(cat, lang);
                         const href = `${getLocalizedHref("/stories", lang)}?category=${encodeURIComponent(cat.category)}`;
