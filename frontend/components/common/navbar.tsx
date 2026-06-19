@@ -160,7 +160,9 @@ export const Navbar: React.FC<NavbarProps> = ({ phone = "0901234567", lang: init
                     </button>
                     
                     {/* Hover Dropdown */}
-                    <div className="absolute left-1/2 -translate-x-1/2 mt-1 hidden group-hover:block w-max min-w-[10rem] max-w-[15rem] rounded-2xl border border-border bg-background p-1.5 shadow-lg ring-1 ring-black/5 animate-in fade-in slide-in-from-top-1 duration-150 z-50">
+                    <div className={`absolute left-1/2 -translate-x-1/2 mt-1 hidden group-hover:block w-max max-w-[15rem] rounded-2xl border border-border bg-background p-1.5 shadow-lg ring-1 ring-black/5 animate-in fade-in slide-in-from-top-1 duration-150 z-50 ${
+                      lang === "zh" ? "min-w-[7rem]" : lang === "en" ? "min-w-[10rem]" : "min-w-[11.5rem]"
+                    }`}>
                       {categories.map((cat, idx) => {
                         const localizedName = getLocalizedCategory(cat, lang);
                         const href = `${getLocalizedHref("/stories", lang)}?category=${encodeURIComponent(cat.category)}`;
