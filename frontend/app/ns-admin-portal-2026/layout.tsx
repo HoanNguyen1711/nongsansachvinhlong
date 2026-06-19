@@ -90,11 +90,8 @@ export default function AdminLayout({
 
   const baseMenuItems = [
     { name: "Tổng quan", path: "/ns-admin-portal-2026", icon: LayoutDashboard },
-    { name: "Thống kê truy cập", path: "/ns-admin-portal-2026/analytics", icon: BarChart3 },
     { name: "Quản lý sản phẩm", path: "/ns-admin-portal-2026/products", icon: ShoppingBag },
-    { name: "Danh mục sản phẩm", path: "/ns-admin-portal-2026/categories", icon: Tag },
     { name: "Quản lý bài viết", path: "/ns-admin-portal-2026/blogs", icon: BookOpen },
-    { name: "Chuyên mục bài viết", path: "/ns-admin-portal-2026/blog-categories", icon: Tag },
     { name: "Ý kiến khách hàng", path: "/ns-admin-portal-2026/testimonials", icon: MessageSquare },
     { name: "Cấu hình hệ thống", path: "/ns-admin-portal-2026/settings", icon: Settings },
   ];

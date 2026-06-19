@@ -5,6 +5,7 @@ import { api } from "@/lib/api";
 import { Plus, Edit, Trash2, X, Upload, Check, AlertCircle, BookOpen } from "lucide-react";
 import dynamic from "next/dynamic";
 import "react-quill-new/dist/quill.snow.css";
+import AdminBlogCategoriesPage from "../blog-categories/page";
 
 const ReactQuill = dynamic(() => import("react-quill-new"), {
   ssr: false,
@@ -89,7 +90,8 @@ export default function AdminBlogsPage() {
 
   const [uploadingImage, setUploadingImage] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"vi" | "en" | "zh">("vi");
+  const [activeLangTab, setActiveLangTab] = useState<"vi" | "en" | "zh">("vi");
+  const [activeTab, setActiveTab] = useState<"blogs" | "categories">("blogs");
 
   // Quill Editor Modules config with custom image handler
   const modules = useMemo(() => ({
@@ -214,7 +216,7 @@ export default function AdminBlogsPage() {
     setCategoryEn("");
     setCategoryZh("");
     setFormError(null);
-    setActiveTab("vi");
+    setActiveLangTab("vi");
     setIsModalOpen(true);
   };
 
@@ -240,7 +242,7 @@ export default function AdminBlogsPage() {
     setCategoryEn(blog.category_en || "");
     setCategoryZh(blog.category_zh || "");
     setFormError(null);
-    setActiveTab("vi");
+    setActiveLangTab("vi");
     setIsModalOpen(true);
   };
 
@@ -312,7 +314,35 @@ export default function AdminBlogsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Tab Switcher */}
+      <div className="flex gap-4 border-b border-border pb-px mb-6">
+        <button
+          onClick={() => setActiveTab("blogs")}
+          className={`pb-3 text-sm font-bold border-b-2 transition-colors px-1 ${
+            activeTab === "blogs"
+              ? "border-primary text-primary"
+              : "border-transparent text-slate-500 hover:text-slate-800"
+          }`}
+        >
+          Danh sách bài viết
+        </button>
+        <button
+          onClick={() => setActiveTab("categories")}
+          className={`pb-3 text-sm font-bold border-b-2 transition-colors px-1 ${
+            activeTab === "categories"
+              ? "border-primary text-primary"
+              : "border-transparent text-slate-500 hover:text-slate-800"
+          }`}
+        >
+          Chuyên mục bài viết
+        </button>
+      </div>
+
+      {activeTab === "categories" ? (
+        <AdminBlogCategoriesPage />
+      ) : (
+        <>
+          {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">Bài Viết</h1>
@@ -524,27 +554,27 @@ export default function AdminBlogsPage() {
               <div className="flex border-b border-slate-100 gap-4">
                 <button
                   type="button"
-                  onClick={() => setActiveTab("vi")}
+                  onClick={() => setActiveLangTab("vi")}
                   className={`pb-2 text-xs font-bold border-b-2 transition-colors ${
-                    activeTab === "vi" ? "border-primary text-primary" : "border-transparent text-slate-400 hover:text-slate-600"
+                    activeLangTab === "vi" ? "border-primary text-primary" : "border-transparent text-slate-400 hover:text-slate-600"
                   }`}
                 >
                   Tiếng Việt (Gốc)
                 </button>
                 <button
                   type="button"
-                  onClick={() => setActiveTab("en")}
+                  onClick={() => setActiveLangTab("en")}
                   className={`pb-2 text-xs font-bold border-b-2 transition-colors ${
-                    activeTab === "en" ? "border-primary text-primary" : "border-transparent text-slate-400 hover:text-slate-600"
+                    activeLangTab === "en" ? "border-primary text-primary" : "border-transparent text-slate-400 hover:text-slate-600"
                   }`}
                 >
                   Tiếng Anh (English)
                 </button>
                 <button
                   type="button"
-                  onClick={() => setActiveTab("zh")}
+                  onClick={() => setActiveLangTab("zh")}
                   className={`pb-2 text-xs font-bold border-b-2 transition-colors ${
-                    activeTab === "zh" ? "border-primary text-primary" : "border-transparent text-slate-400 hover:text-slate-600"
+                    activeLangTab === "zh" ? "border-primary text-primary" : "border-transparent text-slate-400 hover:text-slate-600"
                   }`}
                 >
                   Tiếng Trung (中文)
@@ -552,7 +582,7 @@ export default function AdminBlogsPage() {
               </div>
 
               {/* Tab: Tiếng Việt */}
-              {activeTab === "vi" && (
+              {activeLangTab === "vi" && (
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div className="space-y-1">
@@ -618,7 +648,7 @@ export default function AdminBlogsPage() {
               )}
 
               {/* Tab: Tiếng Anh */}
-              {activeTab === "en" && (
+              {activeLangTab === "en" && (
                 <div className="space-y-4">
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-700">Tiêu đề bài viết (Tiếng Anh)</label>
@@ -669,7 +699,7 @@ export default function AdminBlogsPage() {
               )}
 
               {/* Tab: Tiếng Trung */}
-              {activeTab === "zh" && (
+              {activeLangTab === "zh" && (
                 <div className="space-y-4">
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-700">Tiêu đề bài viết (Tiếng Trung)</label>
@@ -837,6 +867,8 @@ export default function AdminBlogsPage() {
             </form>
           </div>
         </div>
+      )}
+        </>
       )}
     </div>
   );

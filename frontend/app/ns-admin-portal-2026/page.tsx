@@ -4,11 +4,14 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
 import { ShoppingBag, BookOpen, User, PlusCircle, ArrowUpRight } from "lucide-react";
+import AdminAnalyticsPage from "./analytics/page";
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({ products: 0, blogs: 0 });
   const [loading, setLoading] = useState(true);
   const [adminUser, setAdminUser] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<"overview" | "analytics">("overview");
 
   useEffect(() => {
     async function fetchStats() {
@@ -24,6 +27,7 @@ export default function AdminDashboard() {
           blogs: blogs.length
         });
         setAdminUser(me.username);
+        setUserRole(me.role);
       } catch (err) {
         console.error("Lỗi khi tải thống kê:", err);
       } finally {
@@ -41,11 +45,39 @@ export default function AdminDashboard() {
         <p className="text-xs text-slate-500 mt-1">Chào mừng bạn đến với hệ thống quản lý nội dung website Nông Sản Sạch.</p>
       </div>
 
+      {/* Tab Switcher */}
+      {(userRole === "super_admin" || userRole === "admin") && !loading && (
+        <div className="flex gap-4 border-b border-border pb-px mb-6">
+          <button
+            onClick={() => setActiveTab("overview")}
+            className={`pb-3 text-sm font-bold border-b-2 transition-colors px-1 ${
+              activeTab === "overview"
+                ? "border-primary text-primary"
+                : "border-transparent text-slate-500 hover:text-slate-800"
+            }`}
+          >
+            Tổng quan
+          </button>
+          <button
+            onClick={() => setActiveTab("analytics")}
+            className={`pb-3 text-sm font-bold border-b-2 transition-colors px-1 ${
+              activeTab === "analytics"
+                ? "border-primary text-primary"
+                : "border-transparent text-slate-500 hover:text-slate-800"
+            }`}
+          >
+            Thống kê truy cập
+          </button>
+        </div>
+      )}
+
       {loading ? (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <div className="h-32 animate-pulse rounded-3xl bg-slate-200/60"></div>
           <div className="h-32 animate-pulse rounded-3xl bg-slate-200/60"></div>
         </div>
+      ) : activeTab === "analytics" ? (
+        <AdminAnalyticsPage />
       ) : (
         <>
           {/* Stats Grid */}
