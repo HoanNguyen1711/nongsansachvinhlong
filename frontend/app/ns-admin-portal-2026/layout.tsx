@@ -91,8 +91,7 @@ export default function AdminLayout({
   const baseMenuItems = [
     { name: "Tổng quan", path: "/ns-admin-portal-2026", icon: LayoutDashboard },
     { name: "Quản lý sản phẩm", path: "/ns-admin-portal-2026/products", icon: ShoppingBag },
-    { name: "Quản lý bài viết", path: "/ns-admin-portal-2026/blogs", icon: BookOpen },
-    { name: "Ý kiến khách hàng", path: "/ns-admin-portal-2026/testimonials", icon: MessageSquare },
+    { name: "Quản lý nội dung", path: "/ns-admin-portal-2026/blogs", icon: BookOpen },
     { name: "Cấu hình hệ thống", path: "/ns-admin-portal-2026/settings", icon: Settings },
   ];
 

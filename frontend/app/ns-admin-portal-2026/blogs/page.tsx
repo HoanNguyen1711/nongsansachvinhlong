@@ -6,6 +6,7 @@ import { Plus, Edit, Trash2, X, Upload, Check, AlertCircle, BookOpen } from "luc
 import dynamic from "next/dynamic";
 import "react-quill-new/dist/quill.snow.css";
 import AdminBlogCategoriesPage from "../blog-categories/page";
+import AdminTestimonialsPage from "../testimonials/page";
 
 const ReactQuill = dynamic(() => import("react-quill-new"), {
   ssr: false,
@@ -91,7 +92,7 @@ export default function AdminBlogsPage() {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [activeLangTab, setActiveLangTab] = useState<"vi" | "en" | "zh">("vi");
-  const [activeTab, setActiveTab] = useState<"blogs" | "categories">("blogs");
+  const [activeTab, setActiveTab] = useState<"blogs" | "categories" | "testimonials">("blogs");
 
   // Quill Editor Modules config with custom image handler
   const modules = useMemo(() => ({
@@ -336,10 +337,22 @@ export default function AdminBlogsPage() {
         >
           Chuyên mục bài viết
         </button>
+        <button
+          onClick={() => setActiveTab("testimonials")}
+          className={`pb-3 text-sm font-bold border-b-2 transition-colors px-1 ${
+            activeTab === "testimonials"
+              ? "border-primary text-primary"
+              : "border-transparent text-slate-500 hover:text-slate-800"
+          }`}
+        >
+          Ý kiến khách hàng
+        </button>
       </div>
 
       {activeTab === "categories" ? (
         <AdminBlogCategoriesPage />
+      ) : activeTab === "testimonials" ? (
+        <AdminTestimonialsPage />
       ) : (
         <>
           {/* Header */}
