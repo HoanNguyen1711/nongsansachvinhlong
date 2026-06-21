@@ -18,7 +18,6 @@ router = APIRouter(prefix="/analytics", tags=["analytics"])
 def generate_mock_data(start_date_dt, configured=False, error=None, days=7):
     daily_stats = []
     total_views = 0
-    total_requests = 0
     
     # Beautiful mockup traffic pattern with stable random seed
     import random
@@ -28,39 +27,35 @@ def generate_mock_data(start_date_dt, configured=False, error=None, days=7):
         day_dt = start_date_dt + timedelta(days=i)
         # Add some variance but keep it realistic
         views = int(1500 + 400 * random.uniform(-1, 1) + (100 * (i % 7)))
-        reqs = int(views * 3.1 + random.randint(100, 300))
         total_views += views
-        total_requests += reqs
         
         daily_stats.append({
             "date": day_dt.strftime("%Y-%m-%d"),
-            "views": views,
-            "requests": reqs
+            "views": views
         })
         
     return {
         "configured": configured,
         "error": error,
         "total_views": total_views,
-        "total_requests": total_requests,
         "daily_stats": daily_stats,
         "referrers": [
-            {"source": "google.com", "count": int(total_requests * 0.48), "percentage": 48},
-            {"source": "Direct / Bookmarks", "count": int(total_requests * 0.26), "percentage": 26},
-            {"source": "facebook.com", "count": int(total_requests * 0.18), "percentage": 18},
-            {"source": "t.co (Twitter)", "count": int(total_requests * 0.05), "percentage": 5},
-            {"source": "Others", "count": int(total_requests * 0.03), "percentage": 3}
+            {"source": "google.com", "count": int(total_views * 0.48), "percentage": 48},
+            {"source": "Direct / Bookmarks", "count": int(total_views * 0.26), "percentage": 26},
+            {"source": "facebook.com", "count": int(total_views * 0.18), "percentage": 18},
+            {"source": "t.co (Twitter)", "count": int(total_views * 0.05), "percentage": 5},
+            {"source": "Others", "count": int(total_views * 0.03), "percentage": 3}
         ],
         "devices": [
-            {"device": "Mobile", "count": int(total_requests * 0.60), "percentage": 60},
-            {"device": "Desktop", "count": int(total_requests * 0.35), "percentage": 35},
-            {"device": "Tablet", "count": int(total_requests * 0.05), "percentage": 5}
+            {"device": "Mobile", "count": int(total_views * 0.60), "percentage": 60},
+            {"device": "Desktop", "count": int(total_views * 0.35), "percentage": 35},
+            {"device": "Tablet", "count": int(total_views * 0.05), "percentage": 5}
         ],
         "countries": [
-            {"country": "Việt Nam", "count": int(total_requests * 0.70), "percentage": 70},
-            {"country": "Mỹ (USA)", "count": int(total_requests * 0.15), "percentage": 15},
-            {"country": "Singapore", "count": int(total_requests * 0.10), "percentage": 10},
-            {"country": "Khác", "count": int(total_requests * 0.05), "percentage": 5}
+            {"country": "Việt Nam", "count": int(total_views * 0.70), "percentage": 70},
+            {"country": "Mỹ (USA)", "count": int(total_views * 0.15), "percentage": 15},
+            {"country": "Singapore", "count": int(total_views * 0.10), "percentage": 10},
+            {"country": "Khác", "count": int(total_views * 0.05), "percentage": 5}
         ],
         "last_synced": datetime.now(timezone.utc).isoformat(),
         "total_views_alltime": total_views  # mock: use period total as proxy
@@ -130,31 +125,29 @@ def get_analytics(
     for i in range(days):
         d_val = start_date + timedelta(days=i)
         d_str = d_val.strftime("%Y-%m-%d")
-        day_map[d_str] = {"date": d_str, "views": 0, "requests": 0}
+        day_map[d_str] = {"date": d_str, "views": 0}
         
     for r in daily_records:
         r_str = r.date.strftime("%Y-%m-%d")
         if r_str in day_map:
             day_map[r_str] = {
                 "date": r_str,
-                "views": r.page_views,
-                "requests": r.requests
+                "views": r.page_views
             }
             
     daily_stats = [day_map[k] for k in sorted(day_map.keys())]
     total_views = sum(item["views"] for item in daily_stats)
-    total_requests = sum(item["requests"] for item in daily_stats)
     
     # Query devices
     devices_stmt = select(
         ZoneDeviceAnalytics.device_type, 
-        func.sum(ZoneDeviceAnalytics.requests)
+        func.sum(ZoneDeviceAnalytics.count)
     ).where(
         ZoneDeviceAnalytics.date >= start_date
     ).group_by(
         ZoneDeviceAnalytics.device_type
     ).order_by(
-        func.sum(ZoneDeviceAnalytics.requests).desc()
+        func.sum(ZoneDeviceAnalytics.count).desc()
     ).limit(5)
     
     devices_results = db.exec(devices_stmt).all()
@@ -172,13 +165,13 @@ def get_analytics(
     # Query countries
     countries_stmt = select(
         ZoneCountryAnalytics.country_code, 
-        func.sum(ZoneCountryAnalytics.requests)
+        func.sum(ZoneCountryAnalytics.count)
     ).where(
         ZoneCountryAnalytics.date >= start_date
     ).group_by(
         ZoneCountryAnalytics.country_code
     ).order_by(
-        func.sum(ZoneCountryAnalytics.requests).desc()
+        func.sum(ZoneCountryAnalytics.count).desc()
     ).limit(5)
     
     countries_results = db.exec(countries_stmt).all()
@@ -201,10 +194,9 @@ def get_analytics(
     return {
         "configured": True,
         "total_views": total_views,
-        "total_requests": total_requests,
         "total_views_alltime": int(total_views_alltime),
         "daily_stats": daily_stats,
-        "referrers": [{"source": "Direct / Unknown", "count": total_requests, "percentage": 100}],
+        "referrers": [{"source": "Direct / Unknown", "count": total_views, "percentage": 100}],
         "devices": devices,
         "countries": countries,
         "last_synced": last_synced_str

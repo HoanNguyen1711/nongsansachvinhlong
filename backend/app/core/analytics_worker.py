@@ -8,57 +8,55 @@ from app.core.config import settings
 from app.core.database import engine
 from app.models.analytics import ZoneDailyAnalytics, ZoneCountryAnalytics, ZoneDeviceAnalytics
 
-def upsert_daily(db: Session, date_val: date, requests: int, page_views: int):
+def upsert_daily(db: Session, date_val: date, page_views: int):
     statement = select(ZoneDailyAnalytics).where(ZoneDailyAnalytics.date == date_val)
     existing = db.exec(statement).first()
     if existing:
-        existing.requests = requests
         existing.page_views = page_views
         existing.updated_at = datetime.now(timezone.utc)
         db.add(existing)
     else:
         new_record = ZoneDailyAnalytics(
             date=date_val,
-            requests=requests,
             page_views=page_views,
             updated_at=datetime.now(timezone.utc)
         )
         db.add(new_record)
 
-def upsert_device(db: Session, date_val: date, device_type: str, requests: int):
+def upsert_device(db: Session, date_val: date, device_type: str, count: int):
     statement = select(ZoneDeviceAnalytics).where(
         ZoneDeviceAnalytics.date == date_val,
         ZoneDeviceAnalytics.device_type == device_type
     )
     existing = db.exec(statement).first()
     if existing:
-        existing.requests = requests
+        existing.count = count
         existing.updated_at = datetime.now(timezone.utc)
         db.add(existing)
     else:
         new_record = ZoneDeviceAnalytics(
             date=date_val,
             device_type=device_type,
-            requests=requests,
+            count=count,
             updated_at=datetime.now(timezone.utc)
         )
         db.add(new_record)
 
-def upsert_country(db: Session, date_val: date, country_code: str, requests: int):
+def upsert_country(db: Session, date_val: date, country_code: str, count: int):
     statement = select(ZoneCountryAnalytics).where(
         ZoneCountryAnalytics.date == date_val,
         ZoneCountryAnalytics.country_code == country_code
     )
     existing = db.exec(statement).first()
     if existing:
-        existing.requests = requests
+        existing.count = count
         existing.updated_at = datetime.now(timezone.utc)
         db.add(existing)
     else:
         new_record = ZoneCountryAnalytics(
             date=date_val,
             country_code=country_code,
-            requests=requests,
+            count=count,
             updated_at=datetime.now(timezone.utc)
         )
         db.add(new_record)
@@ -96,7 +94,6 @@ def sync_cloudflare_data(db: Session):
               date
             }
             sum {
-              requests
               pageViews
             }
           }
@@ -161,8 +158,7 @@ def sync_cloudflare_data(db: Session):
                 try:
                     date_val = datetime.strptime(date_str, "%Y-%m-%d").date()
                     views = int(d.get("sum", {}).get("pageViews", 0))
-                    reqs = int(d.get("sum", {}).get("requests", 0))
-                    upsert_daily(db, date_val, reqs, views)
+                    upsert_daily(db, date_val, views)
                 except Exception as e_d:
                     print(f"Error parsing daily record {date_str}: {e_d}")
             

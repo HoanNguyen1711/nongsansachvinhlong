@@ -7,7 +7,6 @@ import { BarChart3, AlertCircle, ShieldAlert, Eye, Globe, Laptop, ArrowUpRight, 
 interface DailyStat {
   date: string;
   views: number;
-  requests: number;
 }
 
 interface ReferrerStat {
@@ -32,7 +31,6 @@ interface AnalyticsData {
   configured: boolean;
   error?: string | null;
   total_views: number;
-  total_requests: number;
   total_views_alltime?: number;
   daily_stats: DailyStat[];
   referrers: ReferrerStat[];
@@ -72,7 +70,6 @@ type GroupBy = "day" | "week" | "month";
 interface AggregatedStat {
   label: string;
   views: number;
-  requests: number;
 }
 
 export default function AdminAnalyticsPage() {
@@ -195,8 +192,8 @@ export default function AdminAnalyticsPage() {
       return raw.map((s) => {
         try {
           const [, month, day] = s.date.split("-");
-          return { label: `${day}/${month}`, views: s.views, requests: s.requests };
-        } catch { return { label: s.date, views: s.views, requests: s.requests }; }
+          return { label: `${day}/${month}`, views: s.views };
+        } catch { return { label: s.date, views: s.views }; }
       });
     }
 
@@ -210,9 +207,8 @@ export default function AdminAnalyticsPage() {
         const monday = new Date(d);
         monday.setDate(diff);
         const key = `${String(monday.getDate()).padStart(2,"0")}/${String(monday.getMonth()+1).padStart(2,"0")}`;
-        if (!weeks[key]) weeks[key] = { label: `T${key}`, views: 0, requests: 0 };
+        if (!weeks[key]) weeks[key] = { label: `T${key}`, views: 0 };
         weeks[key].views += s.views;
-        weeks[key].requests += s.requests;
       });
       return Object.values(weeks);
     }
@@ -222,9 +218,8 @@ export default function AdminAnalyticsPage() {
       raw.forEach((s) => {
         const [year, month] = s.date.split("-");
         const key = `${month}/${year}`;
-        if (!months[key]) months[key] = { label: `T${month}/${year.slice(2)}`, views: 0, requests: 0 };
+        if (!months[key]) months[key] = { label: `T${month}/${year.slice(2)}`, views: 0 };
         months[key].views += s.views;
-        months[key].requests += s.requests;
       });
       return Object.values(months);
     }
