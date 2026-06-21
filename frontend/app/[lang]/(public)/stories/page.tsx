@@ -31,7 +31,7 @@ interface CategoryItem {
   category_zh: string;
 }
 
-async function getBlogs(category?: string): Promise<Blog[]> {
+async function getBlogs(category?: string): Promise<Blog[] | null> {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://backend:8000";
   try {
     const url = new URL(`${apiUrl}/api/blogs`);
@@ -45,10 +45,10 @@ async function getBlogs(category?: string): Promise<Blog[]> {
   } catch (error) {
     console.error("Error fetching blogs:", error);
   }
-  return [];
+  return null;
 }
 
-async function getCategories(): Promise<CategoryItem[]> {
+async function getCategories(): Promise<CategoryItem[] | null> {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://backend:8000";
   try {
     const res = await fetch(`${apiUrl}/api/blogs/categories`, { next: { revalidate: 30 } });
@@ -58,7 +58,7 @@ async function getCategories(): Promise<CategoryItem[]> {
   } catch (error) {
     console.error("Error fetching categories:", error);
   }
-  return [];
+  return null;
 }
 
 const MOCKUP_BLOGS: Blog[] = [
@@ -123,9 +123,9 @@ export default async function BlogsPage({ params, searchParams }: PageProps) {
   const apiBlogs = await getBlogs(category);
   const categoriesList = await getCategories();
 
-  // Filter mockup blogs if api returned empty (useful in local dev without db values)
-  let displayBlogs = apiBlogs;
-  if (apiBlogs.length === 0) {
+  // Filter mockup blogs if api returned null/failed (useful in local dev without db connection)
+  let displayBlogs = apiBlogs ?? [];
+  if (apiBlogs === null) {
     if (!category) {
       displayBlogs = MOCKUP_BLOGS;
     } else {
@@ -134,8 +134,8 @@ export default async function BlogsPage({ params, searchParams }: PageProps) {
   }
   
   // Get final category list for pills
-  let finalCategoriesList = categoriesList;
-  if (finalCategoriesList.length === 0) {
+  let finalCategoriesList = categoriesList ?? [];
+  if (categoriesList === null) {
     const uniqueCats: Record<string, CategoryItem> = {};
     MOCKUP_BLOGS.forEach(b => {
       if (b.category && !uniqueCats[b.category]) {
@@ -152,7 +152,7 @@ export default async function BlogsPage({ params, searchParams }: PageProps) {
   // Find localized name for the category to show in the header card
   let localizedCategoryName = category;
   if (category) {
-    const match = categoriesList.find(c => c.category === category) || 
+    const match = (categoriesList || []).find(c => c.category === category) || 
                   MOCKUP_BLOGS.find(b => b.category === category);
     if (match) {
       if (lang === "en") localizedCategoryName = match.category_en || match.category || category;
