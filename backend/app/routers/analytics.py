@@ -72,7 +72,7 @@ def get_analytics(
           referrers: httpRequestsAdaptiveGroups(
             limit: 10
             filter: { datetime_geq: $startTime, datetime_leq: $endTime, clientRequestPath_neq: "/api" }
-            orderBy: [sum_requests_DESC]
+            orderBy: [count_DESC]
           ) {
             dimensions {
               refererHost
@@ -84,7 +84,7 @@ def get_analytics(
           devices: httpRequestsAdaptiveGroups(
             limit: 5
             filter: { datetime_geq: $startTime, datetime_leq: $endTime }
-            orderBy: [sum_requests_DESC]
+            orderBy: [count_DESC]
           ) {
             dimensions {
               clientDeviceType
@@ -96,7 +96,7 @@ def get_analytics(
           countries: httpRequestsAdaptiveGroups(
             limit: 5
             filter: { datetime_geq: $startTime, datetime_leq: $endTime }
-            orderBy: [sum_requests_DESC]
+            orderBy: [count_DESC]
           ) {
             dimensions {
               clientCountryName
