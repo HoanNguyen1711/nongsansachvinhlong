@@ -30,6 +30,8 @@ services:
       - JWT_SECRET=${JWT_SECRET:-YOUR_SECURE_RANDOM_SECRET_KEY_GOES_HERE}
       - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD:-admin123}
+      - CLOUDFLARE_ZONE_ID=${CLOUDFLARE_ZONE_ID:-}
+      - CLOUDFLARE_API_TOKEN=${CLOUDFLARE_API_TOKEN:-}
     volumes:
       - uploads_data:/app/static/uploads
     ports:
