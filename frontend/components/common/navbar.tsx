@@ -152,7 +152,7 @@ export const Navbar: React.FC<NavbarProps> = ({ phone = "0901234567", lang: init
             {navItems.map((item) => {
               if (item.path === "/stories") {
                 return (
-                  <div key={item.path} className="relative group py-2">
+                  <div key={item.path} className="relative group h-full flex items-center">
                     <Link
                       href={getLocalizedHref(item.path, lang)}
                       className={`flex items-center gap-1 text-sm font-medium transition-colors hover:text-primary cursor-pointer focus:outline-none ${
@@ -167,7 +167,7 @@ export const Navbar: React.FC<NavbarProps> = ({ phone = "0901234567", lang: init
                     
                     {/* Hover Dropdown */}
                     {categories.length > 0 && (
-                      <div className={`absolute left-1/2 -translate-x-1/2 top-full mt-0.5 hidden group-hover:block w-max min-w-[12rem] rounded-2xl border border-slate-100 bg-white/95 backdrop-blur-md p-1.5 shadow-xl shadow-slate-900/5 animate-in fade-in slide-in-from-top-1 duration-150 z-50`}>
+                      <div className="absolute left-1/2 -translate-x-1/2 top-full hidden group-hover:flex flex-col w-max min-w-[12.5rem] bg-white border-x border-b border-slate-200/80 shadow-lg z-50 divide-y divide-slate-100 rounded-none animate-in fade-in slide-in-from-top-1 duration-150">
                         {categories.map((cat, idx) => {
                           const localizedName = getLocalizedCategory(cat, lang);
                           const href = `${getLocalizedHref("/stories", lang)}?category=${encodeURIComponent(cat.category)}`;
@@ -175,7 +175,7 @@ export const Navbar: React.FC<NavbarProps> = ({ phone = "0901234567", lang: init
                             <Link
                               key={idx}
                               href={href}
-                              className="flex w-full items-center justify-start rounded-xl px-4 py-2.5 text-left text-xs font-semibold text-slate-700 hover:bg-emerald-50/50 hover:text-emerald-700 transition-colors"
+                              className="flex w-full items-center justify-start px-4 py-3 text-left text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-700 transition-colors rounded-none"
                             >
                               {localizedName}
                             </Link>
