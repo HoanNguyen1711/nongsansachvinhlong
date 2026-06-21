@@ -71,7 +71,7 @@ def get_analytics(
           }
           referrers: httpRequestsAdaptiveGroups(
             limit: 10
-            filter: { datetime_geq: $startTime, datetime_leq: $endTime, clientRequestPath_not: "/api" }
+            filter: { datetime_geq: $startTime, datetime_leq: $endTime, clientRequestPath_neq: "/api" }
             orderBy: [sum_requests_DESC]
           ) {
             dimensions {
