@@ -192,9 +192,10 @@ export default function AdminAnalyticsPage() {
   const chartHeight = 420;
   const paddingX = 64;
   const paddingY = 40;
-  // Min px per data point so chart doesn't get cramped
-  const pointSpacing = Math.max(72, Math.min(144, 1400 / (aggregatedStats.length || 1)));
-  const chartWidth = Math.max(1280, paddingX * 2 + pointSpacing * (aggregatedStats.length - 1 || 1));
+  // Fixed virtual canvas — SVG scales via CSS to fill container
+  const chartWidth = 900;
+  // pointSpacing shrinks automatically when there are more data points
+  const pointSpacing = (chartWidth - paddingX * 2) / Math.max(aggregatedStats.length - 1, 1);
 
   const chartParams = useMemo(() => {
     if (aggregatedStats.length === 0) return null;
@@ -449,14 +450,11 @@ CLOUDFLARE_API_TOKEN=your_cloudflare_api_token_here`}
             </div>
           </div>
 
-          {/* SVG Chart — scrollable horizontally */}
-          <div className="overflow-x-auto pb-1">
-            <div style={{ minWidth: `${chartWidth}px` }}>
+          {/* SVG Chart — fixed width, scales to container */}
+          <div className="w-full">
               <svg
-                width={chartWidth}
-                height={chartHeight}
                 viewBox={`0 0 ${chartWidth} ${chartHeight}`}
-                className="overflow-visible select-none"
+                className="w-full h-auto overflow-visible select-none"
               >
                 <defs>
                   <linearGradient id="viewsAreaGrad2" x1="0" y1="0" x2="0" y2="1">
@@ -520,7 +518,6 @@ CLOUDFLARE_API_TOKEN=your_cloudflare_api_token_here`}
                   );
                 })}
               </svg>
-            </div>
           </div>
         </div>
         )}
