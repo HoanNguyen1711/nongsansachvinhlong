@@ -523,52 +523,63 @@ CLOUDFLARE_API_TOKEN=your_cloudflare_api_token_here`}
         )}
 
         {/* Devices Breakdown Card — beside the chart */}
-        <div className="rounded-3xl border border-border bg-white p-6 shadow-sm flex flex-col justify-between space-y-5">
+        <div className="rounded-3xl border border-border bg-white p-6 shadow-sm flex flex-col gap-6">
           <div>
             <h3 className="text-base font-black text-slate-800">Thiết bị truy cập</h3>
-            <p className="text-[10px] text-slate-400 mt-0.5">Tỉ lệ loại thiết bị người dùng</p>
+            <p className="text-xs text-slate-400 mt-0.5">Tỉ lệ loại thiết bị người dùng</p>
           </div>
-          
-          <div className="space-y-3 flex-1 flex flex-col justify-center">
-            {data.devices.map((d, idx) => (
-              <div key={idx} className="flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2">
-                  <span className={`h-2.5 w-2.5 rounded-full ${getDeviceBgClass(d.device)}`}></span>
-                  <span className="font-bold text-slate-600">{d.device}</span>
-                </div>
-                <span className="font-bold text-slate-500">{d.percentage}%</span>
-              </div>
-            ))}
-            {/* Donut Chart */}
-            <div className="pt-6 flex items-center justify-center">
-              <div className="relative h-36 w-36 flex items-center justify-center">
-                <svg viewBox="0 0 36 36" className="h-full w-full transform -rotate-90">
-                  <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#e2e8f0" strokeWidth="3" />
-                  {(() => {
-                    let acc = 0;
-                    return data.devices.map((d, idx) => {
-                      const pct = d.percentage;
-                      const dashArray = `${pct} ${100 - pct}`;
-                      const dashOffset = -acc;
-                      acc += pct;
-                      return (
-                        <circle key={idx} cx="18" cy="18" r="15.9155" fill="none"
-                          stroke={getDeviceColor(d.device)} strokeWidth="3"
-                          strokeDasharray={dashArray} strokeDashoffset={dashOffset} />
-                      );
-                    });
-                  })()}
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-[10px] text-slate-400 font-bold uppercase">Mobile</span>
-                  <span className="text-lg font-black text-slate-700">
-                    {data.devices.find(d => d.device === "Mobile")?.percentage || 60}%
-                  </span>
-                </div>
+
+          {/* Donut Chart — centered, bigger */}
+          <div className="flex items-center justify-center py-2">
+            <div className="relative h-48 w-48 flex items-center justify-center">
+              <svg viewBox="0 0 36 36" className="h-full w-full transform -rotate-90">
+                <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#e2e8f0" strokeWidth="2.5" />
+                {(() => {
+                  let acc = 0;
+                  return data.devices.map((d, idx) => {
+                    const pct = d.percentage;
+                    const dashArray = `${pct} ${100 - pct}`;
+                    const dashOffset = -acc;
+                    acc += pct;
+                    return (
+                      <circle key={idx} cx="18" cy="18" r="15.9155" fill="none"
+                        stroke={getDeviceColor(d.device)} strokeWidth="2.5"
+                        strokeDasharray={dashArray} strokeDashoffset={dashOffset} />
+                    );
+                  });
+                })()}
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wide">Mobile</span>
+                <span className="text-3xl font-black text-slate-700">
+                  {data.devices.find(d => d.device === "Mobile")?.percentage || 60}%
+                </span>
               </div>
             </div>
           </div>
+
+          {/* Device rows with progress bars */}
+          <div className="space-y-4">
+            {data.devices.map((d, idx) => (
+              <div key={idx} className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <span className={`h-3 w-3 rounded-full ${getDeviceBgClass(d.device)}`}></span>
+                    <span className="text-sm font-bold text-slate-700">{d.device}</span>
+                  </div>
+                  <span className="text-sm font-black text-slate-600">{d.percentage}%</span>
+                </div>
+                <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all duration-500"
+                    style={{ width: `${d.percentage}%`, backgroundColor: getDeviceColor(d.device) }}
+                  ></div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
+
       </div>
       {/* Grid: Referrers (Left) & Countries (Right) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
