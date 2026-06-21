@@ -188,12 +188,12 @@ export default function AdminAnalyticsPage() {
   }, [data, groupBy]);
 
   // SVG Chart Dimensions & Computations
-  const chartHeight = 280;
+  const chartHeight = 420;
   const paddingX = 64;
-  const paddingY = 32;
+  const paddingY = 40;
   // Min px per data point so chart doesn't get cramped
-  const pointSpacing = Math.max(36, Math.min(72, 700 / (aggregatedStats.length || 1)));
-  const chartWidth = Math.max(640, paddingX * 2 + pointSpacing * (aggregatedStats.length - 1 || 1));
+  const pointSpacing = Math.max(72, Math.min(144, 1400 / (aggregatedStats.length || 1)));
+  const chartWidth = Math.max(1280, paddingX * 2 + pointSpacing * (aggregatedStats.length - 1 || 1));
 
   const chartParams = useMemo(() => {
     if (aggregatedStats.length === 0) return null;
@@ -422,10 +422,11 @@ CLOUDFLARE_API_TOKEN=your_cloudflare_api_token_here`}
           </div>
         </div>
       </div>
-
-      {/* Main Traffic Chart Card */}
-      {chartParams && (
-        <div className="rounded-3xl border border-border bg-white p-6 shadow-sm space-y-4">
+      {/* Main chart + Devices side by side */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        {/* Main Traffic Chart — takes 2/3 */}
+        {chartParams && (
+          <div className="xl:col-span-2 rounded-3xl border border-border bg-white p-6 shadow-sm space-y-4">
           {/* Card Header */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
@@ -557,10 +558,58 @@ CLOUDFLARE_API_TOKEN=your_cloudflare_api_token_here`}
             </div>
           </div>
         </div>
-      )}
+        )}
 
-      {/* Grid: Referrers (Left) & Devices/Countries (Right) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Devices Breakdown Card — beside the chart */}
+        <div className="rounded-3xl border border-border bg-white p-6 shadow-sm flex flex-col justify-between space-y-5">
+          <div>
+            <h3 className="text-base font-black text-slate-800">Thiết bị truy cập</h3>
+            <p className="text-[10px] text-slate-400 mt-0.5">Tỉ lệ loại thiết bị người dùng</p>
+          </div>
+          
+          <div className="space-y-3 flex-1 flex flex-col justify-center">
+            {data.devices.map((d, idx) => (
+              <div key={idx} className="flex items-center justify-between text-xs">
+                <div className="flex items-center gap-2">
+                  <span className={`h-2.5 w-2.5 rounded-full ${getDeviceBgClass(d.device)}`}></span>
+                  <span className="font-bold text-slate-600">{d.device}</span>
+                </div>
+                <span className="font-bold text-slate-500">{d.percentage}%</span>
+              </div>
+            ))}
+            {/* Donut Chart */}
+            <div className="pt-6 flex items-center justify-center">
+              <div className="relative h-36 w-36 flex items-center justify-center">
+                <svg viewBox="0 0 36 36" className="h-full w-full transform -rotate-90">
+                  <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#e2e8f0" strokeWidth="3" />
+                  {(() => {
+                    let acc = 0;
+                    return data.devices.map((d, idx) => {
+                      const pct = d.percentage;
+                      const dashArray = `${pct} ${100 - pct}`;
+                      const dashOffset = -acc;
+                      acc += pct;
+                      return (
+                        <circle key={idx} cx="18" cy="18" r="15.9155" fill="none"
+                          stroke={getDeviceColor(d.device)} strokeWidth="3"
+                          strokeDasharray={dashArray} strokeDashoffset={dashOffset} />
+                      );
+                    });
+                  })()}
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-[10px] text-slate-400 font-bold uppercase">Mobile</span>
+                  <span className="text-lg font-black text-slate-700">
+                    {data.devices.find(d => d.device === "Mobile")?.percentage || 60}%
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {/* Grid: Referrers (Left) & Countries (Right) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Referral Traffic */}
         <div className="rounded-3xl border border-border bg-white p-6 shadow-sm space-y-5">
           <div>
@@ -597,92 +646,32 @@ CLOUDFLARE_API_TOKEN=your_cloudflare_api_token_here`}
           </div>
         </div>
 
-        {/* Device & Country Breakdown */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          {/* Devices Breakdown Card */}
-          <div className="rounded-3xl border border-border bg-white p-6 shadow-sm flex flex-col justify-between space-y-5">
-            <div>
-              <h3 className="text-base font-black text-slate-800">Thiết bị truy cập</h3>
-              <p className="text-[10px] text-slate-400 mt-0.5">Tỉ lệ loại thiết bị người dùng</p>
-            </div>
-            
-            <div className="space-y-3 flex-1 flex flex-col justify-center">
-              {data.devices.map((d, idx) => (
-                <div key={idx} className="flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-2">
-                    <span className={`h-2.5 w-2.5 rounded-full ${getDeviceBgClass(d.device)}`}></span>
-                    <span className="font-bold text-slate-600">{d.device}</span>
-                  </div>
-                  <span className="font-bold text-slate-500">{d.percentage}%</span>
-                </div>
-              ))}
-              {/* Circular gauge simulator */}
-              <div className="pt-4 flex items-center justify-center">
-                <div className="relative h-24 w-24 flex items-center justify-center">
-                  {/* Simulated Donut Chart using SVG */}
-                  <svg viewBox="0 0 36 36" className="h-full w-full transform -rotate-90">
-                    <circle cx="18" cy="18" r="15.9155" fill="none" stroke="#e2e8f0" strokeWidth="3" />
-                    {(() => {
-                      let accumulatedPercentage = 0;
-                      return data.devices.map((d, idx) => {
-                        const pct = d.percentage;
-                        const dashArray = `${pct} ${100 - pct}`;
-                        const dashOffset = -accumulatedPercentage;
-                        accumulatedPercentage += pct;
-                        const color = getDeviceColor(d.device);
-                        return (
-                          <circle
-                            key={idx}
-                            cx="18"
-                            cy="18"
-                            r="15.9155"
-                            fill="none"
-                            stroke={color}
-                            strokeWidth="3"
-                            strokeDasharray={dashArray}
-                            strokeDashoffset={dashOffset}
-                          />
-                        );
-                      });
-                    })()}
-                  </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-[10px] text-slate-400 font-bold uppercase">Mobile</span>
-                    <span className="text-sm font-black text-slate-700">
-                      {data.devices.find(d => d.device === "Mobile")?.percentage || 60}%
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
+        {/* Countries Breakdown */}
+        <div className="rounded-3xl border border-border bg-white p-6 shadow-sm flex flex-col justify-between space-y-5">
+          <div>
+            <h3 className="text-base font-black text-slate-800">Quốc gia</h3>
+            <p className="text-[10px] text-slate-400 mt-0.5">Top vị trí truy cập hàng đầu</p>
           </div>
 
-          {/* Countries Breakdown Card */}
-          <div className="rounded-3xl border border-border bg-white p-6 shadow-sm flex flex-col justify-between space-y-5">
-            <div>
-              <h3 className="text-base font-black text-slate-800">Quốc gia</h3>
-              <p className="text-[10px] text-slate-400 mt-0.5">Top vị trí truy cập hàng đầu</p>
-            </div>
-
-            <div className="space-y-4 flex-1 flex flex-col justify-center">
-              {data.countries.map((c, idx) => (
-                <div key={idx} className="space-y-1">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-bold text-slate-700">{c.country}</span>
-                    <span className="font-bold text-slate-500">{c.percentage}%</span>
-                  </div>
-                  <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-blue-500 rounded-full"
-                      style={{ width: `${c.percentage}%` }}
-                    ></div>
-                  </div>
+          <div className="space-y-4 flex-1 flex flex-col justify-center">
+            {data.countries.map((c, idx) => (
+              <div key={idx} className="space-y-1">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-bold text-slate-700">{c.country}</span>
+                  <span className="font-bold text-slate-500">{c.percentage}%</span>
                 </div>
-              ))}
-            </div>
+                <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-blue-500 rounded-full"
+                    style={{ width: `${c.percentage}%` }}
+                  ></div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
+
 
       {/* Floating Toast Notification */}
       {syncMessage && (
