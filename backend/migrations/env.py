@@ -28,6 +28,7 @@ from app.models.blog_category import BlogCategory
 from app.models.category import Category
 from app.models.setting import Setting
 from app.models.testimonial import Testimonial
+from app.models.analytics import ZoneDailyAnalytics, ZoneCountryAnalytics, ZoneDeviceAnalytics
 
 # add your model's MetaData object here
 # for 'autogenerate' support

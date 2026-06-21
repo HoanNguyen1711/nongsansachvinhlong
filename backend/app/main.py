@@ -16,6 +16,9 @@ async def lifespan(app: FastAPI):
     os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
     # Initialize database schemas and default administrator
     init_db()
+    # Start background Cloudflare analytics sync daemon
+    from app.core.analytics_worker import start_analytics_scheduler
+    start_analytics_scheduler()
     yield
     # Shutdown actions (if any)
 

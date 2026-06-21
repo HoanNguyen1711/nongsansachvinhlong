@@ -37,6 +37,7 @@ interface AnalyticsData {
   referrers: ReferrerStat[];
   devices: DeviceStat[];
   countries: CountryStat[];
+  last_synced?: string | null;
 }
 
 const getDeviceColor = (device: string) => {
@@ -69,11 +70,14 @@ export default function AdminAnalyticsPage() {
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [days, setDays] = useState<number>(7);
+  const [syncing, setSyncing] = useState(false);
+  const [syncMessage, setSyncMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  const fetchAnalytics = async () => {
+  const fetchAnalytics = async (selectedDays = days) => {
     setLoading(true);
     try {
-      const res = await api.get("/analytics");
+      const res = await api.get(`/analytics?days=${selectedDays}`);
       setData(res);
     } catch (err: any) {
       setError(err.message || "Không thể tải dữ liệu thống kê.");
@@ -83,8 +87,51 @@ export default function AdminAnalyticsPage() {
   };
 
   useEffect(() => {
-    fetchAnalytics();
+    fetchAnalytics(days);
   }, []);
+
+  useEffect(() => {
+    if (syncMessage) {
+      const timer = setTimeout(() => {
+        setSyncMessage(null);
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [syncMessage]);
+
+  const handleSync = async () => {
+    if (syncing) return;
+    setSyncing(true);
+    setSyncMessage(null);
+    try {
+      await api.post("/analytics/sync", {});
+      setSyncMessage({ type: "success", text: "Đồng bộ dữ liệu thành công!" });
+      await fetchAnalytics(days);
+    } catch (err: any) {
+      setSyncMessage({ 
+        type: "error", 
+        text: err.message || "Không thể đồng bộ dữ liệu lúc này." 
+      });
+    } finally {
+      setSyncing(false);
+    }
+  };
+
+  const formatLastSynced = (isoStr: string) => {
+    try {
+      const date = new Date(isoStr);
+      const pad = (n: number) => n.toString().padStart(2, '0');
+      const hours = pad(date.getHours());
+      const minutes = pad(date.getMinutes());
+      const seconds = pad(date.getSeconds());
+      const day = pad(date.getDate());
+      const month = pad(date.getMonth() + 1);
+      const year = date.getFullYear();
+      return `${hours}:${minutes}:${seconds} ${day}/${month}/${year}`;
+    } catch {
+      return isoStr;
+    }
+  };
 
   // Format date helper (e.g., "19/06")
   const formatDate = (dateStr: string) => {
@@ -180,7 +227,7 @@ export default function AdminAnalyticsPage() {
           {error || "Đã xảy ra lỗi không xác định. Vui lòng kiểm tra lại cấu hình."}
         </p>
         <button
-          onClick={fetchAnalytics}
+          onClick={() => fetchAnalytics(days)}
           className="rounded-full bg-red-600 text-white px-6 py-2.5 text-xs font-bold shadow-md hover:bg-red-700 transition-colors"
         >
           Thử Lại
@@ -191,15 +238,76 @@ export default function AdminAnalyticsPage() {
 
   return (
     <div className="space-y-8">
-      {/* Title Header */}
-      <div>
-        <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight flex items-center gap-2">
-          <BarChart3 className="h-8 w-8 text-primary" />
-          <span>Thống Kê Truy Cập</span>
-        </h1>
-        <p className="text-slate-500 text-xs mt-1">
-          Xem phân tích lượng truy cập, nguồn dẫn và thiết bị người dùng truy cập website.
-        </p>
+      {/* Title Header and Controls */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-slate-100">
+        <div>
+          <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight flex items-center gap-2">
+            <BarChart3 className="h-8 w-8 text-emerald-600" />
+            <span>Thống Kê Truy Cập</span>
+          </h1>
+          <p className="text-slate-500 text-xs mt-1">
+            Xem phân tích lượng truy cập, nguồn dẫn và thiết bị người dùng truy cập website.
+          </p>
+        </div>
+        
+        {/* Controls */}
+        <div className="flex flex-wrap items-center gap-3">
+          {data?.last_synced && (
+            <span className="text-[11px] text-slate-400 font-medium">
+              Đồng bộ: {formatLastSynced(data.last_synced)}
+            </span>
+          )}
+          
+          {/* Dropdown */}
+          <div className="relative">
+            <select
+              value={days}
+              onChange={(e) => {
+                const val = parseInt(e.target.value, 10);
+                setDays(val);
+                fetchAnalytics(val);
+              }}
+              className="appearance-none bg-white border border-slate-200 hover:border-slate-300 rounded-2xl px-4 py-2 pr-8 text-xs font-bold text-slate-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/20 cursor-pointer"
+            >
+              <option value={7}>7 ngày qua</option>
+              <option value={14}>14 ngày qua</option>
+              <option value={30}>30 ngày qua</option>
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-400">
+              <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+              </svg>
+            </div>
+          </div>
+
+          {/* Sync Button */}
+          <button
+            onClick={handleSync}
+            disabled={syncing}
+            className={`flex items-center gap-1.5 rounded-2xl px-4 py-2 text-xs font-bold shadow-sm transition-all ${
+              syncing 
+                ? "bg-slate-100 text-slate-400 cursor-not-allowed" 
+                : "bg-emerald-600 hover:bg-emerald-700 text-white active:scale-95"
+            }`}
+          >
+            {syncing ? (
+              <>
+                <svg className="animate-spin h-3.5 w-3.5 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span>Đang đồng bộ...</span>
+              </>
+            ) : (
+              <>
+                <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H17m0 0V4"></path>
+                </svg>
+                <span>Làm mới</span>
+              </>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Warning Alert if running on Mock Data */}
@@ -238,7 +346,7 @@ CLOUDFLARE_API_TOKEN=your_cloudflare_api_token_here`}
             </h3>
             <span className="text-[10px] text-emerald-600 font-bold flex items-center gap-0.5">
               <TrendingUp className="h-3 w-3" />
-              <span>7 ngày gần nhất</span>
+              <span>{days} ngày gần nhất</span>
             </span>
           </div>
           <div className="h-12 w-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
@@ -265,10 +373,10 @@ CLOUDFLARE_API_TOKEN=your_cloudflare_api_token_here`}
           <div className="space-y-1">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Xem Trang Trung Bình / Ngày</span>
             <h3 className="text-2xl font-black text-slate-800">
-              {Math.round(data.total_views / 7).toLocaleString("vi-VN")}
+              {Math.round(data.total_views / days).toLocaleString("vi-VN")}
             </h3>
             <span className="text-[10px] text-slate-400 font-normal">
-              Tính trên khoảng thời gian 7 ngày
+              Tính trên khoảng thời gian {days} ngày
             </span>
           </div>
           <div className="h-12 w-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0">
@@ -564,6 +672,28 @@ CLOUDFLARE_API_TOKEN=your_cloudflare_api_token_here`}
           </div>
         </div>
       </div>
+
+      {/* Floating Toast Notification */}
+      {syncMessage && (
+        <div className="fixed bottom-6 right-6 z-50 animate-bounce duration-500">
+          <div className={`flex items-center gap-2 rounded-2xl px-5 py-3 shadow-lg border text-xs font-bold text-white ${
+            syncMessage.type === "success"
+              ? "bg-emerald-600 border-emerald-500"
+              : "bg-red-600 border-red-500"
+          }`}>
+            {syncMessage.type === "success" ? (
+              <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7"></path>
+              </svg>
+            ) : (
+              <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+              </svg>
+            )}
+            <span>{syncMessage.text}</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
