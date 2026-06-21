@@ -41,8 +41,9 @@ def get_analytics(
     start_date = start_date_dt.strftime("%Y-%m-%d")
     end_date = end_date_dt.strftime("%Y-%m-%d")
     
-    start_time = start_date_dt.replace(hour=0, minute=0, second=0, microsecond=0).strftime("%Y-%m-%dT%H:%M:%SZ")
-    end_time = end_date_dt.replace(hour=23, minute=59, second=59, microsecond=0).strftime("%Y-%m-%dT%H:%M:%SZ")
+    # For Free tier zones, adaptive logs are limited to a 24-hour window
+    start_time = (end_date_dt - timedelta(hours=24)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    end_time = end_date_dt.strftime("%Y-%m-%dT%H:%M:%SZ")
     
     zone_id = settings.CLOUDFLARE_ZONE_ID
     api_token = settings.CLOUDFLARE_API_TOKEN
@@ -68,16 +69,6 @@ def get_analytics(
               requests
               pageViews
             }
-          }
-          referrers: httpRequestsAdaptiveGroups(
-            limit: 10
-            filter: { datetime_geq: $startTime, datetime_leq: $endTime, clientRequestPath_neq: "/api" }
-            orderBy: [count_DESC]
-          ) {
-            dimensions {
-              clientRefererHost
-            }
-            count
           }
           devices: httpRequestsAdaptiveGroups(
             limit: 5
