@@ -33,6 +33,7 @@ interface AnalyticsData {
   error?: string | null;
   total_views: number;
   total_requests: number;
+  total_views_alltime?: number;
   daily_stats: DailyStat[];
   referrers: ReferrerStat[];
   devices: DeviceStat[];
@@ -200,46 +201,36 @@ export default function AdminAnalyticsPage() {
 
     const stats = aggregatedStats;
     const maxViews = Math.max(...stats.map((s) => s.views), 100);
-    const maxReqs = Math.max(...stats.map((s) => s.requests), 100);
 
     // How many X-axis labels to skip so they don't overlap
     const labelStep = stats.length <= 10 ? 1 : stats.length <= 20 ? 2 : Math.ceil(stats.length / 10);
     const showValueLabels = stats.length <= 14;
-    // Dot size shrinks for many points
     const dotR = stats.length <= 14 ? 4.5 : 3;
-    const dotRSmall = stats.length <= 14 ? 3.5 : 2;
 
     const getX = (index: number) => paddingX + index * pointSpacing;
 
     const getYViews = (val: number) =>
       chartHeight - paddingY - (val / maxViews) * (chartHeight - paddingY * 2);
 
-    const getYReqs = (val: number) =>
-      chartHeight - paddingY - (val / maxReqs) * (chartHeight - paddingY * 2);
-
     let viewsLinePath = "";
     let viewsAreaPath = "";
-    let reqsLinePath = "";
 
     stats.forEach((s, idx) => {
       const x = getX(idx);
       const yViews = getYViews(s.views);
-      const yReqs = getYReqs(s.requests);
       if (idx === 0) {
         viewsLinePath = `M ${x} ${yViews}`;
         viewsAreaPath = `M ${x} ${chartHeight - paddingY} L ${x} ${yViews}`;
-        reqsLinePath = `M ${x} ${yReqs}`;
       } else {
         viewsLinePath += ` L ${x} ${yViews}`;
         viewsAreaPath += ` L ${x} ${yViews}`;
-        reqsLinePath += ` L ${x} ${yReqs}`;
       }
       if (idx === stats.length - 1) {
         viewsAreaPath += ` L ${x} ${chartHeight - paddingY} Z`;
       }
     });
 
-    return { maxViews, maxReqs, getX, getYViews, getYReqs, viewsLinePath, viewsAreaPath, reqsLinePath, labelStep, showValueLabels, dotR, dotRSmall };
+    return { maxViews, getX, getYViews, viewsLinePath, viewsAreaPath, labelStep, showValueLabels, dotR };
   }, [aggregatedStats, chartWidth, pointSpacing]);
 
   if (loading) {
@@ -394,12 +385,12 @@ CLOUDFLARE_API_TOKEN=your_cloudflare_api_token_here`}
 
         <div className="rounded-3xl border border-border bg-white p-6 shadow-sm flex items-center justify-between">
           <div className="space-y-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Tổng Số Yêu Cầu (Requests)</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Tổng Lượt Xem Từ Đầu</span>
             <h3 className="text-2xl font-black text-slate-800">
-              {data.total_requests.toLocaleString("vi-VN")}
+              {(data.total_views_alltime ?? data.total_views).toLocaleString("vi-VN")}
             </h3>
             <span className="text-[10px] text-slate-400 font-normal">
-              Bao gồm tài nguyên tĩnh & hình ảnh
+              Tích lũy toàn bộ thời gian
             </span>
           </div>
           <div className="h-12 w-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
@@ -431,7 +422,7 @@ CLOUDFLARE_API_TOKEN=your_cloudflare_api_token_here`}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
               <h3 className="text-base font-black text-slate-800">Lưu lượng truy cập</h3>
-              <p className="text-[10px] text-slate-400 mt-0.5">So sánh lượt xem trang và tổng số yêu cầu</p>
+              <p className="text-[10px] text-slate-400 mt-0.5">Lượt xem trang theo thời gian</p>
             </div>
             <div className="flex items-center gap-3">
               {/* Group-by tabs */}
@@ -450,16 +441,10 @@ CLOUDFLARE_API_TOKEN=your_cloudflare_api_token_here`}
                   </button>
                 ))}
               </div>
-              {/* Legend */}
-              <div className="flex items-center gap-3 text-[10px] font-bold">
-                <div className="flex items-center gap-1.5">
-                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
-                  <span className="text-slate-500">Xem trang</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="h-2.5 w-2.5 rounded-full bg-blue-400"></span>
-                  <span className="text-slate-500">Yêu cầu</span>
-                </div>
+              {/* Legend — views only */}
+              <div className="flex items-center gap-1.5 text-[10px] font-bold">
+                <span className="h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
+                <span className="text-slate-500">Lượt xem trang</span>
               </div>
             </div>
           </div>
@@ -485,8 +470,6 @@ CLOUDFLARE_API_TOKEN=your_cloudflare_api_token_here`}
                   const y = paddingY + r * (chartHeight - paddingY * 2);
                   const val = Math.round((1 - r) * chartParams.maxViews);
                   const fmtVal = val >= 1000 ? `${(val / 1000).toFixed(1)}k` : val.toString();
-                  const valR = Math.round((1 - r) * chartParams.maxReqs);
-                  const fmtValR = valR >= 1000 ? `${(valR / 1000).toFixed(1)}k` : valR.toString();
                   return (
                     <g key={i}>
                       <line x1={paddingX} y1={y} x2={chartWidth - paddingX} y2={y}
@@ -495,10 +478,6 @@ CLOUDFLARE_API_TOKEN=your_cloudflare_api_token_here`}
                         fontSize="10" fontWeight="600" fill="#94a3b8" fontFamily="sans-serif">
                         {fmtVal}
                       </text>
-                      <text x={chartWidth - paddingX + 8} y={y + 4} textAnchor="start"
-                        fontSize="10" fontWeight="600" fill="#93c5fd" fontFamily="sans-serif">
-                        {fmtValR}
-                      </text>
                     </g>
                   );
                 })}
@@ -506,9 +485,7 @@ CLOUDFLARE_API_TOKEN=your_cloudflare_api_token_here`}
                 {/* Filled area under views line */}
                 <path d={chartParams.viewsAreaPath} fill="url(#viewsAreaGrad2)" />
 
-                {/* Requests line */}
-                <path d={chartParams.reqsLinePath} fill="none" stroke="#60a5fa"
-                  strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="3 3" />
+                {/* Requests line — removed */}
 
                 {/* Views line (on top) */}
                 <path d={chartParams.viewsLinePath} fill="none" stroke="#10b981"
@@ -518,33 +495,21 @@ CLOUDFLARE_API_TOKEN=your_cloudflare_api_token_here`}
                 {aggregatedStats.map((s, idx) => {
                   const x = chartParams.getX(idx);
                   const yViews = chartParams.getYViews(s.views);
-                  const yReqs = chartParams.getYReqs(s.requests);
                   const showLabel = idx % chartParams.labelStep === 0;
 
                   return (
                     <g key={idx}>
-                      {/* X-axis label (thinned) */}
                       {showLabel && (
                         <text x={x} y={chartHeight - 8} textAnchor="middle"
                           fontSize="9" fontWeight="700" fill="#64748b" fontFamily="sans-serif">
                           {s.label}
                         </text>
                       )}
-
-                      {/* Vertical hover guide */}
                       <line x1={x} y1={paddingY} x2={x} y2={chartHeight - paddingY}
                         stroke="#94a3b8" strokeWidth="1"
                         opacity="0" className="hover:opacity-20 transition-opacity" />
-
-                      {/* Views dot */}
                       <circle cx={x} cy={yViews} r={chartParams.dotR}
                         fill="#10b981" stroke="#fff" strokeWidth="1.5" />
-
-                      {/* Requests dot */}
-                      <circle cx={x} cy={yReqs} r={chartParams.dotRSmall}
-                        fill="#60a5fa" stroke="#fff" strokeWidth="1.5" />
-
-                      {/* Value label above views dot — only when not too crowded */}
                       {chartParams.showValueLabels && s.views > 0 && (
                         <text x={x} y={yViews - 7} textAnchor="middle"
                           fontSize="8" fontWeight="800" fill="#059669" fontFamily="sans-serif">

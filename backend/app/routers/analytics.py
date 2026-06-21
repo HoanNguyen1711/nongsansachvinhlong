@@ -62,7 +62,8 @@ def generate_mock_data(start_date_dt, configured=False, error=None, days=7):
             {"country": "Singapore", "count": int(total_requests * 0.10), "percentage": 10},
             {"country": "Khác", "count": int(total_requests * 0.05), "percentage": 5}
         ],
-        "last_synced": datetime.now(timezone.utc).isoformat()
+        "last_synced": datetime.now(timezone.utc).isoformat(),
+        "total_views_alltime": total_views  # mock: use period total as proxy
     }
 
 @router.get("/")
@@ -192,10 +193,16 @@ def get_analytics(
     if not countries:
         countries = [{"country": "Việt Nam", "count": 0, "percentage": 100}]
         
+    # Query all-time total page views (no date filter)
+    total_views_alltime = db.exec(
+        select(func.sum(ZoneDailyAnalytics.page_views))
+    ).first() or 0
+
     return {
         "configured": True,
         "total_views": total_views,
         "total_requests": total_requests,
+        "total_views_alltime": int(total_views_alltime),
         "daily_stats": daily_stats,
         "referrers": [{"source": "Direct / Unknown", "count": total_requests, "percentage": 100}],
         "devices": devices,
