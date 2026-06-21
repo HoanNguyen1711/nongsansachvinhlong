@@ -153,33 +153,36 @@ export const Navbar: React.FC<NavbarProps> = ({ phone = "0901234567", lang: init
               if (item.path === "/stories") {
                 return (
                   <div key={item.path} className="relative group py-2">
-                    <button
+                    <Link
+                      href={getLocalizedHref(item.path, lang)}
                       className={`flex items-center gap-1 text-sm font-medium transition-colors hover:text-primary cursor-pointer focus:outline-none ${
                         isActive(item.path) ? "text-primary font-semibold border-b-2 border-primary pb-0.5" : "text-foreground/75"
                       }`}
                     >
                       <span>{item.name}</span>
-                      <ChevronDown className="h-3 w-3 transition-transform duration-200 group-hover:rotate-180" />
-                    </button>
+                      {categories.length > 0 && (
+                        <ChevronDown className="h-3 w-3 transition-transform duration-200 group-hover:rotate-180" />
+                      )}
+                    </Link>
                     
                     {/* Hover Dropdown */}
-                    <div className={`absolute left-1/2 -translate-x-1/2 mt-1 hidden group-hover:block w-max max-w-[15rem] rounded-2xl border border-border bg-background p-1.5 shadow-lg ring-1 ring-black/5 animate-in fade-in slide-in-from-top-1 duration-150 z-50 ${
-                      lang === "zh" ? "min-w-[7rem]" : lang === "en" ? "min-w-[10rem]" : "min-w-[11.5rem]"
-                    }`}>
-                      {categories.map((cat, idx) => {
-                        const localizedName = getLocalizedCategory(cat, lang);
-                        const href = `${getLocalizedHref("/stories", lang)}?category=${encodeURIComponent(cat.category)}`;
-                        return (
-                          <Link
-                            key={idx}
-                            href={href}
-                            className="flex w-full items-center justify-center rounded-xl px-4 py-2 text-center text-xs font-medium text-foreground/75 hover:bg-accent hover:text-primary transition-colors"
-                          >
-                            {localizedName}
-                          </Link>
-                        );
-                      })}
-                    </div>
+                    {categories.length > 0 && (
+                      <div className={`absolute left-1/2 -translate-x-1/2 top-full mt-0.5 hidden group-hover:block w-max min-w-[12rem] rounded-2xl border border-slate-100 bg-white/95 backdrop-blur-md p-1.5 shadow-xl shadow-slate-900/5 animate-in fade-in slide-in-from-top-1 duration-150 z-50`}>
+                        {categories.map((cat, idx) => {
+                          const localizedName = getLocalizedCategory(cat, lang);
+                          const href = `${getLocalizedHref("/stories", lang)}?category=${encodeURIComponent(cat.category)}`;
+                          return (
+                            <Link
+                              key={idx}
+                              href={href}
+                              className="flex w-full items-center justify-start rounded-xl px-4 py-2.5 text-left text-xs font-semibold text-slate-700 hover:bg-emerald-50/50 hover:text-emerald-700 transition-colors"
+                            >
+                              {localizedName}
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 );
               }
@@ -286,33 +289,47 @@ export const Navbar: React.FC<NavbarProps> = ({ phone = "0901234567", lang: init
             if (item.path === "/stories") {
               return (
                 <div key={item.path} className="space-y-1">
-                  <button
-                    onClick={() => setMobileStoriesOpen(!mobileStoriesOpen)}
-                    className={`flex w-full items-center justify-between rounded-lg px-4 py-2 text-base font-medium hover:bg-accent hover:text-primary ${
-                      isActive(item.path) ? "bg-accent/50 text-primary font-semibold" : "text-foreground/75"
-                    }`}
-                  >
-                    <span>{item.name}</span>
-                    <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${mobileStoriesOpen ? "rotate-180" : ""}`} />
-                  </button>
-                  
-                  {mobileStoriesOpen && (
-                    <div className="pl-4 border-l border-slate-100 ml-4 space-y-1">
-                      {categories.map((cat, idx) => {
-                        const localizedName = getLocalizedCategory(cat, lang);
-                        const href = `${getLocalizedHref("/stories", lang)}?category=${encodeURIComponent(cat.category)}`;
-                        return (
-                          <Link
-                            key={idx}
-                            href={href}
-                            onClick={() => setIsOpen(false)}
-                            className="block rounded-lg px-4 py-1.5 text-sm font-medium text-foreground/60 hover:bg-accent hover:text-primary"
-                          >
-                            {localizedName}
-                          </Link>
-                        );
-                      })}
-                    </div>
+                  {categories.length > 0 ? (
+                    <>
+                      <button
+                        onClick={() => setMobileStoriesOpen(!mobileStoriesOpen)}
+                        className={`flex w-full items-center justify-between rounded-lg px-4 py-2 text-base font-medium hover:bg-accent hover:text-primary ${
+                          isActive(item.path) ? "bg-accent/50 text-primary font-semibold" : "text-foreground/75"
+                        }`}
+                      >
+                        <span>{item.name}</span>
+                        <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${mobileStoriesOpen ? "rotate-180" : ""}`} />
+                      </button>
+                      
+                      {mobileStoriesOpen && (
+                        <div className="pl-4 border-l border-slate-100 ml-4 space-y-1">
+                          {categories.map((cat, idx) => {
+                            const localizedName = getLocalizedCategory(cat, lang);
+                            const href = `${getLocalizedHref("/stories", lang)}?category=${encodeURIComponent(cat.category)}`;
+                            return (
+                              <Link
+                                key={idx}
+                                href={href}
+                                onClick={() => setIsOpen(false)}
+                                className="block rounded-lg px-4 py-1.5 text-sm font-medium text-foreground/60 hover:bg-accent hover:text-primary"
+                              >
+                                {localizedName}
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <Link
+                      href={getLocalizedHref(item.path, lang)}
+                      onClick={() => setIsOpen(false)}
+                      className={`block rounded-lg px-4 py-2 text-base font-medium hover:bg-accent hover:text-primary ${
+                        isActive(item.path) ? "bg-accent text-primary" : "text-foreground/75"
+                      }`}
+                    >
+                      {item.name}
+                    </Link>
                   )}
                 </div>
               );

@@ -132,6 +132,22 @@ export default async function BlogsPage({ params, searchParams }: PageProps) {
       displayBlogs = MOCKUP_BLOGS.filter(b => b.category === category);
     }
   }
+  
+  // Get final category list for pills
+  let finalCategoriesList = categoriesList;
+  if (finalCategoriesList.length === 0) {
+    const uniqueCats: Record<string, CategoryItem> = {};
+    MOCKUP_BLOGS.forEach(b => {
+      if (b.category && !uniqueCats[b.category]) {
+        uniqueCats[b.category] = {
+          category: b.category,
+          category_en: b.category_en || b.category,
+          category_zh: b.category_zh || b.category
+        };
+      }
+    });
+    finalCategoriesList = Object.values(uniqueCats);
+  }
 
   // Find localized name for the category to show in the header card
   let localizedCategoryName = category;
@@ -198,6 +214,37 @@ export default async function BlogsPage({ params, searchParams }: PageProps) {
             {t.storiesSubtitle}
           </p>
         </div>
+      </div>
+
+      {/* Category Selection Pills */}
+      <div className="flex flex-wrap items-center gap-2 border-b border-slate-100 pb-6">
+        <Link
+          href={getLocalizedHref("/stories", lang)}
+          className={`rounded-2xl px-4 py-2 text-xs font-bold transition-all ${
+            !category
+              ? "bg-emerald-600 text-white shadow-sm shadow-emerald-600/10 active:scale-95"
+              : "bg-slate-100 text-slate-600 hover:bg-slate-200/70 hover:text-slate-800 active:scale-95"
+          }`}
+        >
+          {lang === "vi" ? "Tất cả" : lang === "en" ? "All Stories" : "全部故事"}
+        </Link>
+        {finalCategoriesList.map((cat, idx) => {
+          const localizedCatName = lang === "en" ? cat.category_en : lang === "zh" ? cat.category_zh : cat.category;
+          const isSelected = category === cat.category;
+          return (
+            <Link
+              key={idx}
+              href={`${getLocalizedHref("/stories", lang)}?category=${encodeURIComponent(cat.category)}`}
+              className={`rounded-2xl px-4 py-2 text-xs font-bold transition-all ${
+                isSelected
+                  ? "bg-emerald-600 text-white shadow-sm shadow-emerald-600/10 active:scale-95"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200/70 hover:text-slate-800 active:scale-95"
+              }`}
+            >
+              {localizedCatName}
+            </Link>
+          );
+        })}
       </div>
 
       {/* Category Header Card */}
