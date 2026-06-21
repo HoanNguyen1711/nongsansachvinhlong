@@ -189,7 +189,7 @@ export default function AdminAnalyticsPage() {
   }, [data, groupBy]);
 
   // SVG Chart Dimensions & Computations
-  const chartHeight = 420;
+  const chartHeight = 300;
   const paddingX = 64;
   const paddingY = 40;
   // Fixed virtual canvas — SVG scales via CSS to fill container
