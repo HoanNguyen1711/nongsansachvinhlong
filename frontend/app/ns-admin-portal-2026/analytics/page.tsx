@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useMemo } from "react";
 import { api } from "@/lib/api";
-import { BarChart3, AlertCircle, ShieldAlert, Eye, Globe, Laptop, ArrowUpRight, TrendingUp } from "lucide-react";
+import { BarChart3, AlertCircle, ShieldAlert, Eye, Globe, Laptop, ArrowUpRight, TrendingUp, RefreshCw } from "lucide-react";
 
 interface DailyStat {
   date: string;
@@ -83,6 +83,7 @@ export default function AdminAnalyticsPage() {
   const [groupBy, setGroupBy] = useState<GroupBy>("day");
   const [syncing, setSyncing] = useState(false);
   const [syncMessage, setSyncMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [cooldownSecs, setCooldownSecs] = useState<number>(0);
 
   const fetchAnalytics = async (selectedDays = days) => {
     setLoading(true);
@@ -109,8 +110,44 @@ export default function AdminAnalyticsPage() {
     }
   }, [syncMessage]);
 
+  // Sync cooldown from loaded data
+  useEffect(() => {
+    if (data?.last_synced) {
+      const lastSyncedTime = new Date(data.last_synced).getTime();
+      const nowTime = new Date().getTime();
+      const elapsedSecs = Math.max(0, Math.floor((nowTime - lastSyncedTime) / 1000));
+      const remaining = 300 - elapsedSecs;
+      if (remaining > 0 && remaining <= 300) {
+        setCooldownSecs(remaining);
+      } else {
+        setCooldownSecs(0);
+      }
+    }
+  }, [data]);
+
+  // Countdown timer interval
+  useEffect(() => {
+    if (cooldownSecs <= 0) return;
+    const interval = setInterval(() => {
+      setCooldownSecs((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [cooldownSecs]);
+
+  const formatCooldown = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
   const handleSync = async () => {
-    if (syncing) return;
+    if (syncing || cooldownSecs > 0) return;
     setSyncing(true);
     setSyncMessage(null);
     try {
@@ -118,9 +155,15 @@ export default function AdminAnalyticsPage() {
       setSyncMessage({ type: "success", text: "Đồng bộ dữ liệu thành công!" });
       await fetchAnalytics(days);
     } catch (err: any) {
+      const errMsg = err.message || "";
+      const match = errMsg.match(/sau\s+(\d+)\s+giây/);
+      if (match && match[1]) {
+        const secs = parseInt(match[1], 10);
+        setCooldownSecs(secs);
+      }
       setSyncMessage({ 
         type: "error", 
-        text: err.message || "Không thể đồng bộ dữ liệu lúc này." 
+        text: errMsg || "Không thể đồng bộ dữ liệu lúc này." 
       });
     } finally {
       setSyncing(false);
@@ -313,26 +356,26 @@ export default function AdminAnalyticsPage() {
           {/* Sync Button */}
           <button
             onClick={handleSync}
-            disabled={syncing}
+            disabled={syncing || cooldownSecs > 0}
             className={`flex items-center gap-1.5 rounded-2xl px-4 py-2 text-xs font-bold shadow-sm transition-all ${
-              syncing 
-                ? "bg-slate-100 text-slate-400 cursor-not-allowed" 
+              syncing || cooldownSecs > 0
+                ? "bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200" 
                 : "bg-emerald-600 hover:bg-emerald-700 text-white active:scale-95"
             }`}
           >
             {syncing ? (
               <>
-                <svg className="animate-spin h-3.5 w-3.5 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
+                <RefreshCw className="animate-spin h-3.5 w-3.5" />
                 <span>Đang đồng bộ...</span>
+              </>
+            ) : cooldownSecs > 0 ? (
+              <>
+                <RefreshCw className="h-3.5 w-3.5 text-slate-400" />
+                <span>Làm mới ({formatCooldown(cooldownSecs)})</span>
               </>
             ) : (
               <>
-                <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H17m0 0V4"></path>
-                </svg>
+                <RefreshCw className="h-3.5 w-3.5" />
                 <span>Làm mới</span>
               </>
             )}
