@@ -66,11 +66,20 @@ const getDeviceBgClass = (device: string) => {
   }
 };
 
+type GroupBy = "day" | "week" | "month";
+
+interface AggregatedStat {
+  label: string;
+  views: number;
+  requests: number;
+}
+
 export default function AdminAnalyticsPage() {
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [days, setDays] = useState<number>(7);
+  const [groupBy, setGroupBy] = useState<GroupBy>("day");
   const [syncing, setSyncing] = useState(false);
   const [syncMessage, setSyncMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
@@ -133,41 +142,81 @@ export default function AdminAnalyticsPage() {
     }
   };
 
-  // Format date helper (e.g., "19/06")
-  const formatDate = (dateStr: string) => {
-    try {
-      const [year, month, day] = dateStr.split("-");
-      return `${day}/${month}`;
-    } catch {
-      return dateStr;
+  // Aggregate daily_stats based on groupBy selection
+  const aggregatedStats = useMemo((): AggregatedStat[] => {
+    if (!data || data.daily_stats.length === 0) return [];
+    const raw = data.daily_stats;
+
+    if (groupBy === "day") {
+      return raw.map((s) => {
+        try {
+          const [, month, day] = s.date.split("-");
+          return { label: `${day}/${month}`, views: s.views, requests: s.requests };
+        } catch { return { label: s.date, views: s.views, requests: s.requests }; }
+      });
     }
-  };
+
+    if (groupBy === "week") {
+      const weeks: Record<string, AggregatedStat> = {};
+      raw.forEach((s) => {
+        const d = new Date(s.date);
+        // ISO week start Monday
+        const day = d.getDay();
+        const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+        const monday = new Date(d);
+        monday.setDate(diff);
+        const key = `${String(monday.getDate()).padStart(2,"0")}/${String(monday.getMonth()+1).padStart(2,"0")}`;
+        if (!weeks[key]) weeks[key] = { label: `T${key}`, views: 0, requests: 0 };
+        weeks[key].views += s.views;
+        weeks[key].requests += s.requests;
+      });
+      return Object.values(weeks);
+    }
+
+    if (groupBy === "month") {
+      const months: Record<string, AggregatedStat> = {};
+      raw.forEach((s) => {
+        const [year, month] = s.date.split("-");
+        const key = `${month}/${year}`;
+        if (!months[key]) months[key] = { label: `T${month}/${year.slice(2)}`, views: 0, requests: 0 };
+        months[key].views += s.views;
+        months[key].requests += s.requests;
+      });
+      return Object.values(months);
+    }
+    return [];
+  }, [data, groupBy]);
 
   // SVG Chart Dimensions & Computations
-  const chartWidth = 700;
-  const chartHeight = 260;
-  const paddingX = 60;
-  const paddingY = 30;
+  const chartHeight = 280;
+  const paddingX = 64;
+  const paddingY = 32;
+  // Min px per data point so chart doesn't get cramped
+  const pointSpacing = Math.max(36, Math.min(72, 700 / (aggregatedStats.length || 1)));
+  const chartWidth = Math.max(640, paddingX * 2 + pointSpacing * (aggregatedStats.length - 1 || 1));
 
   const chartParams = useMemo(() => {
-    if (!data || data.daily_stats.length === 0) return null;
+    if (aggregatedStats.length === 0) return null;
 
-    const stats = data.daily_stats;
+    const stats = aggregatedStats;
     const maxViews = Math.max(...stats.map((s) => s.views), 100);
     const maxReqs = Math.max(...stats.map((s) => s.requests), 100);
 
-    const stepX = (chartWidth - paddingX * 2) / (stats.length - 1 || 1);
+    // How many X-axis labels to skip so they don't overlap
+    const labelStep = stats.length <= 10 ? 1 : stats.length <= 20 ? 2 : Math.ceil(stats.length / 10);
+    const showValueLabels = stats.length <= 14;
+    // Dot size shrinks for many points
+    const dotR = stats.length <= 14 ? 4.5 : 3;
+    const dotRSmall = stats.length <= 14 ? 3.5 : 2;
 
-    const getX = (index: number) => paddingX + index * stepX;
-    
-    // Scale functions: 0 is bottom (chartHeight - paddingY), max is top (paddingY)
+    const getX = (index: number) => paddingX + index * pointSpacing;
+
     const getYViews = (val: number) =>
       chartHeight - paddingY - (val / maxViews) * (chartHeight - paddingY * 2);
 
     const getYReqs = (val: number) =>
       chartHeight - paddingY - (val / maxReqs) * (chartHeight - paddingY * 2);
 
-    // Build SVG Path strings
     let viewsLinePath = "";
     let viewsAreaPath = "";
     let reqsLinePath = "";
@@ -176,7 +225,6 @@ export default function AdminAnalyticsPage() {
       const x = getX(idx);
       const yViews = getYViews(s.views);
       const yReqs = getYReqs(s.requests);
-
       if (idx === 0) {
         viewsLinePath = `M ${x} ${yViews}`;
         viewsAreaPath = `M ${x} ${chartHeight - paddingY} L ${x} ${yViews}`;
@@ -186,23 +234,13 @@ export default function AdminAnalyticsPage() {
         viewsAreaPath += ` L ${x} ${yViews}`;
         reqsLinePath += ` L ${x} ${yReqs}`;
       }
-
       if (idx === stats.length - 1) {
         viewsAreaPath += ` L ${x} ${chartHeight - paddingY} Z`;
       }
     });
 
-    return {
-      maxViews,
-      maxReqs,
-      getX,
-      getYViews,
-      getYReqs,
-      viewsLinePath,
-      viewsAreaPath,
-      reqsLinePath,
-    };
-  }, [data]);
+    return { maxViews, maxReqs, getX, getYViews, getYReqs, viewsLinePath, viewsAreaPath, reqsLinePath, labelStep, showValueLabels, dotR, dotRSmall };
+  }, [aggregatedStats, chartWidth, pointSpacing]);
 
   if (loading) {
     return (
@@ -385,160 +423,133 @@ CLOUDFLARE_API_TOKEN=your_cloudflare_api_token_here`}
         </div>
       </div>
 
-      {/* Main Daily Traffic Chart Card */}
+      {/* Main Traffic Chart Card */}
       {chartParams && (
-        <div className="rounded-3xl border border-border bg-white p-6 shadow-sm space-y-6">
-          <div className="flex items-center justify-between">
+        <div className="rounded-3xl border border-border bg-white p-6 shadow-sm space-y-4">
+          {/* Card Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
-              <h3 className="text-base font-black text-slate-800">Lưu lượng truy cập theo ngày</h3>
-              <p className="text-[10px] text-slate-400 mt-0.5">Biểu đồ so sánh số lượt xem trang và số lượng yêu cầu</p>
+              <h3 className="text-base font-black text-slate-800">Lưu lượng truy cập</h3>
+              <p className="text-[10px] text-slate-400 mt-0.5">So sánh lượt xem trang và tổng số yêu cầu</p>
             </div>
-            <div className="flex items-center gap-4 text-[10px] font-bold">
-              <div className="flex items-center gap-1.5">
-                <span className="h-3 w-3 rounded-full bg-emerald-500"></span>
-                <span className="text-slate-600">Lượt xem trang</span>
+            <div className="flex items-center gap-3">
+              {/* Group-by tabs */}
+              <div className="flex items-center bg-slate-100 rounded-2xl p-1 gap-0.5">
+                {(["day", "week", "month"] as GroupBy[]).map((g) => (
+                  <button
+                    key={g}
+                    onClick={() => setGroupBy(g)}
+                    className={`px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all ${
+                      groupBy === g
+                        ? "bg-white text-slate-800 shadow-sm"
+                        : "text-slate-400 hover:text-slate-600"
+                    }`}
+                  >
+                    {g === "day" ? "Ngày" : g === "week" ? "Tuần" : "Tháng"}
+                  </button>
+                ))}
               </div>
-              <div className="flex items-center gap-1.5">
-                <span className="h-3 w-3 rounded-full bg-blue-400"></span>
-                <span className="text-slate-600">Tổng yêu cầu</span>
+              {/* Legend */}
+              <div className="flex items-center gap-3 text-[10px] font-bold">
+                <div className="flex items-center gap-1.5">
+                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
+                  <span className="text-slate-500">Xem trang</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="h-2.5 w-2.5 rounded-full bg-blue-400"></span>
+                  <span className="text-slate-500">Yêu cầu</span>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Custom SVG Line Chart */}
-          <div className="overflow-x-auto pt-2">
-            <div className="min-w-[650px] relative">
+          {/* SVG Chart — scrollable horizontally */}
+          <div className="overflow-x-auto pb-1">
+            <div style={{ minWidth: `${chartWidth}px` }}>
               <svg
+                width={chartWidth}
+                height={chartHeight}
                 viewBox={`0 0 ${chartWidth} ${chartHeight}`}
-                className="w-full h-auto overflow-visible select-none"
+                className="overflow-visible select-none"
               >
                 <defs>
-                  {/* Views Gradient */}
-                  <linearGradient id="viewsAreaGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#10b981" stopOpacity="0.25" />
+                  <linearGradient id="viewsAreaGrad2" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#10b981" stopOpacity="0.22" />
                     <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
                   </linearGradient>
                 </defs>
 
-                {/* Grid Lines */}
+                {/* Horizontal Grid Lines + Y-axis labels */}
                 {[0, 0.25, 0.5, 0.75, 1].map((r, i) => {
                   const y = paddingY + r * (chartHeight - paddingY * 2);
+                  const val = Math.round((1 - r) * chartParams.maxViews);
+                  const fmtVal = val >= 1000 ? `${(val / 1000).toFixed(1)}k` : val.toString();
+                  const valR = Math.round((1 - r) * chartParams.maxReqs);
+                  const fmtValR = valR >= 1000 ? `${(valR / 1000).toFixed(1)}k` : valR.toString();
                   return (
                     <g key={i}>
-                      <line
-                        x1={paddingX}
-                        y1={y}
-                        x2={chartWidth - paddingX}
-                        y2={y}
-                        stroke="#e2e8f0"
-                        strokeWidth="1"
-                        strokeDasharray="4 4"
-                      />
-                      {/* Left Y Axis Labels (Views) */}
-                      <text
-                        x={paddingX - 10}
-                        y={y + 4}
-                        textAnchor="end"
-                        className="text-[9px] font-bold fill-slate-400 font-sans"
-                      >
-                        {Math.round((1 - r) * chartParams.maxViews).toLocaleString("vi-VN")}
+                      <line x1={paddingX} y1={y} x2={chartWidth - paddingX} y2={y}
+                        stroke="#e2e8f0" strokeWidth="1" strokeDasharray="4 4" />
+                      <text x={paddingX - 8} y={y + 4} textAnchor="end"
+                        fontSize="10" fontWeight="600" fill="#94a3b8" fontFamily="sans-serif">
+                        {fmtVal}
                       </text>
-                      {/* Right Y Axis Labels (Reqs) */}
-                      <text
-                        x={chartWidth - paddingX + 10}
-                        y={y + 4}
-                        textAnchor="start"
-                        className="text-[9px] font-bold fill-slate-400 font-sans"
-                      >
-                        {Math.round((1 - r) * chartParams.maxReqs).toLocaleString("vi-VN")}
+                      <text x={chartWidth - paddingX + 8} y={y + 4} textAnchor="start"
+                        fontSize="10" fontWeight="600" fill="#93c5fd" fontFamily="sans-serif">
+                        {fmtValR}
                       </text>
                     </g>
                   );
                 })}
 
-                {/* Area Gradient (Views) */}
-                <path d={chartParams.viewsAreaPath} fill="url(#viewsAreaGrad)" />
+                {/* Filled area under views line */}
+                <path d={chartParams.viewsAreaPath} fill="url(#viewsAreaGrad2)" />
 
-                {/* Lines */}
-                <path
-                  d={chartParams.viewsLinePath}
-                  fill="none"
-                  stroke="#10b981"
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d={chartParams.reqsLinePath}
-                  fill="none"
-                  stroke="#60a5fa"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeDasharray="2 2"
-                />
+                {/* Requests line */}
+                <path d={chartParams.reqsLinePath} fill="none" stroke="#60a5fa"
+                  strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="3 3" />
 
-                {/* Vertical markers and Dots */}
-                {data.daily_stats.map((s, idx) => {
+                {/* Views line (on top) */}
+                <path d={chartParams.viewsLinePath} fill="none" stroke="#10b981"
+                  strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+
+                {/* Per-point elements */}
+                {aggregatedStats.map((s, idx) => {
                   const x = chartParams.getX(idx);
                   const yViews = chartParams.getYViews(s.views);
                   const yReqs = chartParams.getYReqs(s.requests);
+                  const showLabel = idx % chartParams.labelStep === 0;
 
                   return (
                     <g key={idx}>
-                      {/* X axis labels */}
-                      <text
-                        x={x}
-                        y={chartHeight - 10}
-                        textAnchor="middle"
-                        className="text-[9px] font-bold fill-slate-500 font-sans"
-                      >
-                        {formatDate(s.date)}
-                      </text>
+                      {/* X-axis label (thinned) */}
+                      {showLabel && (
+                        <text x={x} y={chartHeight - 8} textAnchor="middle"
+                          fontSize="9" fontWeight="700" fill="#64748b" fontFamily="sans-serif">
+                          {s.label}
+                        </text>
+                      )}
 
-                      {/* Tooltip Hover Guide lines */}
-                      <line
-                        x1={x}
-                        y1={paddingY}
-                        x2={x}
-                        y2={chartHeight - paddingY}
-                        stroke="#94a3b8"
-                        strokeWidth="1"
-                        className="opacity-0 hover:opacity-30 transition-opacity"
-                        style={{ cursor: "pointer" }}
-                      />
+                      {/* Vertical hover guide */}
+                      <line x1={x} y1={paddingY} x2={x} y2={chartHeight - paddingY}
+                        stroke="#94a3b8" strokeWidth="1"
+                        opacity="0" className="hover:opacity-20 transition-opacity" />
 
-                      {/* Views Dot */}
-                      <circle
-                        cx={x}
-                        cy={yViews}
-                        r="4.5"
-                        fill="#10b981"
-                        stroke="#ffffff"
-                        strokeWidth="1.5"
-                        className="drop-shadow-sm hover:r-6 hover:scale-125 transition-transform"
-                      />
+                      {/* Views dot */}
+                      <circle cx={x} cy={yViews} r={chartParams.dotR}
+                        fill="#10b981" stroke="#fff" strokeWidth="1.5" />
 
-                      {/* Reqs Dot */}
-                      <circle
-                        cx={x}
-                        cy={yReqs}
-                        r="3.5"
-                        fill="#60a5fa"
-                        stroke="#ffffff"
-                        strokeWidth="1.5"
-                        className="drop-shadow-sm"
-                      />
+                      {/* Requests dot */}
+                      <circle cx={x} cy={yReqs} r={chartParams.dotRSmall}
+                        fill="#60a5fa" stroke="#fff" strokeWidth="1.5" />
 
-                      {/* Interactive labels above points */}
-                      <text
-                        x={x}
-                        y={yViews - 8}
-                        textAnchor="middle"
-                        className="text-[8px] font-extrabold fill-emerald-700 bg-white"
-                      >
-                        {s.views}
-                      </text>
+                      {/* Value label above views dot — only when not too crowded */}
+                      {chartParams.showValueLabels && s.views > 0 && (
+                        <text x={x} y={yViews - 7} textAnchor="middle"
+                          fontSize="8" fontWeight="800" fill="#059669" fontFamily="sans-serif">
+                          {s.views >= 1000 ? `${(s.views / 1000).toFixed(1)}k` : s.views}
+                        </text>
+                      )}
                     </g>
                   );
                 })}
