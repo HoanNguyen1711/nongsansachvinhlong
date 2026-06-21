@@ -102,14 +102,17 @@ export const Navbar: React.FC<NavbarProps> = ({ phone = "0901234567", lang: init
     
     setLangOpen(false);
     
-    // 2. Perform path switch
-    const segments = pathname.split("/"); // e.g. ["", "en", "san-pham"]
+    // 2. Perform path switch preserving query parameters and hash
+    const currentPathname = typeof window !== "undefined" ? window.location.pathname : pathname;
+    const segments = currentPathname.split("/"); // e.g. ["", "en", "stories"]
     if (segments[1] === "vi" || segments[1] === "en" || segments[1] === "zh") {
       segments[1] = code;
     } else {
       segments.splice(1, 0, code);
     }
-    const newPath = segments.join("/");
+    
+    const queryAndHash = typeof window !== "undefined" ? window.location.search + window.location.hash : "";
+    const newPath = segments.join("/") + queryAndHash;
     window.location.href = newPath;
   };
 
