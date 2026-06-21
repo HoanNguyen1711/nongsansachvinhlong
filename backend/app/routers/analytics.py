@@ -77,9 +77,7 @@ def get_analytics(
             dimensions {
               clientRefererHost
             }
-            sum {
-              requests
-            }
+            count
           }
           devices: httpRequestsAdaptiveGroups(
             limit: 5
@@ -89,9 +87,7 @@ def get_analytics(
             dimensions {
               clientDeviceType
             }
-            sum {
-              requests
-            }
+            count
           }
           countries: httpRequestsAdaptiveGroups(
             limit: 5
@@ -101,9 +97,7 @@ def get_analytics(
             dimensions {
               clientCountryName
             }
-            sum {
-              requests
-            }
+            count
           }
         }
       }
@@ -153,10 +147,10 @@ def get_analytics(
         # 2. Map referrers
         referrers_list = data.get("referrers", [])
         referrers = []
-        ref_total = sum(int(r.get("sum", {}).get("requests", 0)) for r in referrers_list)
+        ref_total = sum(int(r.get("count", 0)) for r in referrers_list)
         for r in referrers_list:
             host = r.get("dimensions", {}).get("clientRefererHost", "") or "Direct / Unknown"
-            count = int(r.get("sum", {}).get("requests", 0))
+            count = int(r.get("count", 0))
             percentage = round((count / ref_total) * 100) if ref_total > 0 else 0
             # Clean up referrer host names
             if host.startswith("www."):
@@ -166,10 +160,10 @@ def get_analytics(
         # 3. Map devices
         devices_list = data.get("devices", [])
         devices = []
-        dev_total = sum(int(d.get("sum", {}).get("requests", 0)) for d in devices_list)
+        dev_total = sum(int(d.get("count", 0)) for d in devices_list)
         for d in devices_list:
             dev_type = d.get("dimensions", {}).get("clientDeviceType", "") or "Other"
-            count = int(d.get("sum", {}).get("requests", 0))
+            count = int(d.get("count", 0))
             percentage = round((count / dev_total) * 100) if dev_total > 0 else 0
             # Translate device names
             dev_label = "Desktop" if dev_type == "desktop" else "Mobile" if dev_type == "mobile" else "Tablet" if dev_type == "tablet" else dev_type.capitalize()
@@ -178,10 +172,10 @@ def get_analytics(
         # 4. Map countries
         countries_list = data.get("countries", [])
         countries = []
-        c_total = sum(int(c.get("sum", {}).get("requests", 0)) for c in countries_list)
+        c_total = sum(int(c.get("count", 0)) for c in countries_list)
         for c in countries_list:
             country = c.get("dimensions", {}).get("clientCountryName", "") or "Unknown"
-            count = int(c.get("sum", {}).get("requests", 0))
+            count = int(c.get("count", 0))
             percentage = round((count / c_total) * 100) if c_total > 0 else 0
             # Translate common country names
             c_label = "Việt Nam" if country == "VN" or country == "Vietnam" else "Mỹ (USA)" if country == "US" or country == "United States" else "Singapore" if country == "SG" else country
