@@ -75,7 +75,7 @@ def get_analytics(
             orderBy: [count_DESC]
           ) {
             dimensions {
-              refererHost
+              clientRefererHost
             }
             sum {
               requests
@@ -155,7 +155,7 @@ def get_analytics(
         referrers = []
         ref_total = sum(int(r.get("sum", {}).get("requests", 0)) for r in referrers_list)
         for r in referrers_list:
-            host = r.get("dimensions", {}).get("refererHost", "") or "Direct / Unknown"
+            host = r.get("dimensions", {}).get("clientRefererHost", "") or "Direct / Unknown"
             count = int(r.get("sum", {}).get("requests", 0))
             percentage = round((count / ref_total) * 100) if ref_total > 0 else 0
             # Clean up referrer host names
