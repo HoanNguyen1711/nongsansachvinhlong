@@ -52,7 +52,7 @@ export const Footer: React.FC<FooterProps> = ({
   const t = getTranslation(lang);
 
   return (
-    <footer className="border-t border-border bg-slate-900 text-slate-300">
+    <footer className="border-t border-border bg-slate-800 text-slate-300">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           {/* Brand Column */}
@@ -132,7 +132,7 @@ export const Footer: React.FC<FooterProps> = ({
             <h3 className="text-sm font-semibold text-white uppercase tracking-wider mb-4">
               {lang === "vi" ? "Cam Kết Chất Lượng" : lang === "en" ? "Quality Commitment" : "品质承诺"}
             </h3>
-            <div className="rounded-lg bg-slate-800 p-4 space-y-2 border border-slate-700">
+            <div className="rounded-lg bg-slate-900/30 p-4 space-y-2 border border-slate-700/50">
               <div className="flex items-center gap-2 text-emerald-400 font-medium text-sm">
                 <span className="inline-block h-2 w-2 rounded-full bg-emerald-400"></span>
                 {lang === "vi" ? "Đạt chuẩn VietGAP" : lang === "en" ? "VietGAP Standards" : "符合VietGAP标准"}
@@ -148,7 +148,7 @@ export const Footer: React.FC<FooterProps> = ({
           </div>
         </div>
         
-        <div className="border-t border-slate-800 mt-12 pt-6 flex flex-col md:flex-row justify-between items-center text-xs text-slate-500 gap-4">
+        <div className="border-t border-slate-700 mt-12 pt-6 flex flex-col md:flex-row justify-between items-center text-xs text-slate-500 gap-4">
           <p>&copy; {currentYear} {t.companyName}. {lang === "vi" ? "Tất cả các quyền được bảo lưu." : lang === "en" ? "All rights reserved." : "保留所有权利。"}</p>
         </div>
       </div>

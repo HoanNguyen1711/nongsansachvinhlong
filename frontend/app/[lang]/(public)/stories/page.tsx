@@ -177,7 +177,7 @@ export default async function BlogsPage({ params, searchParams }: PageProps) {
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 space-y-10">
       {/* Page Banner */}
-      <div className="relative overflow-hidden bg-emerald-950 text-white py-16 px-8 rounded-[32px] shadow-lg border border-white/5">
+      <div className="relative overflow-hidden bg-emerald-600 text-white py-20 px-8 rounded-[32px] shadow-lg border border-white/5">
         {/* Background Image */}
         <img 
           src="/banner_stories.png" 
@@ -259,7 +259,7 @@ export default async function BlogsPage({ params, searchParams }: PageProps) {
                     <span className="text-xs text-slate-400">
                       {formatBlogDate(blog.created_at)}
                     </span>
-                    <h2 className="text-lg font-bold text-slate-800 leading-snug group-hover:text-primary transition-colors line-clamp-2">
+                    <h2 className="text-lg font-bold text-slate-800 leading-snug group-hover:text-emerald-600 transition-colors line-clamp-2">
                       <Link href={getLocalizedHref(`/stories/${blog.slug}`, lang)}>
                         {localizedTitle}
                       </Link>
@@ -274,7 +274,7 @@ export default async function BlogsPage({ params, searchParams }: PageProps) {
                 <div className="mt-5 pt-4 border-t border-slate-100">
                   <Link
                     href={getLocalizedHref(`/stories/${blog.slug}`, lang)}
-                    className="flex items-center gap-1 text-xs font-semibold text-primary"
+                    className="flex items-center gap-1 text-xs font-semibold text-emerald-600 hover:text-emerald-500 transition-colors"
                   >
                     <span>{t.readMore}</span>
                     <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
