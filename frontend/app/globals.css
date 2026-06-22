@@ -136,11 +136,16 @@ article h3,
 article p,
 article a,
 article span,
+article li,
 .blog-rich-content,
 .blog-rich-content * {
-  word-break: keep-all !important;
+  word-break: break-word !important;
   overflow-wrap: break-word !important;
   word-wrap: break-word !important;
+  hyphens: none !important;
+  -webkit-hyphens: none !important;
+  -moz-hyphens: none !important;
+  -ms-hyphens: none !important;
 }
 
 .blog-rich-content {
