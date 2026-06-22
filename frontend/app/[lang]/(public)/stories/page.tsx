@@ -270,8 +270,12 @@ export default async function BlogsPage({ params, searchParams }: PageProps) {
       {displayBlogs.length > 0 ? (
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
           {displayBlogs.map((blog) => {
-            const localizedTitle = getLocalizedValue(blog, "title", lang);
-            const localizedSummary = getLocalizedValue(blog, "summary", lang);
+            const sanitizeText = (str: string | null | undefined) => {
+              if (!str) return "";
+              return str.replace(/&nbsp;|\u00a0/g, " ");
+            };
+            const localizedTitle = sanitizeText(getLocalizedValue(blog, "title", lang));
+            const localizedSummary = sanitizeText(getLocalizedValue(blog, "summary", lang));
             return (
               <article
                 key={blog.id}

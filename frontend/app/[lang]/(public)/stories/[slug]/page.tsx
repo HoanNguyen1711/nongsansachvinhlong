@@ -162,9 +162,14 @@ export default async function BlogDetailPage({ params }: Props) {
   const lang = (resolvedParams.lang || "vi") as LanguageCode;
   const t = getTranslation(lang);
 
-  const localizedTitle = getLocalizedValue(blog, "title", lang);
-  const localizedSummary = getLocalizedValue(blog, "summary", lang);
-  const localizedContent = getLocalizedValue(blog, "content", lang);
+  const sanitizeText = (str: string | null | undefined) => {
+    if (!str) return "";
+    return str.replace(/&nbsp;|\u00a0/g, " ");
+  };
+
+  const localizedTitle = sanitizeText(getLocalizedValue(blog, "title", lang));
+  const localizedSummary = sanitizeText(getLocalizedValue(blog, "summary", lang));
+  const localizedContent = sanitizeText(getLocalizedValue(blog, "content", lang));
 
   const formatBlogDate = (dateStr: string) => {
     try {
