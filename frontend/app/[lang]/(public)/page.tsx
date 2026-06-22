@@ -226,7 +226,7 @@ function renderDefaultLayout(lang: LanguageCode, settings: any, phone: string, d
     <div className="space-y-20 pb-20">
       {/* 1. Hero Section (Boxed Card Layout) */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-6">
-        <section className="relative overflow-hidden bg-emerald-600 text-white min-h-[600px] lg:min-h-[600px] rounded-[32px] flex items-center shadow-xl border border-white/5">
+        <section className="relative overflow-hidden bg-emerald-600 text-white min-h-[450px] lg:min-h-[500px] rounded-[32px] flex items-center shadow-xl border border-white/5">
           {/* Full-width interactive Hero Slider background */}
           <HeroSlider
             lang={lang}
@@ -238,7 +238,7 @@ function renderDefaultLayout(lang: LanguageCode, settings: any, phone: string, d
           {/* Soft background glow overlay on top of slider */}
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(16,185,129,0.08),transparent)] z-10 pointer-events-none"></div>
           
-          <div className="relative z-20 w-full px-8 py-16 sm:px-12 sm:py-20 lg:px-16 lg:py-24">
+          <div className="relative z-20 w-full px-8 py-12 sm:px-12 sm:py-16 lg:px-16 lg:py-16">
             {/* Text content layout overlaid on top of background */}
             <div className="max-w-2xl lg:max-w-3xl space-y-6">
               <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 px-3 py-1 text-sm text-emerald-400 border border-emerald-500/20 backdrop-blur-sm">
