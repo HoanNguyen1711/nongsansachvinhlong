@@ -52,12 +52,12 @@ export default function HeroSlider({
             <img
               src={image}
               alt={`Banner ${idx + 1}`}
-              className={`w-full h-full object-cover transition-transform duration-7000 ease-out ${
+              className={`w-full h-full object-cover transition-transform duration-7000 ease-out transform-gpu will-change-transform ${
                 isActive ? "scale-105" : "scale-100"
               }`}
             />
-            {/* Gradient Overlay - Lighter emerald-600 for better image visibility but keeping text readable */}
-            <div className="absolute inset-0 bg-gradient-to-r from-emerald-600/70 via-emerald-600/35 to-transparent lg:from-emerald-600/60 lg:via-emerald-600/15 lg:to-transparent z-11"></div>
+            {/* Gradient Overlay - Neutral dark gradient for readability and letting image colors shine without green tint */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/25 to-transparent lg:from-black/50 lg:via-black/10 lg:to-transparent z-11"></div>
           </div>
         );
       })}
