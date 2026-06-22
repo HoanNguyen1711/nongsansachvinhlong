@@ -16,7 +16,7 @@ Dự án bao gồm 4 thành phần chính hoạt động trong mạng lưới Do
 2. **Backend (FastAPI):**
    - Viết bằng FastAPI (Python 3.13), SQLModel (kết hợp SQLAlchemy và Pydantic), Postgres 18.
    - Quản lý database bằng **Alembic** cho phép tự động nâng cấp cấu trúc cơ sở dữ liệu trên startup.
-   - Cung cấp các API quản lý sản phẩm, bài viết, danh mục, cấu hình hotline hệ thống và đăng nhập admin bảo mật bằng JWT (JSON Web Tokens).
+   - Cung cấp các API quản lý sản phẩm, bài viết, danh mục, cấu hình hotline hệ thống và đăng nhập admin bảo mật bằng JWT (JSON Web Tokens), hỗ trợ phân quyền vai trò chi tiết (RBAC).
 
 3. **Cơ sở dữ liệu (PostgreSQL 18):**
    - Sử dụng **PostgreSQL 18-alpine** chính thức từ Docker Hub.
@@ -98,6 +98,7 @@ Lệnh này sẽ tự động tải các base image, xây dựng môi trường 
 - **Trang chủ khách hàng:** [http://localhost](http://localhost)
 - **Trang đăng nhập Admin:** [http://localhost/ns-login-portal-2026](http://localhost/ns-login-portal-2026)
 - **Trang quản trị Admin:** [http://localhost/ns-admin-portal-2026](http://localhost/ns-admin-portal-2026)
+- **Tài liệu Hướng dẫn Quản trị & Phân quyền:** [ADMIN_GUIDE.md](file:///home/hoan/Dev/web2/ADMIN_GUIDE.md)
 
 ---
 

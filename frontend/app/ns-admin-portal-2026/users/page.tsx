@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { api } from "@/lib/api";
-import { Plus, Trash2, X, AlertCircle, Shield, User } from "lucide-react";
+import { Plus, Trash2, X, AlertCircle, Shield, User, Pencil } from "lucide-react";
 
 interface UserProfile {
   id: number;
@@ -21,6 +21,8 @@ export default function AdminUsersPage() {
 
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingUserId, setEditingUserId] = useState<number | null>(null);
 
   // Form fields
   const [username, setUsername] = useState("");
@@ -53,6 +55,8 @@ export default function AdminUsersPage() {
   }, []);
 
   const openAddModal = () => {
+    setIsEditing(false);
+    setEditingUserId(null);
     setUsername("");
     setPassword("");
     setConfirmPassword("");
@@ -60,6 +64,25 @@ export default function AdminUsersPage() {
     setReadonly(false);
     setFormError(null);
     setIsModalOpen(true);
+  };
+
+  const openEditModal = (userItem: UserProfile) => {
+    setIsEditing(true);
+    setEditingUserId(userItem.id);
+    setUsername(userItem.username);
+    setPassword("");
+    setConfirmPassword("");
+    setRole(userItem.role);
+    setReadonly(userItem.readonly);
+    setFormError(null);
+    setIsModalOpen(true);
+  };
+
+  const handleRoleChange = (selectedRole: string) => {
+    setRole(selectedRole);
+    if (selectedRole === "super_admin") {
+      setReadonly(false);
+    }
   };
 
   const handleDelete = async (user: UserProfile) => {
@@ -80,29 +103,62 @@ export default function AdminUsersPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!username || !password || !confirmPassword) {
-      setFormError("Vui lòng điền đầy đủ các thông tin bắt buộc.");
-      return;
-    }
-    if (password !== confirmPassword) {
-      setFormError("Mật khẩu xác nhận không khớp.");
-      return;
-    }
-    if (password.length < 6) {
-      setFormError("Mật khẩu phải chứa ít nhất 6 ký tự.");
-      return;
+    
+    if (isEditing) {
+      if (!username) {
+        setFormError("Tên đăng nhập không được để trống.");
+        return;
+      }
+      if (password) {
+        if (password !== confirmPassword) {
+          setFormError("Mật khẩu xác nhận không khớp.");
+          return;
+        }
+        if (password.length < 6) {
+          setFormError("Mật khẩu phải chứa ít nhất 6 ký tự.");
+          return;
+        }
+      }
+    } else {
+      if (!username || !password || !confirmPassword) {
+        setFormError("Vui lòng điền đầy đủ các thông tin bắt buộc.");
+        return;
+      }
+      if (password !== confirmPassword) {
+        setFormError("Mật khẩu xác nhận không khớp.");
+        return;
+      }
+      if (password.length < 6) {
+        setFormError("Mật khẩu phải chứa ít nhất 6 ký tự.");
+        return;
+      }
     }
 
     setSubmitting(true);
     setFormError(null);
-    const payload = { username, password, role, readonly };
+
+    // Coerce readonly to false if role is super_admin
+    const finalReadonly = role === "super_admin" ? false : readonly;
+
+    const payload: any = { role, readonly: finalReadonly };
+    if (!isEditing) {
+      payload.username = username;
+      payload.password = password;
+    } else if (password) {
+      payload.password = password;
+    }
 
     try {
-      const created = await api.post("/users", payload);
-      setUsers([...users, created]);
+      if (isEditing && editingUserId) {
+        const updated = await api.put(`/users/${editingUserId}`, payload);
+        setUsers(users.map((u) => (u.id === editingUserId ? updated : u)));
+      } else {
+        const created = await api.post("/users", payload);
+        setUsers([...users, created]);
+      }
       setIsModalOpen(false);
     } catch (err: any) {
-      setFormError(err.message || "Lỗi tạo tài khoản. Vui lòng kiểm tra lại.");
+      setFormError(err.message || (isEditing ? "Lỗi cập nhật tài khoản." : "Lỗi tạo tài khoản. Vui lòng kiểm tra lại."));
     } finally {
       setSubmitting(false);
     }
@@ -210,13 +266,22 @@ export default function AdminUsersPage() {
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
                         {userItem.id !== currentUser?.id && !currentUser?.readonly && (
-                          <button
-                            onClick={() => handleDelete(userItem)}
-                            className="rounded-lg p-1.5 text-red-500 hover:bg-red-50 transition-colors"
-                            title="Xóa tài khoản"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
+                          <>
+                            <button
+                              onClick={() => openEditModal(userItem)}
+                              className="rounded-lg p-1.5 text-primary hover:bg-emerald-50 transition-colors"
+                              title="Chỉnh sửa tài khoản"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(userItem)}
+                              className="rounded-lg p-1.5 text-red-500 hover:bg-red-50 transition-colors"
+                              title="Xóa tài khoản"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </>
                         )}
                       </div>
                     </td>
@@ -240,7 +305,7 @@ export default function AdminUsersPage() {
           <div className="w-full max-w-md rounded-3xl border border-border bg-white p-6 shadow-xl animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <h2 className="text-lg font-black text-slate-800">
-                Thêm Nhân Viên Mới
+                {isEditing ? "Chỉnh Sửa Nhân Viên" : "Thêm Nhân Viên Mới"}
               </h2>
               <button
                 onClick={() => setIsModalOpen(false)}
@@ -264,32 +329,37 @@ export default function AdminUsersPage() {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="Nhập tên đăng nhập"
-                  className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none"
+                  className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
                   required
+                  disabled={isEditing}
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-700">Mật khẩu *</label>
+                <label className="text-xs font-bold text-slate-700">
+                  {isEditing ? "Mật khẩu mới (để trống nếu không đổi)" : "Mật khẩu *"}
+                </label>
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Nhập mật khẩu (tối thiểu 6 ký tự)"
+                  placeholder={isEditing ? "Nhập mật khẩu mới" : "Nhập mật khẩu (tối thiểu 6 ký tự)"}
                   className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none"
-                  required
+                  required={!isEditing}
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-700">Xác nhận mật khẩu *</label>
+                <label className="text-xs font-bold text-slate-700">
+                  {isEditing ? "Xác nhận mật khẩu mới" : "Xác nhận mật khẩu *"}
+                </label>
                 <input
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Nhập lại mật khẩu"
+                  placeholder={isEditing ? "Xác nhận mật khẩu mới" : "Nhập lại mật khẩu"}
                   className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none"
-                  required
+                  required={!isEditing || !!password}
                 />
               </div>
 
@@ -297,7 +367,7 @@ export default function AdminUsersPage() {
                 <label className="text-xs font-bold text-slate-700">Vai trò *</label>
                 <select
                   value={role}
-                  onChange={(e) => setRole(e.target.value)}
+                  onChange={(e) => handleRoleChange(e.target.value)}
                   className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none"
                   required
                 >
@@ -308,16 +378,20 @@ export default function AdminUsersPage() {
                 </select>
               </div>
 
-              <div className="flex items-center gap-2 py-2">
+              <div className={`flex items-center gap-2 py-2 ${role === "super_admin" ? "opacity-50 cursor-not-allowed" : ""}`}>
                 <input
                   type="checkbox"
                   id="readonly-checkbox"
-                  checked={readonly}
+                  checked={role === "super_admin" ? false : readonly}
                   onChange={(e) => setReadonly(e.target.checked)}
-                  className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
+                  disabled={role === "super_admin"}
+                  className="h-4 w-4 rounded border-border text-primary focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
                 />
-                <label htmlFor="readonly-checkbox" className="text-xs font-bold text-slate-700 select-none cursor-pointer">
-                  Chỉ xem (Read-only) - Không được phép Sửa/Thêm/Xóa
+                <label
+                  htmlFor="readonly-checkbox"
+                  className={`text-xs font-bold text-slate-700 select-none ${role === "super_admin" ? "cursor-not-allowed" : "cursor-pointer"}`}
+                >
+                  Chỉ xem (Read-only) - Không được phép Sửa/Thêm/Xóa {role === "super_admin" && "(Không áp dụng cho Super Admin)"}
                 </label>
               </div>
 
@@ -334,7 +408,7 @@ export default function AdminUsersPage() {
                   disabled={submitting}
                   className="rounded-full bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground shadow-sm hover:opacity-90 active:scale-95 transition-transform disabled:opacity-50"
                 >
-                  {submitting ? "Đang tạo..." : "Tạo Mới"}
+                  {submitting ? (isEditing ? "Đang cập nhật..." : "Đang tạo...") : (isEditing ? "Cập Nhật" : "Tạo Mới")}
                 </button>
               </div>
             </form>

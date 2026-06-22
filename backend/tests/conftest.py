@@ -25,7 +25,8 @@ def session_fixture():
         test_admin = User(
             username="testadmin",
             hashed_password=get_password_hash("testpassword"),
-            is_active=True
+            is_active=True,
+            role="super_admin"
         )
         session.add(test_admin)
         session.commit()

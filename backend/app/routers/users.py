@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 from app.core.database import get_db
 from app.core.security import get_password_hash, verify_password
-from app.models.user import User, UserCreate, UserChangePassword, UserPublic
+from app.models.user import User, UserCreate, UserChangePassword, UserPublic, UserUpdate
 from app.routers.auth import get_current_user, require_role, require_role_write
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -32,13 +32,14 @@ def create_user(
             detail="Tên đăng nhập đã tồn tại."
         )
     
+    readonly = False if user_in.role == "super_admin" else user_in.readonly
     db_user = User(
         username=user_in.username,
         hashed_password=get_password_hash(user_in.password),
         is_active=True,
         is_superuser=True if user_in.role == "super_admin" else False,
         role=user_in.role,
-        readonly=user_in.readonly
+        readonly=readonly
     )
     db.add(db_user)
     db.commit()
@@ -90,3 +91,39 @@ def delete_user(
     db.delete(db_user)
     db.commit()
     return {"message": "Đã xóa tài khoản thành công."}
+
+@router.put("/{user_id}", response_model=UserPublic)
+def update_user(
+    user_id: int,
+    user_in: UserUpdate,
+    current_user: Annotated[User, Depends(require_role_write(["super_admin"]))],
+    db: Annotated[Session, Depends(get_db)]
+):
+    db_user = db.get(User, user_id)
+    if not db_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Không tìm thấy tài khoản nhân viên."
+        )
+    
+    if user_in.role is not None:
+        db_user.role = user_in.role
+        db_user.is_superuser = True if user_in.role == "super_admin" else False
+        
+    if user_in.readonly is not None:
+        db_user.readonly = False if db_user.role == "super_admin" else user_in.readonly
+    elif db_user.role == "super_admin":
+        db_user.readonly = False
+        
+    if user_in.password is not None and user_in.password.strip() != "":
+        if len(user_in.password.strip()) < 6:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Mật khẩu phải chứa ít nhất 6 ký tự."
+            )
+        db_user.hashed_password = get_password_hash(user_in.password.strip())
+        
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user

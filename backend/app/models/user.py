@@ -21,6 +21,11 @@ class UserChangePassword(BaseModel):
     old_password: str
     new_password: str
 
+class UserUpdate(BaseModel):
+    role: Optional[str] = None
+    readonly: Optional[bool] = None
+    password: Optional[str] = None
+
 class UserPublic(BaseModel):
     id: Optional[int] = None
     username: str
