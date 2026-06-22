@@ -81,6 +81,9 @@ Biên tập nội dung chia sẻ kinh nghiệm nông nghiệp và ý kiến đá
 
 #### 2. Tab: Chuyên mục bài viết
 *   **Cách dùng**: Quản lý các nhóm chủ đề bài viết (ví dụ: *Kỹ thuật chăm sóc*, *Cẩm nang ẩm thực*).
+*   **Đặc tả nâng cao**:
+    *   **Ghim lên thanh điều hướng (Navbar)**: Bạn có thể chọn ghim tối đa **1** chuyên mục bài viết lên thanh điều hướng chính của trang web công cộng.
+    *   **Mô tả ngắn (Short description)**: Mỗi chuyên mục bài viết có thể điền thông tin Mô tả ngắn (hỗ trợ 3 ngôn ngữ: Tiếng Việt, Tiếng Anh, Tiếng Trung). Khi người dùng duyệt xem chuyên mục đó trên giao diện công cộng, banner của trang sẽ tự động hiển thị mô tả ngắn này làm phụ đề (subtitle) thay cho thông tin mặc định.
 
 #### 3. Tab: Ý kiến khách hàng
 *   **Cách dùng**: Quản lý nhận xét của người mua hàng để làm tư liệu tin cậy ở trang chủ. Có thể nhập tên khách hàng, ảnh đại diện, đánh giá số sao (từ 1 đến 5) và nội dung phản hồi.
@@ -93,7 +96,8 @@ Biên tập nội dung chia sẻ kinh nghiệm nông nghiệp và ý kiến đá
 Cấu hình các thông tin liên hệ tĩnh dùng chung trên toàn bộ các trang của hệ thống.
 
 *   **Cách dùng**:
-    *   Nhập số điện thoại **Hotline** hiển thị tại Header & Footer.
+    *   Nhập số điện thoại **Hotline / Zalo** hiển thị tại Header & Footer.
+    *   Nhập số điện thoại **WhatsApp** (định dạng quốc tế, ví dụ: 84901234567, không kèm dấu + hoặc khoảng trắng) hiển thị tại Footer, trang liên hệ và kích hoạt nút Chat nổi ở góc phải màn hình.
     *   Đường dẫn **Zalo chat nhanh** để khách hàng liên hệ trực tiếp.
     *   Địa chỉ email, thông tin chân trang (Footer), bản đồ và các đường dẫn mạng xã hội của doanh nghiệp.
     *   Bấm **Lưu cấu hình** để áp dụng thay đổi lập tức lên trang giao diện chính.

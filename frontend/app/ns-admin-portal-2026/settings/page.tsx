@@ -10,6 +10,7 @@ export default function AdminSettingsPage() {
   const [email, setEmail] = useState("");
   const [farmImageUrl, setFarmImageUrl] = useState("");
   const [zaloQrUrl, setZaloQrUrl] = useState("");
+  const [whatsappNumber, setWhatsappNumber] = useState("");
   const [bannerImageUrl1, setBannerImageUrl1] = useState("");
   const [bannerImageUrl2, setBannerImageUrl2] = useState("");
   const [bannerImageUrl3, setBannerImageUrl3] = useState("");
@@ -42,6 +43,7 @@ export default function AdminSettingsPage() {
           setEmail(data.email || "");
           setFarmImageUrl(data.farm_image_url || "");
           setZaloQrUrl(data.zalo_qr_url || "");
+          setWhatsappNumber(data.whatsapp_number || "");
           setBannerImageUrl1(data.banner_image_url_1 || "");
           setBannerImageUrl2(data.banner_image_url_2 || "");
           setBannerImageUrl3(data.banner_image_url_3 || "");
@@ -149,6 +151,7 @@ export default function AdminSettingsPage() {
       email: email,
       farm_image_url: farmImageUrl,
       zalo_qr_url: zaloQrUrl,
+      whatsapp_number: whatsappNumber,
       banner_image_url_1: bannerImageUrl1,
       banner_image_url_2: bannerImageUrl2,
       banner_image_url_3: bannerImageUrl3,
@@ -226,6 +229,20 @@ export default function AdminSettingsPage() {
               />
               <p className="text-[10px] text-slate-400 mt-1">
                 Số điện thoại này sẽ tự động cập nhật trên toàn bộ các vị trí hiển thị ở trang chủ, chân trang, đầu trang, các nút bấm gọi điện và liên kết chat Zalo nhanh.
+              </p>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-slate-700">Số điện thoại WhatsApp (Mã quốc gia đầu)</label>
+              <input
+                type="text"
+                value={whatsappNumber}
+                onChange={(e) => setWhatsappNumber(e.target.value)}
+                placeholder="Ví dụ: 84901234567"
+                className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none"
+              />
+              <p className="text-[10px] text-slate-400 mt-1">
+                Số điện thoại WhatsApp định dạng quốc tế (không kèm dấu + hoặc khoảng trắng, ví dụ: 84901234567). Để trống nếu không sử dụng.
               </p>
             </div>
 

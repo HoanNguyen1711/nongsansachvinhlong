@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { ArrowRight, BookOpen, X } from "lucide-react";
+import { ArrowRight, BookOpen } from "lucide-react";
 import { getTranslation, getLocalizedValue, getLocalizedHref, LanguageCode } from "@/lib/i18n";
 
 export const dynamic = "force-dynamic";
@@ -29,6 +29,11 @@ interface CategoryItem {
   category: string;
   category_en: string;
   category_zh: string;
+  slug?: string;
+  show_in_navbar?: boolean;
+  short_description?: string;
+  short_description_en?: string;
+  short_description_zh?: string;
 }
 
 async function getBlogs(category?: string): Promise<Blog[] | null> {
@@ -38,7 +43,7 @@ async function getBlogs(category?: string): Promise<Blog[] | null> {
     if (category) {
       url.searchParams.append("category", category);
     }
-    const res = await fetch(url.toString(), { next: { revalidate: 30 } });
+    const res = await fetch(url.toString(), { next: { tags: ["blogs"], revalidate: 86400 } });
     if (res.ok) {
       return await res.json();
     }
@@ -51,7 +56,7 @@ async function getBlogs(category?: string): Promise<Blog[] | null> {
 async function getCategories(): Promise<CategoryItem[] | null> {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://backend:8000";
   try {
-    const res = await fetch(`${apiUrl}/api/blogs/categories`, { next: { revalidate: 30 } });
+    const res = await fetch(`${apiUrl}/api/blogs/categories`, { next: { tags: ["categories"], revalidate: 86400 } });
     if (res.ok) {
       return await res.json();
     }
@@ -129,39 +134,54 @@ export default async function BlogsPage({ params, searchParams }: PageProps) {
     if (!category) {
       displayBlogs = MOCKUP_BLOGS;
     } else {
-      displayBlogs = MOCKUP_BLOGS.filter(b => b.category === category);
+      // Find category name by slug
+      const catNameObj = (categoriesList || []).find(c => c.slug === category);
+      const catName = catNameObj ? catNameObj.category : category;
+      displayBlogs = MOCKUP_BLOGS.filter(b => b.category === catName);
     }
   }
   
-  // Get final category list for pills
-  let finalCategoriesList = categoriesList ?? [];
-  if (categoriesList === null) {
-    const uniqueCats: Record<string, CategoryItem> = {};
-    MOCKUP_BLOGS.forEach(b => {
-      if (b.category && !uniqueCats[b.category]) {
-        uniqueCats[b.category] = {
-          category: b.category,
-          category_en: b.category_en || b.category,
-          category_zh: b.category_zh || b.category
-        };
-      }
-    });
-    finalCategoriesList = Object.values(uniqueCats);
-  }
-
-  // Find localized name for the category to show in the header card
+  // Find localized name and short description for the selected category
   let localizedCategoryName = category;
+  let localizedCategoryDesc = "";
   if (category) {
-    const match = (categoriesList || []).find(c => c.category === category) || 
-                  MOCKUP_BLOGS.find(b => b.category === category);
-    if (match) {
-      if (lang === "en") localizedCategoryName = match.category_en || match.category || category;
-      else if (lang === "zh") localizedCategoryName = match.category_zh || match.category || category;
-      else localizedCategoryName = match.category || category;
+    const matchedCategory = (categoriesList || []).find(c => c.slug === category);
+    if (matchedCategory) {
+      if (lang === "en") {
+        localizedCategoryName = matchedCategory.category_en || matchedCategory.category || category;
+        localizedCategoryDesc = matchedCategory.short_description_en || matchedCategory.short_description || "";
+      } else if (lang === "zh") {
+        localizedCategoryName = matchedCategory.category_zh || matchedCategory.category || category;
+        localizedCategoryDesc = matchedCategory.short_description_zh || matchedCategory.short_description || "";
+      } else {
+        localizedCategoryName = matchedCategory.category || category;
+        localizedCategoryDesc = matchedCategory.short_description || "";
+      }
+    } else {
+      const match = MOCKUP_BLOGS.find(b => b.category === category);
+      if (match) {
+        if (lang === "en") localizedCategoryName = match.category_en || match.category || category;
+        else if (lang === "zh") localizedCategoryName = match.category_zh || match.category || category;
+        else localizedCategoryName = match.category || category;
+      }
     }
   }
 
   const t = getTranslation(lang);
+
+  let bannerTitle = t.storiesTitle;
+  let bannerSubtitle = t.storiesSubtitle;
+
+  if (category) {
+    bannerTitle = localizedCategoryName || category;
+    bannerSubtitle = localizedCategoryDesc || (
+      lang === "vi"
+        ? `Chuyên mục chia sẻ các bài viết hữu ích về ${localizedCategoryName}`
+        : lang === "en"
+          ? `Useful articles sharing knowledge about ${localizedCategoryName}`
+          : `分享关于 ${localizedCategoryName} 的实用文章`
+    );
+  }
 
   const formatBlogDate = (dateStr: string) => {
     try {
@@ -193,7 +213,7 @@ export default async function BlogsPage({ params, searchParams }: PageProps) {
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 space-y-10">
       {/* Page Banner */}
-      <div className="relative overflow-hidden bg-emerald-600 text-white py-20 px-8 rounded-[32px] shadow-lg border border-white/5">
+      <div className="relative overflow-hidden bg-emerald-600 text-white h-64 sm:h-72 flex flex-col justify-center px-8 rounded-[32px] shadow-lg border border-white/5">
         {/* Background Image */}
         <img 
           src="/banner_stories.png" 
@@ -207,64 +227,16 @@ export default async function BlogsPage({ params, searchParams }: PageProps) {
 
         <div className="relative z-20 text-center space-y-4 max-w-2xl mx-auto">
           <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-white drop-shadow-sm">
-            {t.storiesTitle}
+            {bannerTitle}
           </h1>
           <div className="w-12 h-1 bg-emerald-500 mx-auto rounded-full"></div>
           <p className="text-emerald-200/80 text-sm sm:text-base max-w-md mx-auto leading-relaxed">
-            {t.storiesSubtitle}
+            {bannerSubtitle}
           </p>
         </div>
       </div>
 
-      {/* Category Selection Pills */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-slate-100 pb-6">
-        <Link
-          href={getLocalizedHref("/stories", lang)}
-          className={`rounded-2xl px-4 py-2 text-xs font-bold transition-all ${
-            !category
-              ? "bg-emerald-600 text-white shadow-sm shadow-emerald-600/10 active:scale-95"
-              : "bg-slate-100 text-slate-600 hover:bg-slate-200/70 hover:text-slate-800 active:scale-95"
-          }`}
-        >
-          {lang === "vi" ? "Tất cả" : lang === "en" ? "All Stories" : "全部故事"}
-        </Link>
-        {finalCategoriesList.map((cat, idx) => {
-          const localizedCatName = lang === "en" ? cat.category_en : lang === "zh" ? cat.category_zh : cat.category;
-          const isSelected = category === cat.category;
-          return (
-            <Link
-              key={idx}
-              href={`${getLocalizedHref("/stories", lang)}?category=${encodeURIComponent(cat.category)}`}
-              className={`rounded-2xl px-4 py-2 text-xs font-bold transition-all ${
-                isSelected
-                  ? "bg-emerald-600 text-white shadow-sm shadow-emerald-600/10 active:scale-95"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200/70 hover:text-slate-800 active:scale-95"
-              }`}
-            >
-              {localizedCatName}
-            </Link>
-          );
-        })}
-      </div>
 
-      {/* Category Header Card */}
-      {category && (
-        <div className="flex items-center justify-between rounded-3xl bg-emerald-50/50 border border-emerald-100/50 p-5">
-          <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-600/10 text-emerald-700">
-              <BookOpen className="h-6 w-6" />
-            </div>
-            <div>
-              <p className="text-[10px] sm:text-xs uppercase tracking-wider font-extrabold text-emerald-600">
-                {lang === "vi" ? "Chuyên mục" : lang === "en" ? "Category" : "专题"}
-              </p>
-              <h2 className="text-base sm:text-lg font-black text-emerald-950">
-                {localizedCategoryName}
-              </h2>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Blogs Grid */}
       {displayBlogs.length > 0 ? (

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { Menu, X, Phone, Leaf, Globe, ChevronDown } from "lucide-react";
 import { getLanguage, getTranslation, getLocalizedHref, getLanguageFromPathname, LanguageCode } from "@/lib/i18n";
 
@@ -22,17 +22,38 @@ interface CategoryItem {
   category: string;
   category_en: string;
   category_zh: string;
+  slug: string;
+  show_in_navbar?: boolean;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ phone = "0901234567", lang: initialLang }) => {
+  const searchParams = useSearchParams();
   const [isOpen, setIsOpen] = useState(false);
   const [lang, setLang] = useState<LanguageCode>(initialLang || "vi");
   const [langOpen, setLangOpen] = useState(false);
   const [categories, setCategories] = useState<CategoryItem[]>([]);
   const [mobileStoriesOpen, setMobileStoriesOpen] = useState(false);
+  const [storiesDropdownOpen, setStoriesDropdownOpen] = useState(false);
   const desktopDropdownRef = useRef<HTMLDivElement>(null);
   const mobileDropdownRef = useRef<HTMLDivElement>(null);
+  const storiesDropdownRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+  const [isTouch, setIsTouch] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const hasTouch = "ontouchstart" in window || navigator.maxTouchPoints > 0;
+    if (hasTouch) {
+      setIsTouch(true);
+    }
+    const handleTouchStart = () => {
+      setIsTouch(true);
+    };
+    window.addEventListener("touchstart", handleTouchStart, { passive: true });
+    return () => {
+      window.removeEventListener("touchstart", handleTouchStart);
+    };
+  }, []);
   
   useEffect(() => {
     const active = getLanguageFromPathname(pathname);
@@ -55,15 +76,21 @@ export const Navbar: React.FC<NavbarProps> = ({ phone = "0901234567", lang: init
     fetchCategories();
   }, []);
 
-  // Close language dropdown when clicking outside
+  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Node;
+      
+      // Language switcher
       const clickedOutsideDesktop = !desktopDropdownRef.current || !desktopDropdownRef.current.contains(target);
       const clickedOutsideMobile = !mobileDropdownRef.current || !mobileDropdownRef.current.contains(target);
-      
       if (clickedOutsideDesktop && clickedOutsideMobile) {
         setLangOpen(false);
+      }
+
+      // Stories dropdown
+      if (storiesDropdownRef.current && !storiesDropdownRef.current.contains(target)) {
+        setStoriesDropdownOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -80,13 +107,32 @@ export const Navbar: React.FC<NavbarProps> = ({ phone = "0901234567", lang: init
 
   const t = getTranslation(lang);
   
-  const navItems = [
-    { name: t.home, path: "/" },
+  const baseNavItemsBefore = [
     { name: t.products, path: "/products" },
+  ];
+  
+  const baseNavItemsAfter = [
     { name: t.story, path: "/stories" },
     { name: t.about, path: "/about-us" },
     { name: t.contact, path: "/contact" },
   ];
+
+  const pinnedCategories = categories.filter((c) => c.show_in_navbar);
+  const dynamicCategoryItems = pinnedCategories.map((cat) => {
+    const localizedName = getLocalizedCategory(cat, lang);
+    return {
+      name: localizedName,
+      path: "/stories?category=" + (cat.slug || cat.category)
+    };
+  });
+
+  const navItems = [
+    ...baseNavItemsBefore,
+    ...dynamicCategoryItems,
+    ...baseNavItemsAfter
+  ];
+
+  const dropdownCategories = categories.filter((c) => !c.show_in_navbar);
 
   const languages = [
     { code: "vi", label: "Tiếng Việt" },
@@ -126,7 +172,38 @@ export const Navbar: React.FC<NavbarProps> = ({ phone = "0901234567", lang: init
     return segments.join("/") || "/";
   };
 
-  const isActive = (path: string) => getStrippedPathname(pathname) === path;
+  const isActive = (path: string) => {
+    const strippedPath = getStrippedPathname(pathname);
+    
+    // 1. If path is a dynamic category (contains '?')
+    if (path.includes("?")) {
+      const [basePath, searchStr] = path.split("?");
+      if (strippedPath !== basePath) return false;
+      
+      const targetParams = new URLSearchParams(searchStr);
+      for (const [key, val] of targetParams.entries()) {
+        if (searchParams.get(key) !== val) return false;
+      }
+      return true;
+    }
+    
+    // 2. If path is "/stories" (the main parent link)
+    if (path === "/stories") {
+      if (strippedPath !== "/stories") return false;
+      
+      // If current URL has a category parameter that is pinned to the navbar,
+      // the main "/stories" link should NOT be active
+      const currentCategory = searchParams.get("category");
+      if (currentCategory) {
+        const isPinned = pinnedCategories.some(c => c.slug === currentCategory || c.category === currentCategory);
+        if (isPinned) return false;
+      }
+      return true;
+    }
+    
+    // 3. Default exact match
+    return strippedPath === path;
+  };
 
   return (
     <nav className="sticky top-0 z-40 w-full border-b border-border bg-background/80 backdrop-blur-md">
@@ -148,33 +225,57 @@ export const Navbar: React.FC<NavbarProps> = ({ phone = "0901234567", lang: init
           </Link>
 
           {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden xl:flex items-center gap-8">
             {navItems.map((item) => {
               if (item.path === "/stories") {
                 return (
-                  <div key={item.path} className="relative group h-full flex items-center">
+                  <div 
+                    key={item.path} 
+                    ref={storiesDropdownRef}
+                    className="relative h-full flex items-center"
+                    onMouseEnter={() => {
+                      if (!isTouch) setStoriesDropdownOpen(true);
+                    }}
+                    onMouseLeave={() => {
+                      if (!isTouch) setStoriesDropdownOpen(false);
+                    }}
+                  >
                     <Link
                       href={getLocalizedHref(item.path, lang)}
+                      onClick={(e) => {
+                        if (dropdownCategories.length > 0) {
+                          if (isTouch) {
+                            e.preventDefault();
+                            setStoriesDropdownOpen(!storiesDropdownOpen);
+                          } else {
+                            if (!storiesDropdownOpen) {
+                              e.preventDefault();
+                              setStoriesDropdownOpen(true);
+                            }
+                          }
+                        }
+                      }}
                       className={`flex items-center gap-1 text-sm font-medium transition-colors hover:text-primary cursor-pointer focus:outline-none ${
                         isActive(item.path) ? "text-primary font-semibold border-b-2 border-primary pb-0.5" : "text-foreground/75"
                       }`}
                     >
                       <span>{item.name}</span>
-                      {categories.length > 0 && (
-                        <ChevronDown className="h-3 w-3 transition-transform duration-200 group-hover:rotate-180" />
+                      {dropdownCategories.length > 0 && (
+                        <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${storiesDropdownOpen ? "rotate-180" : ""}`} />
                       )}
                     </Link>
                     
-                    {/* Hover Dropdown */}
-                    {categories.length > 0 && (
-                      <div className="absolute left-1/2 -translate-x-1/2 top-full hidden group-hover:flex flex-col w-max min-w-[12.5rem] bg-white border-x border-b border-slate-200/80 shadow-lg z-50 divide-y divide-slate-100 rounded-none animate-in fade-in slide-in-from-top-1 duration-150">
-                        {categories.map((cat, idx) => {
+                    {/* Hover & Tap Dropdown */}
+                    {dropdownCategories.length > 0 && storiesDropdownOpen && (
+                      <div className="absolute left-1/2 -translate-x-1/2 top-full flex flex-col w-max min-w-[12.5rem] bg-white border-x border-b border-slate-200/80 shadow-lg z-50 divide-y divide-slate-100 rounded-none animate-in fade-in slide-in-from-top-1 duration-150">
+                        {dropdownCategories.map((cat, idx) => {
                           const localizedName = getLocalizedCategory(cat, lang);
-                          const href = `${getLocalizedHref("/stories", lang)}?category=${encodeURIComponent(cat.category)}`;
+                          const href = `${getLocalizedHref("/stories", lang)}?category=${cat.slug || cat.category}`;
                           return (
                             <Link
                               key={idx}
                               href={href}
+                              onClick={() => setStoriesDropdownOpen(false)}
                               className="flex w-full items-center justify-start px-4 py-3 text-left text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-700 transition-colors rounded-none"
                             >
                               {localizedName}
@@ -201,7 +302,7 @@ export const Navbar: React.FC<NavbarProps> = ({ phone = "0901234567", lang: init
           </div>
 
           {/* Right Action buttons */}
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden xl:flex items-center gap-4">
             {/* Language Switcher */}
             <div className="relative" ref={desktopDropdownRef}>
               <button
@@ -229,19 +330,10 @@ export const Navbar: React.FC<NavbarProps> = ({ phone = "0901234567", lang: init
                 </div>
               )}
             </div>
-
-            {/* Desktop CTA Button */}
-            <a
-              href={`tel:${phone}`}
-              className="flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition-transform hover:scale-105 active:scale-95"
-            >
-              <Phone className="h-4 w-4" />
-              <span>{formatPhone(phone)}</span>
-            </a>
           </div>
 
           {/* Mobile Menu & Language Toggle */}
-          <div className="flex items-center gap-3 md:hidden">
+          <div className="flex items-center gap-3 xl:hidden">
             {/* Language Button Mobile */}
             <div className="relative" ref={mobileDropdownRef}>
               <button
@@ -284,12 +376,12 @@ export const Navbar: React.FC<NavbarProps> = ({ phone = "0901234567", lang: init
 
       {/* Mobile Drawer Menu */}
       {isOpen && (
-        <div className="md:hidden border-b border-border bg-background px-4 py-4 space-y-3">
+        <div className="xl:hidden border-b border-border bg-background px-4 py-4 space-y-3">
           {navItems.map((item) => {
             if (item.path === "/stories") {
               return (
                 <div key={item.path} className="space-y-1">
-                  {categories.length > 0 ? (
+                  {dropdownCategories.length > 0 ? (
                     <>
                       <button
                         onClick={() => setMobileStoriesOpen(!mobileStoriesOpen)}
@@ -303,9 +395,9 @@ export const Navbar: React.FC<NavbarProps> = ({ phone = "0901234567", lang: init
                       
                       {mobileStoriesOpen && (
                         <div className="pl-4 border-l border-slate-100 ml-4 space-y-1">
-                          {categories.map((cat, idx) => {
+                          {dropdownCategories.map((cat, idx) => {
                             const localizedName = getLocalizedCategory(cat, lang);
-                            const href = `${getLocalizedHref("/stories", lang)}?category=${encodeURIComponent(cat.category)}`;
+                            const href = `${getLocalizedHref("/stories", lang)}?category=${cat.slug || cat.category}`;
                             return (
                               <Link
                                 key={idx}
@@ -347,13 +439,6 @@ export const Navbar: React.FC<NavbarProps> = ({ phone = "0901234567", lang: init
               </Link>
             );
           })}
-          <a
-            href={`tel:${phone}`}
-            className="flex items-center justify-center gap-2 rounded-lg bg-primary py-3 text-center text-base font-semibold text-primary-foreground"
-          >
-            <Phone className="h-5 w-5" />
-            <span>{formatPhone(phone)}</span>
-          </a>
         </div>
       )}
     </nav>

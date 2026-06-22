@@ -21,7 +21,13 @@ def read_blogs(
     if only_published:
         statement = statement.where(Blog.is_published == True)
     if category:
-        statement = statement.where(Blog.category == category)
+        # Look up the category by slug
+        cat_obj = db.exec(select(BlogCategory).where(BlogCategory.slug == category)).first()
+        if cat_obj:
+            statement = statement.where(Blog.category == cat_obj.name)
+        else:
+            # Fallback: if no category matches the slug, query by the value itself (raw name)
+            statement = statement.where(Blog.category == category)
         
     statement = statement.offset(offset).limit(limit).order_by(Blog.created_at.desc())
     blogs = db.exec(statement).all()
@@ -37,7 +43,12 @@ def read_blog_categories(db: Annotated[Session, Depends(get_db)]):
         {
             "category": r.name,
             "category_en": r.name_en or r.name,
-            "category_zh": r.name_zh or r.name
+            "category_zh": r.name_zh or r.name,
+            "slug": r.slug,
+            "show_in_navbar": r.show_in_navbar,
+            "short_description": r.short_description,
+            "short_description_en": r.short_description_en,
+            "short_description_zh": r.short_description_zh
         }
         for r in results
     ]

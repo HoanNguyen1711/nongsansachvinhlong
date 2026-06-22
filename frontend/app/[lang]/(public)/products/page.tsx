@@ -339,7 +339,7 @@ export default async function ProductsPage({ params, searchParams }: PageProps) 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 space-y-10">
       {/* Page Banner */}
-      <div className="relative overflow-hidden bg-emerald-600 text-white py-20 px-8 rounded-[32px] shadow-lg border border-white/5">
+      <div className="relative overflow-hidden bg-emerald-600 text-white h-64 sm:h-72 flex flex-col justify-center px-8 rounded-[32px] shadow-lg border border-white/5">
         {/* Background Image */}
         <img 
           src="/banner_products.png" 
