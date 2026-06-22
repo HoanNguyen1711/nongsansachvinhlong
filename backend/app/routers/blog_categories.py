@@ -11,7 +11,7 @@ router = APIRouter(prefix="/blog-categories", tags=["blog-categories"])
 
 @router.get("/", response_model=List[BlogCategoryPublic])
 def read_blog_categories(db: Annotated[Session, Depends(get_db)]):
-    statement = select(BlogCategory).order_by(BlogCategory.name.asc())
+    statement = select(BlogCategory).order_by(BlogCategory.position.asc(), BlogCategory.name.asc())
     categories = db.exec(statement).all()
     return categories
 

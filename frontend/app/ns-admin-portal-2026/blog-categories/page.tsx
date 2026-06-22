@@ -10,6 +10,7 @@ interface BlogCategory {
   name_en?: string;
   name_zh?: string;
   slug: string;
+  position?: number;
 }
 
 export default function AdminBlogCategoriesPage() {
@@ -34,6 +35,7 @@ export default function AdminBlogCategoriesPage() {
   const [nameEn, setNameEn] = useState("");
   const [nameZh, setNameZh] = useState("");
   const [slug, setSlug] = useState("");
+  const [position, setPosition] = useState<number>(0);
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState<"vi" | "en" | "zh">("vi");
@@ -82,6 +84,7 @@ export default function AdminBlogCategoriesPage() {
     setNameEn("");
     setNameZh("");
     setSlug("");
+    setPosition(0);
     setFormError(null);
     setActiveTab("vi");
     setIsModalOpen(true);
@@ -93,6 +96,7 @@ export default function AdminBlogCategoriesPage() {
     setNameEn(category.name_en || "");
     setNameZh(category.name_zh || "");
     setSlug(category.slug);
+    setPosition(category.position || 0);
     setFormError(null);
     setActiveTab("vi");
     setIsModalOpen(true);
@@ -124,6 +128,7 @@ export default function AdminBlogCategoriesPage() {
       name_en: nameEn || null,
       name_zh: nameZh || null,
       slug,
+      position: Number(position) || 0,
     };
 
     try {
@@ -178,13 +183,14 @@ export default function AdminBlogCategoriesPage() {
               <tr className="border-b border-border bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-400">
                 <th className="px-6 py-4">Tên chuyên mục</th>
                 <th className="px-6 py-4">Đường dẫn tĩnh (Slug)</th>
+                <th className="px-6 py-4">Thứ tự</th>
                 <th className="px-6 py-4 text-right">Thao tác</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-xs font-semibold text-slate-600">
               {loading ? (
                 <tr>
-                  <td colSpan={3} className="px-6 py-20 text-center">
+                  <td colSpan={4} className="px-6 py-20 text-center">
                     <div className="flex flex-col items-center gap-2">
                       <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
                       <span className="text-slate-400 text-[11px]">Đang tải chuyên mục...</span>
@@ -211,6 +217,7 @@ export default function AdminBlogCategoriesPage() {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-slate-400 font-mono">/{cat.slug}</td>
+                    <td className="px-6 py-4 font-mono text-slate-500">{cat.position ?? 0}</td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
                         {!readonly ? (
@@ -239,7 +246,7 @@ export default function AdminBlogCategoriesPage() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={3} className="px-6 py-16 text-center text-slate-400">
+                  <td colSpan={4} className="px-6 py-16 text-center text-slate-400">
                     Chưa có chuyên mục nào. Nhấp vào "Thêm Chuyên Mức" để tạo mới.
                   </td>
                 </tr>
@@ -327,6 +334,18 @@ export default function AdminBlogCategoriesPage() {
                       placeholder="Ví dụ: cau-chuyen-nha-nong"
                       className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none"
                       required
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-700">Thứ tự hiển thị (Số nhỏ xếp trước)</label>
+                    <input
+                      type="number"
+                      value={position}
+                      onChange={(e) => setPosition(parseInt(e.target.value) || 0)}
+                      placeholder="Ví dụ: 0, 1, 2..."
+                      className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none"
+                      min="0"
                     />
                   </div>
                 </div>

@@ -27,17 +27,19 @@ def read_blogs(
     blogs = db.exec(statement).all()
     return blogs
 
+from app.models.blog_category import BlogCategory
+
 @router.get("/categories")
 def read_blog_categories(db: Annotated[Session, Depends(get_db)]):
-    statement = select(Blog.category, Blog.category_en, Blog.category_zh).where(Blog.is_published == True).distinct()
+    statement = select(BlogCategory).order_by(BlogCategory.position.asc(), BlogCategory.name.asc())
     results = db.exec(statement).all()
     return [
         {
-            "category": r[0],
-            "category_en": r[1] or r[0],
-            "category_zh": r[2] or r[0]
+            "category": r.name,
+            "category_en": r.name_en or r.name,
+            "category_zh": r.name_zh or r.name
         }
-        for r in results if r[0]
+        for r in results
     ]
 
 @router.get("/{slug}", response_model=BlogPublic)
