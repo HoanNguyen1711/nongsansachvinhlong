@@ -25,8 +25,15 @@ def save_and_compress_image(file: UploadFile) -> str:
     else:
         image = image.convert("RGB")
         
-    # Save image as compressed WebP with high quality (preserving original resolution)
-    image.save(file_path, "WEBP", quality=90)
+    # Resize image if it exceeds max-width of 1200px
+    max_width = 1200
+    if image.width > max_width:
+        ratio = max_width / float(image.width)
+        new_height = int(float(image.height) * float(ratio))
+        image = image.resize((max_width, new_height), Image.Resampling.LANCZOS)
+        
+    # Save image as compressed WebP
+    image.save(file_path, "WEBP", quality=80)
     
     # Return the relative public path
     return f"/static/uploads/{output_filename}"
