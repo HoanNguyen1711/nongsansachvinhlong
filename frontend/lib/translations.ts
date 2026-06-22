@@ -15,7 +15,7 @@ export const translations = {
     // Navigation
     home: "Trang Chủ",
     products: "Sản Phẩm",
-    story: "Câu Chuyện",
+    story: "Kiến Thức & Chia Sẻ",
     contact: "Liên Hệ",
     about: "Về Chúng Tôi",
     adminPanel: "Trang Quản Trị",
@@ -123,8 +123,8 @@ export const translations = {
     relatedProductsTitle: "Sản phẩm tương tự",
 
     // Stories Page
-    storiesTitle: "Câu Chuyện Nhà Vườn",
-    storiesSubtitle: "Cẩm nang hữu ích từ kinh nghiệm canh tác hữu cơ của các bác nhà nông",
+    storiesTitle: "Kiến Thức & Chia Sẻ",
+    storiesSubtitle: "Cẩm nang kỹ thuật canh tác nông nghiệp & chuyên đề phân tích xuất khẩu nông sản thực tế",
     readMore: "Đọc tiếp bài viết",
     featuredPosts: "Bài viết nổi bật",
   },
@@ -144,7 +144,7 @@ export const translations = {
     // Navigation
     home: "Home",
     products: "Products",
-    story: "Stories",
+    story: "Knowledge & Sharing",
     contact: "Contact",
     about: "About Us",
     adminPanel: "Admin Panel",
@@ -252,8 +252,8 @@ export const translations = {
     relatedProductsTitle: "Similar Products",
 
     // Stories Page
-    storiesTitle: "Orchard Stories",
-    storiesSubtitle: "Useful handbook from organic farming experience of local farmers",
+    storiesTitle: "Knowledge & Sharing",
+    storiesSubtitle: "Farming cultivation handbooks & practical agricultural export special topics",
     readMore: "Read full story",
     featuredPosts: "Featured Posts",
   },
@@ -273,7 +273,7 @@ export const translations = {
     // Navigation
     home: "首页",
     products: "产品列表",
-    story: "农场故事",
+    story: "知识与分享",
     contact: "联系我们",
     about: "关于我们",
     adminPanel: "管理面板",
@@ -381,8 +381,8 @@ export const translations = {
     relatedProductsTitle: "相关产品推荐",
 
     // Stories Page
-    storiesTitle: "果园纪实",
-    storiesSubtitle: "来自当地果农实践积累的有机农耕实用指南",
+    storiesTitle: "知识与分享",
+    storiesSubtitle: "农产品种植指南与实用出口分析专题",
     readMore: "阅读全文",
     featuredPosts: "精选文章",
   }

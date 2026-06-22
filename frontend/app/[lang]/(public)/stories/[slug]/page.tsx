@@ -197,7 +197,7 @@ export default async function BlogDetailPage({ params }: Props) {
     <article className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 space-y-6">
       {/* Navigation */}
       <div>
-        <Link href={getLocalizedHref("/stories", lang)} className="inline-flex items-center gap-1 text-sm font-semibold text-slate-500 hover:text-primary transition-colors">
+        <Link href={getLocalizedHref("/stories", lang)} className="inline-flex items-center gap-1 text-sm font-semibold text-slate-500 hover:text-emerald-600 transition-colors">
           <ArrowLeft className="h-4 w-4" />
           <span>{t.backToStories}</span>
         </Link>
@@ -228,7 +228,7 @@ export default async function BlogDetailPage({ params }: Props) {
             {localizedTitle}
           </h1>
           {localizedSummary && (
-            <p className="text-slate-500 text-sm italic border-l-4 border-primary pl-4">
+            <p className="text-slate-500 text-sm italic border-l-4 border-emerald-600 pl-4">
               {localizedSummary}
             </p>
           )}

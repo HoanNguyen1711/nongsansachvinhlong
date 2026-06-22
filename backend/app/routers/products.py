@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlmodel import Session, select
 from app.core.database import get_db
 from app.models.product import Product, ProductCreate, ProductUpdate, ProductPublic
-from app.routers.auth import get_current_user
+from app.routers.auth import get_current_user, require_role_write
 from app.models.user import User
 
 router = APIRouter(prefix="/products", tags=["products"])
@@ -41,7 +41,7 @@ def read_product_by_slug(slug: str, db: Annotated[Session, Depends(get_db)]):
 @router.post("/", response_model=ProductPublic, status_code=status.HTTP_201_CREATED)
 def create_product(
     product_in: ProductCreate,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_role_write(["super_admin", "admin", "product_manager"]))],
     db: Annotated[Session, Depends(get_db)]
 ):
     # Check if slug already exists
@@ -62,7 +62,7 @@ def create_product(
 def update_product(
     product_id: int,
     product_in: ProductUpdate,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_role_write(["super_admin", "admin", "product_manager"]))],
     db: Annotated[Session, Depends(get_db)]
 ):
     db_product = db.get(Product, product_id)
@@ -95,7 +95,7 @@ def update_product(
 @router.delete("/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_product(
     product_id: int,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_role_write(["super_admin", "admin", "product_manager"]))],
     db: Annotated[Session, Depends(get_db)]
 ):
     db_product = db.get(Product, product_id)

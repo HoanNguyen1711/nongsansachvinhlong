@@ -18,10 +18,18 @@ const formatPhone = (phoneStr: string) => {
   return phoneStr;
 };
 
+interface CategoryItem {
+  category: string;
+  category_en: string;
+  category_zh: string;
+}
+
 export const Navbar: React.FC<NavbarProps> = ({ phone = "0901234567", lang: initialLang }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [lang, setLang] = useState<LanguageCode>(initialLang || "vi");
   const [langOpen, setLangOpen] = useState(false);
+  const [categories, setCategories] = useState<CategoryItem[]>([]);
+  const [mobileStoriesOpen, setMobileStoriesOpen] = useState(false);
   const desktopDropdownRef = useRef<HTMLDivElement>(null);
   const mobileDropdownRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
@@ -30,6 +38,22 @@ export const Navbar: React.FC<NavbarProps> = ({ phone = "0901234567", lang: init
     const active = getLanguageFromPathname(pathname);
     setLang(active);
   }, [pathname]);
+
+  // Fetch unique blog categories on mount
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch("/api/blogs/categories");
+        if (response.ok) {
+          const data = await response.json();
+          setCategories(data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch blog categories:", err);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   // Close language dropdown when clicking outside
   useEffect(() => {
@@ -47,6 +71,12 @@ export const Navbar: React.FC<NavbarProps> = ({ phone = "0901234567", lang: init
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  const getLocalizedCategory = (cat: CategoryItem, currentLang: string) => {
+    if (currentLang === "en") return cat.category_en || cat.category;
+    if (currentLang === "zh") return cat.category_zh || cat.category;
+    return cat.category;
+  };
 
   const t = getTranslation(lang);
   
@@ -72,14 +102,17 @@ export const Navbar: React.FC<NavbarProps> = ({ phone = "0901234567", lang: init
     
     setLangOpen(false);
     
-    // 2. Perform path switch
-    const segments = pathname.split("/"); // e.g. ["", "en", "san-pham"]
+    // 2. Perform path switch preserving query parameters and hash
+    const currentPathname = typeof window !== "undefined" ? window.location.pathname : pathname;
+    const segments = currentPathname.split("/"); // e.g. ["", "en", "stories"]
     if (segments[1] === "vi" || segments[1] === "en" || segments[1] === "zh") {
       segments[1] = code;
     } else {
       segments.splice(1, 0, code);
     }
-    const newPath = segments.join("/");
+    
+    const queryAndHash = typeof window !== "undefined" ? window.location.search + window.location.hash : "";
+    const newPath = segments.join("/") + queryAndHash;
     window.location.href = newPath;
   };
 
@@ -116,17 +149,55 @@ export const Navbar: React.FC<NavbarProps> = ({ phone = "0901234567", lang: init
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-8">
-            {navItems.map((item) => (
-              <Link
-                key={item.path}
-                href={getLocalizedHref(item.path, lang)}
-                className={`text-sm font-medium transition-colors hover:text-primary ${
-                  isActive(item.path) ? "text-primary border-b-2 border-primary pb-1" : "text-foreground/75"
-                }`}
-              >
-                {item.name}
-              </Link>
-            ))}
+            {navItems.map((item) => {
+              if (item.path === "/stories") {
+                return (
+                  <div key={item.path} className="relative group h-full flex items-center">
+                    <Link
+                      href={getLocalizedHref(item.path, lang)}
+                      className={`flex items-center gap-1 text-sm font-medium transition-colors hover:text-primary cursor-pointer focus:outline-none ${
+                        isActive(item.path) ? "text-primary font-semibold border-b-2 border-primary pb-0.5" : "text-foreground/75"
+                      }`}
+                    >
+                      <span>{item.name}</span>
+                      {categories.length > 0 && (
+                        <ChevronDown className="h-3 w-3 transition-transform duration-200 group-hover:rotate-180" />
+                      )}
+                    </Link>
+                    
+                    {/* Hover Dropdown */}
+                    {categories.length > 0 && (
+                      <div className="absolute left-1/2 -translate-x-1/2 top-full hidden group-hover:flex flex-col w-max min-w-[12.5rem] bg-white border-x border-b border-slate-200/80 shadow-lg z-50 divide-y divide-slate-100 rounded-none animate-in fade-in slide-in-from-top-1 duration-150">
+                        {categories.map((cat, idx) => {
+                          const localizedName = getLocalizedCategory(cat, lang);
+                          const href = `${getLocalizedHref("/stories", lang)}?category=${encodeURIComponent(cat.category)}`;
+                          return (
+                            <Link
+                              key={idx}
+                              href={href}
+                              className="flex w-full items-center justify-start px-4 py-3 text-left text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:text-emerald-700 transition-colors rounded-none"
+                            >
+                              {localizedName}
+                            </Link>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+              return (
+                <Link
+                  key={item.path}
+                  href={getLocalizedHref(item.path, lang)}
+                  className={`text-sm font-medium transition-colors hover:text-primary ${
+                    isActive(item.path) ? "text-primary border-b-2 border-primary pb-1" : "text-foreground/75"
+                  }`}
+                >
+                  {item.name}
+                </Link>
+              );
+            })}
           </div>
 
           {/* Right Action buttons */}
@@ -214,18 +285,68 @@ export const Navbar: React.FC<NavbarProps> = ({ phone = "0901234567", lang: init
       {/* Mobile Drawer Menu */}
       {isOpen && (
         <div className="md:hidden border-b border-border bg-background px-4 py-4 space-y-3">
-          {navItems.map((item) => (
-            <Link
-              key={item.path}
-              href={getLocalizedHref(item.path, lang)}
-              onClick={() => setIsOpen(false)}
-              className={`block rounded-lg px-4 py-2 text-base font-medium hover:bg-accent hover:text-primary ${
-                isActive(item.path) ? "bg-accent text-primary" : "text-foreground/75"
-              }`}
-            >
-              {item.name}
-            </Link>
-          ))}
+          {navItems.map((item) => {
+            if (item.path === "/stories") {
+              return (
+                <div key={item.path} className="space-y-1">
+                  {categories.length > 0 ? (
+                    <>
+                      <button
+                        onClick={() => setMobileStoriesOpen(!mobileStoriesOpen)}
+                        className={`flex w-full items-center justify-between rounded-lg px-4 py-2 text-base font-medium hover:bg-accent hover:text-primary ${
+                          isActive(item.path) ? "bg-accent/50 text-primary font-semibold" : "text-foreground/75"
+                        }`}
+                      >
+                        <span>{item.name}</span>
+                        <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${mobileStoriesOpen ? "rotate-180" : ""}`} />
+                      </button>
+                      
+                      {mobileStoriesOpen && (
+                        <div className="pl-4 border-l border-slate-100 ml-4 space-y-1">
+                          {categories.map((cat, idx) => {
+                            const localizedName = getLocalizedCategory(cat, lang);
+                            const href = `${getLocalizedHref("/stories", lang)}?category=${encodeURIComponent(cat.category)}`;
+                            return (
+                              <Link
+                                key={idx}
+                                href={href}
+                                onClick={() => setIsOpen(false)}
+                                className="block rounded-lg px-4 py-1.5 text-sm font-medium text-foreground/60 hover:bg-accent hover:text-primary"
+                              >
+                                {localizedName}
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <Link
+                      href={getLocalizedHref(item.path, lang)}
+                      onClick={() => setIsOpen(false)}
+                      className={`block rounded-lg px-4 py-2 text-base font-medium hover:bg-accent hover:text-primary ${
+                        isActive(item.path) ? "bg-accent text-primary" : "text-foreground/75"
+                      }`}
+                    >
+                      {item.name}
+                    </Link>
+                  )}
+                </div>
+              );
+            }
+            return (
+              <Link
+                key={item.path}
+                href={getLocalizedHref(item.path, lang)}
+                onClick={() => setIsOpen(false)}
+                className={`block rounded-lg px-4 py-2 text-base font-medium hover:bg-accent hover:text-primary ${
+                  isActive(item.path) ? "bg-accent text-primary" : "text-foreground/75"
+                }`}
+              >
+                {item.name}
+              </Link>
+            );
+          })}
           <a
             href={`tel:${phone}`}
             className="flex items-center justify-center gap-2 rounded-lg bg-primary py-3 text-center text-base font-semibold text-primary-foreground"

@@ -339,7 +339,7 @@ export default async function ProductsPage({ params, searchParams }: PageProps) 
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 space-y-10">
       {/* Page Banner */}
-      <div className="relative overflow-hidden bg-emerald-950 text-white py-16 px-8 rounded-[32px] shadow-lg border border-white/5">
+      <div className="relative overflow-hidden bg-emerald-600 text-white py-20 px-8 rounded-[32px] shadow-lg border border-white/5">
         {/* Background Image */}
         <img 
           src="/banner_products.png" 
@@ -382,7 +382,7 @@ export default async function ProductsPage({ params, searchParams }: PageProps) 
               }}
               className={`rounded-full px-5 py-2.5 text-xs font-semibold border transition-all ${
                 isActive
-                  ? "bg-primary border-primary text-primary-foreground shadow-sm scale-105"
+                  ? "bg-emerald-600 border-emerald-600 text-white shadow-sm scale-105"
                   : "bg-white border-border text-slate-600 hover:bg-slate-50"
               }`}
             >
@@ -423,7 +423,7 @@ export default async function ProductsPage({ params, searchParams }: PageProps) 
                   </Link>
                   {/* Details */}
                   <div className="mt-4 space-y-1">
-                    <h3 className="font-bold text-slate-800 leading-snug group-hover:text-primary transition-colors">
+                    <h3 className="font-bold text-slate-800 leading-snug group-hover:text-emerald-600 transition-colors">
                       <Link href={getLocalizedHref(`/products/${product.slug}`, lang)}>
                         {localizedProductName}
                       </Link>
@@ -451,7 +451,7 @@ export default async function ProductsPage({ params, searchParams }: PageProps) 
                 <div className="mt-5">
                   <Link
                     href={getLocalizedHref(`/products/${product.slug}`, lang)}
-                    className="flex w-full items-center justify-center gap-1 rounded-2xl bg-primary py-2.5 text-xs font-semibold text-primary-foreground shadow-sm hover:opacity-90 active:scale-95 transition-transform"
+                    className="flex w-full items-center justify-center gap-1 rounded-2xl bg-emerald-600 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-emerald-500 active:scale-95 transition-all"
                   >
                     <Eye className="h-4 w-4" />
                     <span>{lang === "vi" ? "Xem chi tiết" : lang === "en" ? "View details" : "查看详情"}</span>

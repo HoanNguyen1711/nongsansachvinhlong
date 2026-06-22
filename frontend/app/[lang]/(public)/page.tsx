@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { ArrowRight, CheckCircle2, ShieldCheck, Truck, MessageSquare, Star, Sparkles, Eye, Phone, Quote, Leaf, Globe, Award } from "lucide-react";
 import { getTranslation, getLocalizedValue, getLocalizedCategoryName, getLocalizedHref, LanguageCode } from "@/lib/i18n";
 import HeroSlider from "@/components/homepage/hero-slider";
+import TestimonialsSlider from "@/components/homepage/testimonials-slider";
 
 export const dynamic = "force-dynamic";
 
@@ -225,7 +226,7 @@ function renderDefaultLayout(lang: LanguageCode, settings: any, phone: string, d
     <div className="space-y-20 pb-20">
       {/* 1. Hero Section (Boxed Card Layout) */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-6">
-        <section className="relative overflow-hidden bg-emerald-950 text-white min-h-[500px] lg:min-h-[550px] rounded-[32px] flex items-center shadow-xl border border-white/5">
+        <section className="relative overflow-hidden bg-emerald-600 text-white min-h-[600px] lg:min-h-[600px] rounded-[32px] flex items-center shadow-xl border border-white/5">
           {/* Full-width interactive Hero Slider background */}
           <HeroSlider
             lang={lang}
@@ -254,7 +255,7 @@ function renderDefaultLayout(lang: LanguageCode, settings: any, phone: string, d
               <div className="flex flex-col sm:flex-row gap-4 pt-2">
                 <Link
                   href={getLocalizedHref("/products", lang)}
-                  className="flex items-center justify-center gap-2 rounded-full bg-emerald-500 px-8 py-4 text-base font-semibold text-white shadow-lg transition-transform hover:scale-105 active:scale-95"
+                  className="flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-8 py-4 text-base font-semibold text-white shadow-lg transition-all hover:bg-emerald-500 hover:scale-105 active:scale-95"
                 >
                   <span>{t.viewProducts}</span>
                   <ArrowRight className="h-5 w-5" />
@@ -278,7 +279,7 @@ function renderDefaultLayout(lang: LanguageCode, settings: any, phone: string, d
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-8 rounded-3xl bg-white p-8 border border-border shadow-sm sm:grid-cols-3">
           <div className="flex items-start gap-4">
-            <div className="rounded-2xl bg-emerald-50 p-3 text-primary">
+            <div className="rounded-2xl bg-emerald-50 p-3 text-emerald-600">
               <ShieldCheck className="h-6 w-6" />
             </div>
             <div>
@@ -289,7 +290,7 @@ function renderDefaultLayout(lang: LanguageCode, settings: any, phone: string, d
             </div>
           </div>
           <div className="flex items-start gap-4">
-            <div className="rounded-2xl bg-emerald-50 p-3 text-primary">
+            <div className="rounded-2xl bg-emerald-50 p-3 text-emerald-600">
               <Truck className="h-6 w-6" />
             </div>
             <div>
@@ -300,7 +301,7 @@ function renderDefaultLayout(lang: LanguageCode, settings: any, phone: string, d
             </div>
           </div>
           <div className="flex items-start gap-4">
-            <div className="rounded-2xl bg-emerald-50 p-3 text-primary">
+            <div className="rounded-2xl bg-emerald-50 p-3 text-emerald-600">
               <CheckCircle2 className="h-6 w-6" />
             </div>
             <div>
@@ -315,82 +316,99 @@ function renderDefaultLayout(lang: LanguageCode, settings: any, phone: string, d
 
       {/* Brand Slogan & Commitments Section */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-emerald-900 to-emerald-950 p-8 sm:p-12 text-white border border-emerald-800/30 shadow-2xl">
+        <div className="relative overflow-hidden rounded-[32px] bg-emerald-600 p-8 sm:p-12 text-white border border-amber-300/10 shadow-2xl">
           {/* Decorative background logo watermarks */}
           <div className="absolute right-0 bottom-0 translate-x-1/4 translate-y-1/4 opacity-[0.03] pointer-events-none">
             <img src="/logo.jpg" alt="Watermark" className="w-[450px] h-[450px] rounded-full object-contain" />
           </div>
-          <div className="absolute -left-12 -top-12 w-48 h-48 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none"></div>
+          
+          {/* Glowing amber radial lights */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(251,191,36,0.05),transparent)] pointer-events-none"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(251,191,36,0.03),transparent)] pointer-events-none"></div>
+          
+          {/* Decorative golden waves / strokes */}
+          <div className="absolute inset-0 opacity-[0.09] pointer-events-none">
+            <svg className="w-full h-full" viewBox="0 0 800 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M-100,200 Q200,100 400,300 T900,200" stroke="#fbbf24" strokeWidth="2" />
+              <path d="M-50,250 Q250,150 450,350 T950,250" stroke="#f59e0b" strokeWidth="1" strokeDasharray="5,5" />
+              <path d="M0,150 Q300,250 600,50 T1000,150" stroke="#f59e0b" strokeWidth="1.5" />
+              <path d="M-150,100 Q200,300 550,150 T1050,300" stroke="#fbbf24" strokeWidth="1.2" strokeDasharray="4,4" />
+            </svg>
+          </div>
+
+          {/* Golden abstract circles */}
+          <div className="absolute -top-12 -left-12 w-48 h-48 rounded-full border border-amber-400/5 pointer-events-none"></div>
+          <div className="absolute -bottom-16 -right-16 w-64 h-64 rounded-full border border-amber-400/5 pointer-events-none"></div>
 
           <div className="relative z-10 space-y-10">
             <div className="text-center space-y-4 max-w-2xl mx-auto">
               <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-                <div className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-emerald-400 bg-white shadow-lg">
+                <div className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-amber-300 bg-white shadow-lg">
                   <img src="/logo.jpg" alt="Vinh Long Viet Nam Logo" className="h-full w-full object-contain" />
                 </div>
                 <div className="text-center sm:text-left">
-                  <h2 className="text-xl sm:text-2xl font-black uppercase tracking-wider text-emerald-300">
+                  <h2 className="text-xl sm:text-2xl font-black uppercase tracking-wider text-amber-200/90">
                     {t.companyName}
                   </h2>
-                  <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-emerald-100/70">
+                  <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-emerald-50/70">
                     {t.companyFullName}
                   </p>
                 </div>
               </div>
-              <div className="w-20 h-[2px] bg-emerald-500/50 mx-auto mt-2"></div>
+              <div className="w-20 h-[2px] bg-amber-300/20 mx-auto mt-2"></div>
               <p className="text-xl sm:text-2xl font-extrabold tracking-tight text-white italic mt-2">
                 " {t.slogan} "
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {/* Cleanliness */}
-              <div className="rounded-2xl bg-white/5 border border-white/10 p-6 space-y-4 hover:bg-white/10 transition-all group duration-300">
-                <div className="rounded-xl bg-emerald-500/20 text-emerald-300 p-3 w-12 h-12 flex items-center justify-center border border-emerald-500/20 group-hover:scale-110 transition-transform">
+              <div className="rounded-2xl bg-white/5 border border-white/10 p-5 flex items-start gap-4 hover:bg-white/10 transition-all group duration-300">
+                <div className="rounded-xl bg-amber-300/10 text-amber-200 p-3 w-12 h-12 flex shrink-0 items-center justify-center border border-amber-300/10 group-hover:scale-110 transition-transform">
                   <Sparkles className="h-6 w-6" />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="font-bold text-base text-emerald-300">{t.pillarCleanTitle}</h3>
-                  <p className="text-xs text-emerald-100/70 leading-relaxed">
+                  <h3 className="font-bold text-base text-amber-200 leading-snug">{t.pillarCleanTitle}</h3>
+                  <p className="text-sm text-white leading-relaxed">
                     {t.pillarCleanDesc}
                   </p>
                 </div>
               </div>
 
               {/* Quality */}
-              <div className="rounded-2xl bg-white/5 border border-white/10 p-6 space-y-4 hover:bg-white/10 transition-all group duration-300">
-                <div className="rounded-xl bg-emerald-500/20 text-emerald-300 p-3 w-12 h-12 flex items-center justify-center border border-emerald-500/20 group-hover:scale-110 transition-transform">
+              <div className="rounded-2xl bg-white/5 border border-white/10 p-5 flex items-start gap-4 hover:bg-white/10 transition-all group duration-300">
+                <div className="rounded-xl bg-amber-300/10 text-amber-200 p-3 w-12 h-12 flex shrink-0 items-center justify-center border border-amber-300/10 group-hover:scale-110 transition-transform">
                   <Award className="h-6 w-6" />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="font-bold text-base text-emerald-300">{t.pillarQualityTitle}</h3>
-                  <p className="text-xs text-emerald-100/70 leading-relaxed">
+                  <h3 className="font-bold text-base text-amber-200 leading-snug">{t.pillarQualityTitle}</h3>
+                  <p className="text-sm text-white leading-relaxed">
                     {t.pillarQualityDesc}
                   </p>
                 </div>
               </div>
 
               {/* Sustainability */}
-              <div className="rounded-2xl bg-white/5 border border-white/10 p-6 space-y-4 hover:bg-white/10 transition-all group duration-300">
-                <div className="rounded-xl bg-emerald-500/20 text-emerald-300 p-3 w-12 h-12 flex items-center justify-center border border-emerald-500/20 group-hover:scale-110 transition-transform">
+              <div className="rounded-2xl bg-white/5 border border-white/10 p-5 flex items-start gap-4 hover:bg-white/10 transition-all group duration-300">
+                <div className="rounded-xl bg-amber-300/10 text-amber-200 p-3 w-12 h-12 flex shrink-0 items-center justify-center border border-amber-300/10 group-hover:scale-110 transition-transform">
                   <Leaf className="h-6 w-6" />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="font-bold text-base text-emerald-300">{t.pillarSustainableTitle}</h3>
-                  <p className="text-xs text-emerald-100/70 leading-relaxed">
+                  <h3 className="font-bold text-base text-amber-200 leading-snug">{t.pillarSustainableTitle}</h3>
+                  <p className="text-sm text-white leading-relaxed">
                     {t.pillarSustainableDesc}
                   </p>
                 </div>
               </div>
 
               {/* Global */}
-              <div className="rounded-2xl bg-white/5 border border-white/10 p-6 space-y-4 hover:bg-white/10 transition-all group duration-300">
-                <div className="rounded-xl bg-emerald-500/20 text-emerald-300 p-3 w-12 h-12 flex items-center justify-center border border-emerald-500/20 group-hover:scale-110 transition-transform">
+              <div className="rounded-2xl bg-white/5 border border-white/10 p-5 flex items-start gap-4 hover:bg-white/10 transition-all group duration-300">
+                <div className="rounded-xl bg-amber-300/10 text-amber-200 p-3 w-12 h-12 flex shrink-0 items-center justify-center border border-amber-300/10 group-hover:scale-110 transition-transform">
                   <Globe className="h-6 w-6" />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="font-bold text-base text-emerald-300">{t.pillarGlobalTitle}</h3>
-                  <p className="text-xs text-emerald-100/70 leading-relaxed">
+                  <h3 className="font-bold text-base text-amber-200 leading-snug">{t.pillarGlobalTitle}</h3>
+                  <p className="text-sm text-white leading-relaxed">
                     {t.pillarGlobalDesc}
                   </p>
                 </div>
@@ -407,7 +425,7 @@ function renderDefaultLayout(lang: LanguageCode, settings: any, phone: string, d
             <h2 className="text-3xl font-bold tracking-tight text-slate-800">{t.featuredTitle}</h2>
             <p className="text-slate-500 text-sm">{t.featuredSubtitle}</p>
           </div>
-          <Link href={getLocalizedHref("/products", lang)} className="group flex items-center gap-1 text-sm font-semibold text-primary">
+          <Link href={getLocalizedHref("/products", lang)} className="group flex items-center gap-1 text-sm font-semibold text-emerald-600 hover:text-emerald-500">
             <span>{t.allProducts}</span>
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Link>
@@ -442,7 +460,7 @@ function renderDefaultLayout(lang: LanguageCode, settings: any, phone: string, d
                   </Link>
                   {/* Details */}
                   <div className="mt-4 space-y-1">
-                    <h3 className="font-bold text-slate-800 leading-snug group-hover:text-primary transition-colors">
+                    <h3 className="font-bold text-slate-800 leading-snug group-hover:text-emerald-600 transition-colors">
                       <Link href={getLocalizedHref(`/products/${product.slug}`, lang)}>
                         {localizedName}
                       </Link>
@@ -470,7 +488,7 @@ function renderDefaultLayout(lang: LanguageCode, settings: any, phone: string, d
                 <div className="mt-5">
                   <Link
                     href={getLocalizedHref(`/products/${product.slug}`, lang)}
-                    className="flex w-full items-center justify-center gap-1 rounded-2xl bg-primary py-2.5 text-xs font-semibold text-primary-foreground shadow-sm hover:opacity-90 active:scale-95 transition-transform"
+                    className="flex w-full items-center justify-center gap-1 rounded-2xl bg-emerald-600 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-emerald-500 active:scale-95 transition-all"
                   >
                     <Eye className="h-4 w-4" />
                     <span>{lang === "vi" ? "Xem chi tiết" : lang === "en" ? "View details" : "查看详情"}</span>
@@ -508,7 +526,7 @@ function renderDefaultLayout(lang: LanguageCode, settings: any, phone: string, d
               <div>
                 <Link
                   href={getLocalizedHref("/about-us", lang)}
-                  className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline"
+                  className="inline-flex items-center gap-1 text-sm font-semibold text-emerald-600 hover:text-emerald-500 hover:underline"
                 >
                   <span>{t.learnMore}</span>
                   <ArrowRight className="h-4 w-4" />
@@ -526,64 +544,47 @@ function renderDefaultLayout(lang: LanguageCode, settings: any, phone: string, d
           <p className="text-slate-500 text-sm">{t.testimonialSubtitle}</p>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-          {displayTestimonials.map((tItem) => {
-            const localizedContent = getLocalizedValue(tItem, "content", lang);
-            const localizedRegion = getLocalizedValue(tItem, "region", lang);
-            return (
-              <div key={tItem.id} className="rounded-3xl border border-border bg-white p-6 space-y-4 flex flex-col justify-between">
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-emerald-50 border border-border overflow-hidden flex items-center justify-center shrink-0">
-                      {tItem.avatar_url ? (
-                        <img src={tItem.avatar_url} alt={tItem.name} className="h-full w-full object-cover" />
-                      ) : (
-                        <MessageSquare className="h-4 w-4 text-primary" />
-                      )}
-                    </div>
-                    <div>
-                      <div className="font-semibold text-slate-800 text-sm">{tItem.name}</div>
-                      {localizedRegion && <div className="text-[10px] text-slate-400 font-semibold">{localizedRegion}</div>}
-                    </div>
-                  </div>
-                  
-                  <div className="flex gap-0.5 text-amber-500">
-                    {Array.from({ length: 5 }).map((_, idx) => (
-                      <Star
-                        key={idx}
-                        className={`h-4 w-4 ${idx < tItem.rating ? "fill-current" : "text-slate-200"}`}
-                      />
-                    ))}
-                  </div>
-                  
-                  <p className="text-slate-600 text-sm italic">
-                    "{localizedContent}"
-                  </p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        <TestimonialsSlider testimonials={displayTestimonials} lang={lang} layout="default" />
       </section>
 
       {/* 6. Closing Zalo QR CTA Card */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="rounded-3xl bg-emerald-950 p-8 sm:p-12 text-white flex flex-col md:flex-row justify-between items-center gap-8 border border-emerald-800 relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_90%_90%,rgba(16,185,129,0.15),transparent)]"></div>
+        <div className="rounded-3xl bg-emerald-600 p-8 sm:p-12 text-white flex flex-col md:flex-row justify-between items-center gap-8 border border-amber-300/10 relative overflow-hidden shadow-xl">
+          {/* Glowing amber radial lights */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(251,191,36,0.05),transparent)] pointer-events-none"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(251,191,36,0.03),transparent)] pointer-events-none"></div>
           
+          {/* Decorative golden waves / strokes */}
+          <div className="absolute inset-0 opacity-[0.09] pointer-events-none">
+            <svg className="w-full h-full" viewBox="0 0 800 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M-100,200 Q200,100 400,300 T900,200" stroke="#fbbf24" strokeWidth="2" />
+              <path d="M-50,250 Q250,150 450,350 T950,250" stroke="#f59e0b" strokeWidth="1" strokeDasharray="5,5" />
+              <path d="M0,150 Q300,250 600,50 T1000,150" stroke="#f59e0b" strokeWidth="1.5" />
+              <path d="M-150,100 Q200,300 550,150 T1050,300" stroke="#fbbf24" strokeWidth="1.2" strokeDasharray="4,4" />
+            </svg>
+          </div>
+
+          {/* Golden abstract circles */}
+          <div className="absolute -top-12 -left-12 w-48 h-48 rounded-full border border-amber-400/5 pointer-events-none"></div>
+          <div className="absolute -bottom-16 -right-16 w-64 h-64 rounded-full border border-amber-400/5 pointer-events-none"></div>
+
           <div className="space-y-4 relative max-w-lg text-center md:text-left">
-            <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">{t.discount10Title}</h2>
-            <p className="text-emerald-100/80 text-sm leading-relaxed">
+            <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl text-white">{t.discount10Title}</h2>
+            <p className="text-emerald-50/90 text-sm leading-relaxed">
               {t.discount10Desc}
             </p>
-            <div className="flex flex-wrap justify-center md:justify-start gap-4 text-xs font-semibold text-emerald-300">
-              <span className="flex items-center gap-1">{t.consultationFree}</span>
-              <span className="flex items-center gap-1">{t.deliveryCod}</span>
+            <div className="flex flex-wrap justify-center md:justify-start gap-3 text-xs font-semibold">
+              <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-300/5 text-amber-200/90 border border-amber-300/10 shadow-2xs">
+                {t.consultationFree}
+              </span>
+              <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-300/5 text-amber-200/90 border border-amber-300/10 shadow-2xs">
+                {t.deliveryCod}
+              </span>
             </div>
           </div>
           
-          <div className="relative shrink-0 flex flex-col items-center gap-3 bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
-            <div className="w-32 h-32 bg-white rounded-xl overflow-hidden flex items-center justify-center text-emerald-950 font-bold text-xs p-2 text-center">
+          <div className="relative shrink-0 flex flex-col items-center gap-3 bg-white/10 border border-white/20 rounded-2xl p-6 backdrop-blur-md shadow-lg">
+            <div className="w-32 h-32 bg-white rounded-xl overflow-hidden flex items-center justify-center text-slate-500 border border-slate-100 font-bold text-xs p-2 text-center shadow-md hover:border-amber-300 transition-colors">
               {settings.zalo_qr_url ? (
                 <img
                   src={settings.zalo_qr_url}
@@ -598,7 +599,7 @@ function renderDefaultLayout(lang: LanguageCode, settings: any, phone: string, d
               href={`https://zalo.me/${phone}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-full bg-emerald-500 px-6 py-2.5 text-xs font-bold hover:scale-105 active:scale-95 transition-transform"
+              className="rounded-full bg-amber-300 text-emerald-950 px-6 py-2.5 text-xs font-bold hover:bg-amber-200 hover:scale-105 active:scale-95 transition-all shadow-md"
             >
               {t.openZaloNow}
             </a>
@@ -632,7 +633,7 @@ function renderGridLayout(lang: LanguageCode, settings: any, phone: string, disp
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <Link
                 href={getLocalizedHref("/products", lang)}
-                className="flex items-center justify-center gap-2 rounded-full bg-primary px-8 py-3.5 text-xs font-bold text-primary-foreground shadow-lg hover:opacity-90 active:scale-95 transition-all"
+                className="flex items-center justify-center gap-2 rounded-full bg-emerald-600 px-8 py-3.5 text-xs font-bold text-white shadow-lg hover:bg-emerald-500 active:scale-95 transition-all"
               >
                 <span>{t.viewProducts}</span>
                 <ArrowRight className="h-4 w-4" />
@@ -641,7 +642,7 @@ function renderGridLayout(lang: LanguageCode, settings: any, phone: string, disp
                 href={`tel:${phone}`}
                 className="flex items-center justify-center gap-2 rounded-full border border-slate-700 bg-slate-800/50 px-8 py-3.5 text-xs font-bold text-white hover:bg-slate-800 active:scale-95 transition-all"
               >
-                <Phone className="h-4 w-4 text-emerald-400" />
+                <Phone className="h-4 w-4 text-emerald-600" />
                 <span>{t.callNow}: {phone}</span>
               </a>
             </div>
@@ -665,7 +666,7 @@ function renderGridLayout(lang: LanguageCode, settings: any, phone: string, disp
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
           <div className="flex items-center gap-4 rounded-2xl bg-white p-5 border border-border hover:shadow-md transition-shadow">
-            <div className="rounded-xl bg-emerald-50 p-2.5 text-primary">
+            <div className="rounded-xl bg-emerald-50 p-2.5 text-emerald-600">
               <ShieldCheck className="h-5 w-5" />
             </div>
             <div>
@@ -674,7 +675,7 @@ function renderGridLayout(lang: LanguageCode, settings: any, phone: string, disp
             </div>
           </div>
           <div className="flex items-center gap-4 rounded-2xl bg-white p-5 border border-border hover:shadow-md transition-shadow">
-            <div className="rounded-xl bg-emerald-50 p-2.5 text-primary">
+            <div className="rounded-xl bg-emerald-50 p-2.5 text-emerald-600">
               <Truck className="h-5 w-5" />
             </div>
             <div>
@@ -683,7 +684,7 @@ function renderGridLayout(lang: LanguageCode, settings: any, phone: string, disp
             </div>
           </div>
           <div className="flex items-center gap-4 rounded-2xl bg-white p-5 border border-border hover:shadow-md transition-shadow">
-            <div className="rounded-xl bg-emerald-50 p-2.5 text-primary">
+            <div className="rounded-xl bg-emerald-50 p-2.5 text-emerald-600">
               <CheckCircle2 className="h-5 w-5" />
             </div>
             <div>
@@ -696,82 +697,99 @@ function renderGridLayout(lang: LanguageCode, settings: any, phone: string, disp
 
       {/* Brand Slogan & Commitments Section */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-emerald-900 to-emerald-950 p-8 sm:p-12 text-white border border-emerald-800/30 shadow-2xl">
+        <div className="relative overflow-hidden rounded-[32px] bg-emerald-600 p-8 sm:p-12 text-white border border-amber-300/10 shadow-2xl">
           {/* Decorative background logo watermarks */}
           <div className="absolute right-0 bottom-0 translate-x-1/4 translate-y-1/4 opacity-[0.03] pointer-events-none">
             <img src="/logo.jpg" alt="Watermark" className="w-[450px] h-[450px] rounded-full object-contain" />
           </div>
-          <div className="absolute -left-12 -top-12 w-48 h-48 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none"></div>
+          
+          {/* Glowing amber radial lights */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(251,191,36,0.05),transparent)] pointer-events-none"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(251,191,36,0.03),transparent)] pointer-events-none"></div>
+          
+          {/* Decorative golden waves / strokes */}
+          <div className="absolute inset-0 opacity-[0.09] pointer-events-none">
+            <svg className="w-full h-full" viewBox="0 0 800 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M-100,200 Q200,100 400,300 T900,200" stroke="#fbbf24" strokeWidth="2" />
+              <path d="M-50,250 Q250,150 450,350 T950,250" stroke="#f59e0b" strokeWidth="1" strokeDasharray="5,5" />
+              <path d="M0,150 Q300,250 600,50 T1000,150" stroke="#f59e0b" strokeWidth="1.5" />
+              <path d="M-150,100 Q200,300 550,150 T1050,300" stroke="#fbbf24" strokeWidth="1.2" strokeDasharray="4,4" />
+            </svg>
+          </div>
+
+          {/* Golden abstract circles */}
+          <div className="absolute -top-12 -left-12 w-48 h-48 rounded-full border border-amber-400/5 pointer-events-none"></div>
+          <div className="absolute -bottom-16 -right-16 w-64 h-64 rounded-full border border-amber-400/5 pointer-events-none"></div>
 
           <div className="relative z-10 space-y-10">
             <div className="text-center space-y-4 max-w-2xl mx-auto">
               <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-                <div className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-emerald-400 bg-white shadow-lg">
+                <div className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-amber-300 bg-white shadow-lg">
                   <img src="/logo.jpg" alt="Vinh Long Viet Nam Logo" className="h-full w-full object-contain" />
                 </div>
                 <div className="text-center sm:text-left">
-                  <h2 className="text-xl sm:text-2xl font-black uppercase tracking-wider text-emerald-300">
+                  <h2 className="text-xl sm:text-2xl font-black uppercase tracking-wider text-amber-200/90">
                     {t.companyName}
                   </h2>
-                  <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-emerald-100/70">
+                  <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-emerald-50/70">
                     {t.companyFullName}
                   </p>
                 </div>
               </div>
-              <div className="w-20 h-[2px] bg-emerald-500/50 mx-auto mt-2"></div>
+              <div className="w-20 h-[2px] bg-amber-300/20 mx-auto mt-2"></div>
               <p className="text-xl sm:text-2xl font-extrabold tracking-tight text-white italic mt-2">
                 " {t.slogan} "
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {/* Cleanliness */}
-              <div className="rounded-2xl bg-white/5 border border-white/10 p-6 space-y-4 hover:bg-white/10 transition-all group duration-300">
-                <div className="rounded-xl bg-emerald-500/20 text-emerald-300 p-3 w-12 h-12 flex items-center justify-center border border-emerald-500/20 group-hover:scale-110 transition-transform">
+              <div className="rounded-2xl bg-white/5 border border-white/10 p-5 flex items-start gap-4 hover:bg-white/10 transition-all group duration-300">
+                <div className="rounded-xl bg-amber-300/10 text-amber-200 p-3 w-12 h-12 flex shrink-0 items-center justify-center border border-amber-300/10 group-hover:scale-110 transition-transform">
                   <Sparkles className="h-6 w-6" />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="font-bold text-base text-emerald-300">{t.pillarCleanTitle}</h3>
-                  <p className="text-xs text-emerald-100/70 leading-relaxed">
+                  <h3 className="font-bold text-base text-amber-200 leading-snug">{t.pillarCleanTitle}</h3>
+                  <p className="text-sm text-white leading-relaxed">
                     {t.pillarCleanDesc}
                   </p>
                 </div>
               </div>
 
               {/* Quality */}
-              <div className="rounded-2xl bg-white/5 border border-white/10 p-6 space-y-4 hover:bg-white/10 transition-all group duration-300">
-                <div className="rounded-xl bg-emerald-500/20 text-emerald-300 p-3 w-12 h-12 flex items-center justify-center border border-emerald-500/20 group-hover:scale-110 transition-transform">
+              <div className="rounded-2xl bg-white/5 border border-white/10 p-5 flex items-start gap-4 hover:bg-white/10 transition-all group duration-300">
+                <div className="rounded-xl bg-amber-300/10 text-amber-200 p-3 w-12 h-12 flex shrink-0 items-center justify-center border border-amber-300/10 group-hover:scale-110 transition-transform">
                   <Award className="h-6 w-6" />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="font-bold text-base text-emerald-300">{t.pillarQualityTitle}</h3>
-                  <p className="text-xs text-emerald-100/70 leading-relaxed">
+                  <h3 className="font-bold text-base text-amber-200 leading-snug">{t.pillarQualityTitle}</h3>
+                  <p className="text-sm text-white leading-relaxed">
                     {t.pillarQualityDesc}
                   </p>
                 </div>
               </div>
 
               {/* Sustainability */}
-              <div className="rounded-2xl bg-white/5 border border-white/10 p-6 space-y-4 hover:bg-white/10 transition-all group duration-300">
-                <div className="rounded-xl bg-emerald-500/20 text-emerald-300 p-3 w-12 h-12 flex items-center justify-center border border-emerald-500/20 group-hover:scale-110 transition-transform">
+              <div className="rounded-2xl bg-white/5 border border-white/10 p-5 flex items-start gap-4 hover:bg-white/10 transition-all group duration-300">
+                <div className="rounded-xl bg-amber-300/10 text-amber-200 p-3 w-12 h-12 flex shrink-0 items-center justify-center border border-amber-300/10 group-hover:scale-110 transition-transform">
                   <Leaf className="h-6 w-6" />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="font-bold text-base text-emerald-300">{t.pillarSustainableTitle}</h3>
-                  <p className="text-xs text-emerald-100/70 leading-relaxed">
+                  <h3 className="font-bold text-base text-amber-200 leading-snug">{t.pillarSustainableTitle}</h3>
+                  <p className="text-sm text-white leading-relaxed">
                     {t.pillarSustainableDesc}
                   </p>
                 </div>
               </div>
 
               {/* Global */}
-              <div className="rounded-2xl bg-white/5 border border-white/10 p-6 space-y-4 hover:bg-white/10 transition-all group duration-300">
-                <div className="rounded-xl bg-emerald-500/20 text-emerald-300 p-3 w-12 h-12 flex items-center justify-center border border-emerald-500/20 group-hover:scale-110 transition-transform">
+              <div className="rounded-2xl bg-white/5 border border-white/10 p-5 flex items-start gap-4 hover:bg-white/10 transition-all group duration-300">
+                <div className="rounded-xl bg-amber-300/10 text-amber-200 p-3 w-12 h-12 flex shrink-0 items-center justify-center border border-amber-300/10 group-hover:scale-110 transition-transform">
                   <Globe className="h-6 w-6" />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="font-bold text-base text-emerald-300">{t.pillarGlobalTitle}</h3>
-                  <p className="text-xs text-emerald-100/70 leading-relaxed">
+                  <h3 className="font-bold text-base text-amber-200 leading-snug">{t.pillarGlobalTitle}</h3>
+                  <p className="text-sm text-white leading-relaxed">
                     {t.pillarGlobalDesc}
                   </p>
                 </div>
@@ -815,7 +833,7 @@ function renderGridLayout(lang: LanguageCode, settings: any, phone: string, disp
                     </div>
                   </Link>
                   <div className="mt-4 space-y-1">
-                    <h3 className="font-bold text-slate-800 text-sm leading-snug group-hover:text-primary transition-colors">
+                    <h3 className="font-bold text-slate-800 text-sm leading-snug group-hover:text-emerald-600 transition-colors">
                       <Link href={getLocalizedHref(`/products/${product.slug}`, lang)}>
                         {localizedName}
                       </Link>
@@ -841,9 +859,9 @@ function renderGridLayout(lang: LanguageCode, settings: any, phone: string, disp
                 <div className="mt-5">
                   <Link
                     href={getLocalizedHref(`/products/${product.slug}`, lang)}
-                    className="flex w-full items-center justify-center gap-1 rounded-2xl bg-slate-50 border border-slate-200 py-2.5 text-xs font-bold text-slate-700 shadow-sm hover:bg-slate-100 active:scale-95 transition-all"
+                    className="flex w-full items-center justify-center gap-1 rounded-2xl bg-emerald-600 py-2.5 text-xs font-bold text-white shadow-sm hover:bg-emerald-500 active:scale-95 transition-all"
                   >
-                    <Eye className="h-4 w-4 text-slate-500" />
+                    <Eye className="h-4 w-4" />
                     <span>{lang === "vi" ? "Xem chi tiết" : lang === "en" ? "View details" : "查看详情"}</span>
                   </Link>
                 </div>
@@ -906,63 +924,47 @@ function renderGridLayout(lang: LanguageCode, settings: any, phone: string, disp
           <p className="text-slate-500 text-sm">{t.testimonialSubtitle}</p>
         </div>
 
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-          {displayTestimonials.map((tItem) => {
-            const localizedContent = getLocalizedValue(tItem, "content", lang);
-            const localizedRegion = getLocalizedValue(tItem, "region", lang);
-            return (
-              <div key={tItem.id} className="relative rounded-3xl border border-border bg-white p-8 shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
-                <Quote className="absolute top-6 right-6 h-8 w-8 text-slate-100 pointer-events-none" />
-                <div className="space-y-4">
-                  <div className="flex gap-0.5 text-amber-500">
-                    {Array.from({ length: 5 }).map((_, idx) => (
-                      <Star
-                        key={idx}
-                        className={`h-4 w-4 ${idx < tItem.rating ? "fill-current" : "text-slate-200"}`}
-                      />
-                    ))}
-                  </div>
-                  <p className="text-slate-600 text-sm leading-relaxed italic">
-                    "{localizedContent}"
-                  </p>
-                </div>
-                <div className="flex items-center gap-3 pt-6 mt-6 border-t border-slate-100">
-                  <div className="h-10 w-10 rounded-full bg-emerald-50 border border-border overflow-hidden flex items-center justify-center shrink-0">
-                    {tItem.avatar_url ? (
-                      <img src={tItem.avatar_url} alt={tItem.name} className="h-full w-full object-cover" />
-                    ) : (
-                      <MessageSquare className="h-4 w-4 text-emerald-600" />
-                    )}
-                  </div>
-                  <div>
-                    <div className="font-bold text-slate-800 text-xs">{tItem.name}</div>
-                    {localizedRegion && <div className="text-[10px] text-slate-400 font-semibold mt-0.5">{localizedRegion}</div>}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        <TestimonialsSlider testimonials={displayTestimonials} lang={lang} layout="grid" />
       </section>
 
       {/* Call to action card */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="rounded-3xl bg-slate-900 p-8 sm:p-12 text-white flex flex-col md:flex-row justify-between items-center gap-8 border border-slate-800 relative overflow-hidden shadow-xl">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_90%_90%,rgba(16,185,129,0.15),transparent)]"></div>
+        <div className="rounded-3xl bg-emerald-600 p-8 sm:p-12 text-white flex flex-col md:flex-row justify-between items-center gap-8 border border-amber-300/10 relative overflow-hidden shadow-xl">
+          {/* Glowing amber radial lights */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(251,191,36,0.05),transparent)] pointer-events-none"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(251,191,36,0.03),transparent)] pointer-events-none"></div>
           
+          {/* Decorative golden waves / strokes */}
+          <div className="absolute inset-0 opacity-[0.09] pointer-events-none">
+            <svg className="w-full h-full" viewBox="0 0 800 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M-100,200 Q200,100 400,300 T900,200" stroke="#fbbf24" strokeWidth="2" />
+              <path d="M-50,250 Q250,150 450,350 T950,250" stroke="#f59e0b" strokeWidth="1" strokeDasharray="5,5" />
+              <path d="M0,150 Q300,250 600,50 T1000,150" stroke="#f59e0b" strokeWidth="1.5" />
+              <path d="M-150,100 Q200,300 550,150 T1050,300" stroke="#fbbf24" strokeWidth="1.2" strokeDasharray="4,4" />
+            </svg>
+          </div>
+
+          {/* Golden abstract circles */}
+          <div className="absolute -top-12 -left-12 w-48 h-48 rounded-full border border-amber-400/5 pointer-events-none"></div>
+          <div className="absolute -bottom-16 -right-16 w-64 h-64 rounded-full border border-amber-400/5 pointer-events-none"></div>
+
           <div className="space-y-4 relative max-w-lg text-center md:text-left">
-            <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl">{t.discount10Title}</h2>
-            <p className="text-slate-300 text-sm leading-relaxed">
+            <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl text-white">{t.discount10Title}</h2>
+            <p className="text-emerald-50/90 text-sm leading-relaxed">
               {t.discount10Desc}
             </p>
-            <div className="flex flex-wrap justify-center md:justify-start gap-4 text-xs font-semibold text-emerald-400">
-              <span className="flex items-center gap-1">{t.consultationFree}</span>
-              <span className="flex items-center gap-1">{t.deliveryCod}</span>
+            <div className="flex flex-wrap justify-center md:justify-start gap-3 text-xs font-semibold">
+              <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-300/5 text-amber-200/90 border border-amber-300/10 shadow-2xs">
+                {t.consultationFree}
+              </span>
+              <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-300/5 text-amber-200/90 border border-amber-300/10 shadow-2xs">
+                {t.deliveryCod}
+              </span>
             </div>
           </div>
           
-          <div className="relative shrink-0 flex flex-col items-center gap-3 bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
-            <div className="w-32 h-32 bg-white rounded-xl overflow-hidden flex items-center justify-center text-slate-950 font-bold text-xs p-2 text-center">
+          <div className="relative shrink-0 flex flex-col items-center gap-3 bg-white/10 border border-white/20 rounded-2xl p-6 backdrop-blur-md shadow-lg">
+            <div className="w-32 h-32 bg-white rounded-xl overflow-hidden flex items-center justify-center text-slate-500 border border-slate-100 font-bold text-xs p-2 text-center shadow-md hover:border-amber-300 transition-colors">
               {settings.zalo_qr_url ? (
                 <img
                   src={settings.zalo_qr_url}
@@ -977,7 +979,7 @@ function renderGridLayout(lang: LanguageCode, settings: any, phone: string, disp
               href={`https://zalo.me/${phone}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-full bg-emerald-500 px-6 py-2.5 text-xs font-bold hover:scale-105 active:scale-95 transition-transform"
+              className="rounded-full bg-amber-300 text-emerald-950 px-6 py-2.5 text-xs font-bold hover:bg-amber-200 hover:scale-105 active:scale-95 transition-all shadow-md"
             >
               {t.openZaloNow}
             </a>
@@ -999,15 +1001,15 @@ function renderEditorialLayout(lang: LanguageCode, settings: any, phone: string,
     <div className="space-y-28 pb-20">
       {/* Editorial Header Section */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-6">
-        <section className="relative overflow-hidden bg-emerald-950 text-white min-h-[500px] lg:min-h-[550px] rounded-[32px] flex items-center justify-center shadow-xl border border-white/5">
+        <section className="relative overflow-hidden bg-emerald-600 text-white min-h-[600px] lg:min-h-[600px] rounded-[32px] flex items-center justify-center shadow-xl border border-white/5">
           {/* Background image for editorial hero */}
           <img 
             src={settings.banner_image_url_1 || "https://chanhthu.com/wp-content/uploads/2024/03/chanh-thu-sau-rieng-1.png"}
             alt="Editorial Banner"
             className="absolute inset-0 w-full h-full object-cover"
           />
-          {/* High contrast overlay for text readability */}
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px]"></div>
+          {/* High contrast overlay for text readability - lighter for better image visibility */}
+          <div className="absolute inset-0 bg-black/35"></div>
           
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(16,185,129,0.25),transparent)]"></div>
 
@@ -1025,7 +1027,7 @@ function renderEditorialLayout(lang: LanguageCode, settings: any, phone: string,
             <div className="flex justify-center pt-6">
               <Link
                 href={getLocalizedHref("/products", lang)}
-                className="rounded-full bg-emerald-500 px-10 py-4 text-xs font-bold text-white shadow-xl hover:bg-emerald-400 active:scale-95 transition-all uppercase tracking-widest"
+                className="rounded-full bg-emerald-600 px-10 py-4 text-xs font-bold text-white shadow-xl hover:bg-emerald-500 active:scale-95 transition-all uppercase tracking-widest"
               >
                 {t.viewProducts}
               </Link>
@@ -1054,7 +1056,7 @@ function renderEditorialLayout(lang: LanguageCode, settings: any, phone: string,
           
           <div className="lg:col-span-5 p-8 sm:p-12 flex flex-col justify-between space-y-8 border-t lg:border-t-0 lg:border-l border-border">
             <div className="space-y-4">
-              <span className="text-[11px] font-bold text-primary uppercase tracking-widest">{dealCategory}</span>
+              <span className="text-[11px] font-bold text-emerald-600 uppercase tracking-widest">{dealCategory}</span>
               <h3 className="text-2xl sm:text-3xl font-black text-slate-800 tracking-tight font-serif leading-snug">{dealName}</h3>
               <div className="flex items-baseline gap-2 pt-2">
                 {dealProduct.price ? (
@@ -1092,82 +1094,99 @@ function renderEditorialLayout(lang: LanguageCode, settings: any, phone: string,
 
       {/* Brand Slogan & Commitments Section */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="relative overflow-hidden rounded-[32px] bg-gradient-to-br from-emerald-900 to-emerald-950 p-8 sm:p-12 text-white border border-emerald-800/30 shadow-2xl">
+        <div className="relative overflow-hidden rounded-[32px] bg-emerald-600 p-8 sm:p-12 text-white border border-amber-300/10 shadow-2xl">
           {/* Decorative background logo watermarks */}
           <div className="absolute right-0 bottom-0 translate-x-1/4 translate-y-1/4 opacity-[0.03] pointer-events-none">
             <img src="/logo.jpg" alt="Watermark" className="w-[450px] h-[450px] rounded-full object-contain" />
           </div>
-          <div className="absolute -left-12 -top-12 w-48 h-48 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none"></div>
+          
+          {/* Glowing amber radial lights */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(251,191,36,0.05),transparent)] pointer-events-none"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(251,191,36,0.03),transparent)] pointer-events-none"></div>
+          
+          {/* Decorative golden waves / strokes */}
+          <div className="absolute inset-0 opacity-[0.09] pointer-events-none">
+            <svg className="w-full h-full" viewBox="0 0 800 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M-100,200 Q200,100 400,300 T900,200" stroke="#fbbf24" strokeWidth="2" />
+              <path d="M-50,250 Q250,150 450,350 T950,250" stroke="#f59e0b" strokeWidth="1" strokeDasharray="5,5" />
+              <path d="M0,150 Q300,250 600,50 T1000,150" stroke="#f59e0b" strokeWidth="1.5" />
+              <path d="M-150,100 Q200,300 550,150 T1050,300" stroke="#fbbf24" strokeWidth="1.2" strokeDasharray="4,4" />
+            </svg>
+          </div>
+
+          {/* Golden abstract circles */}
+          <div className="absolute -top-12 -left-12 w-48 h-48 rounded-full border border-amber-400/5 pointer-events-none"></div>
+          <div className="absolute -bottom-16 -right-16 w-64 h-64 rounded-full border border-amber-400/5 pointer-events-none"></div>
 
           <div className="relative z-10 space-y-10">
             <div className="text-center space-y-4 max-w-2xl mx-auto">
               <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-                <div className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-emerald-400 bg-white shadow-lg">
+                <div className="relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-amber-300 bg-white shadow-lg">
                   <img src="/logo.jpg" alt="Vinh Long Viet Nam Logo" className="h-full w-full object-contain" />
                 </div>
                 <div className="text-center sm:text-left">
-                  <h2 className="text-xl sm:text-2xl font-black uppercase tracking-wider text-emerald-300">
+                  <h2 className="text-xl sm:text-2xl font-black uppercase tracking-wider text-amber-200/90">
                     {t.companyName}
                   </h2>
-                  <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-emerald-100/70">
+                  <p className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-emerald-50/70">
                     {t.companyFullName}
                   </p>
                 </div>
               </div>
-              <div className="w-20 h-[2px] bg-emerald-500/50 mx-auto mt-2"></div>
+              <div className="w-20 h-[2px] bg-amber-300/20 mx-auto mt-2"></div>
               <p className="text-xl sm:text-2xl font-extrabold tracking-tight text-white italic mt-2">
                 " {t.slogan} "
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {/* Cleanliness */}
-              <div className="rounded-2xl bg-white/5 border border-white/10 p-6 space-y-4 hover:bg-white/10 transition-all group duration-300">
-                <div className="rounded-xl bg-emerald-500/20 text-emerald-300 p-3 w-12 h-12 flex items-center justify-center border border-emerald-500/20 group-hover:scale-110 transition-transform">
+              <div className="rounded-2xl bg-white/5 border border-white/10 p-5 flex items-start gap-4 hover:bg-white/10 transition-all group duration-300">
+                <div className="rounded-xl bg-amber-300/10 text-amber-200 p-3 w-12 h-12 flex shrink-0 items-center justify-center border border-amber-300/10 group-hover:scale-110 transition-transform">
                   <Sparkles className="h-6 w-6" />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="font-bold text-base text-emerald-300">{t.pillarCleanTitle}</h3>
-                  <p className="text-xs text-emerald-100/70 leading-relaxed">
+                  <h3 className="font-bold text-base text-amber-200 leading-snug">{t.pillarCleanTitle}</h3>
+                  <p className="text-sm text-white leading-relaxed">
                     {t.pillarCleanDesc}
                   </p>
                 </div>
               </div>
 
               {/* Quality */}
-              <div className="rounded-2xl bg-white/5 border border-white/10 p-6 space-y-4 hover:bg-white/10 transition-all group duration-300">
-                <div className="rounded-xl bg-emerald-500/20 text-emerald-300 p-3 w-12 h-12 flex items-center justify-center border border-emerald-500/20 group-hover:scale-110 transition-transform">
+              <div className="rounded-2xl bg-white/5 border border-white/10 p-5 flex items-start gap-4 hover:bg-white/10 transition-all group duration-300">
+                <div className="rounded-xl bg-amber-300/10 text-amber-200 p-3 w-12 h-12 flex shrink-0 items-center justify-center border border-amber-300/10 group-hover:scale-110 transition-transform">
                   <Award className="h-6 w-6" />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="font-bold text-base text-emerald-300">{t.pillarQualityTitle}</h3>
-                  <p className="text-xs text-emerald-100/70 leading-relaxed">
+                  <h3 className="font-bold text-base text-amber-200 leading-snug">{t.pillarQualityTitle}</h3>
+                  <p className="text-sm text-white leading-relaxed">
                     {t.pillarQualityDesc}
                   </p>
                 </div>
               </div>
 
               {/* Sustainability */}
-              <div className="rounded-2xl bg-white/5 border border-white/10 p-6 space-y-4 hover:bg-white/10 transition-all group duration-300">
-                <div className="rounded-xl bg-emerald-500/20 text-emerald-300 p-3 w-12 h-12 flex items-center justify-center border border-emerald-500/20 group-hover:scale-110 transition-transform">
+              <div className="rounded-2xl bg-white/5 border border-white/10 p-5 flex items-start gap-4 hover:bg-white/10 transition-all group duration-300">
+                <div className="rounded-xl bg-amber-300/10 text-amber-200 p-3 w-12 h-12 flex shrink-0 items-center justify-center border border-amber-300/10 group-hover:scale-110 transition-transform">
                   <Leaf className="h-6 w-6" />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="font-bold text-base text-emerald-300">{t.pillarSustainableTitle}</h3>
-                  <p className="text-xs text-emerald-100/70 leading-relaxed">
+                  <h3 className="font-bold text-base text-amber-200 leading-snug">{t.pillarSustainableTitle}</h3>
+                  <p className="text-sm text-white leading-relaxed">
                     {t.pillarSustainableDesc}
                   </p>
                 </div>
               </div>
 
               {/* Global */}
-              <div className="rounded-2xl bg-white/5 border border-white/10 p-6 space-y-4 hover:bg-white/10 transition-all group duration-300">
-                <div className="rounded-xl bg-emerald-500/20 text-emerald-300 p-3 w-12 h-12 flex items-center justify-center border border-emerald-500/20 group-hover:scale-110 transition-transform">
+              <div className="rounded-2xl bg-white/5 border border-white/10 p-5 flex items-start gap-4 hover:bg-white/10 transition-all group duration-300">
+                <div className="rounded-xl bg-amber-300/10 text-amber-200 p-3 w-12 h-12 flex shrink-0 items-center justify-center border border-amber-300/10 group-hover:scale-110 transition-transform">
                   <Globe className="h-6 w-6" />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="font-bold text-base text-emerald-300">{t.pillarGlobalTitle}</h3>
-                  <p className="text-xs text-emerald-100/70 leading-relaxed">
+                  <h3 className="font-bold text-base text-amber-200 leading-snug">{t.pillarGlobalTitle}</h3>
+                  <p className="text-sm text-white leading-relaxed">
                     {t.pillarGlobalDesc}
                   </p>
                 </div>
@@ -1181,7 +1200,7 @@ function renderEditorialLayout(lang: LanguageCode, settings: any, phone: string,
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-12">
         <div className="border-b border-slate-200 pb-6 flex flex-col sm:flex-row justify-between items-baseline gap-4">
           <h2 className="text-2xl font-black tracking-tight text-slate-800 font-serif uppercase tracking-wider">{lang === "vi" ? "Danh mục đề cử" : lang === "en" ? "Recommended Fruits" : "推荐水果"}</h2>
-          <Link href={getLocalizedHref("/products", lang)} className="group flex items-center gap-1 text-xs font-bold text-primary uppercase tracking-widest">
+          <Link href={getLocalizedHref("/products", lang)} className="group flex items-center gap-1 text-xs font-bold text-emerald-600 hover:text-emerald-500 uppercase tracking-widest">
             <span>{t.allProducts}</span>
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Link>
@@ -1211,7 +1230,7 @@ function renderEditorialLayout(lang: LanguageCode, settings: any, phone: string,
                     </div>
                   </Link>
                   <div className="space-y-1">
-                    <h3 className="font-bold text-slate-800 text-sm leading-snug group-hover:text-primary transition-colors font-serif">
+                    <h3 className="font-bold text-slate-800 text-sm leading-snug group-hover:text-emerald-600 transition-colors font-serif">
                       <Link href={getLocalizedHref(`/products/${product.slug}`, lang)}>
                         {localizedName}
                       </Link>
@@ -1229,7 +1248,7 @@ function renderEditorialLayout(lang: LanguageCode, settings: any, phone: string,
                 </div>
                 <Link
                   href={getLocalizedHref(`/products/${product.slug}`, lang)}
-                  className="inline-flex items-center justify-center gap-1.5 text-xs font-bold text-slate-700 hover:text-primary transition-colors group/btn"
+                  className="inline-flex items-center justify-center gap-1.5 text-xs font-bold text-slate-700 hover:text-emerald-600 transition-colors group/btn"
                 >
                   <span>{lang === "vi" ? "Chi tiết" : lang === "en" ? "Details" : "详情"}</span>
                   <ArrowRight className="h-3 w-3 transition-transform group-hover/btn:translate-x-0.5" />
@@ -1242,7 +1261,7 @@ function renderEditorialLayout(lang: LanguageCode, settings: any, phone: string,
 
       {/* Editorial Parallax Brand Story */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <section className="bg-emerald-950 text-white py-24 rounded-[32px] border border-white/5 relative overflow-hidden">
+        <section className="bg-emerald-600 text-white py-24 rounded-[32px] border border-white/5 relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_10%_90%,rgba(16,185,129,0.15),transparent)]"></div>
           <div className="mx-auto max-w-4xl px-6 sm:px-10 lg:px-12 text-center space-y-8 relative z-10">
             <h2 className="text-3xl sm:text-4xl font-bold tracking-tight font-serif uppercase">{t.brandStoryTitle}</h2>
@@ -1270,63 +1289,47 @@ function renderEditorialLayout(lang: LanguageCode, settings: any, phone: string,
           <p className="text-slate-500 text-sm">{t.testimonialSubtitle}</p>
         </div>
 
-        <div className="space-y-8">
-          {displayTestimonials.map((tItem) => {
-            const localizedContent = getLocalizedValue(tItem, "content", lang);
-            const localizedRegion = getLocalizedValue(tItem, "region", lang);
-            return (
-              <div key={tItem.id} className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center bg-white p-8 rounded-3xl border border-border shadow-sm">
-                <div className="md:col-span-3 flex flex-col items-center text-center space-y-3">
-                  <div className="h-16 w-16 rounded-full bg-emerald-50 border border-border overflow-hidden flex items-center justify-center shrink-0">
-                    {tItem.avatar_url ? (
-                      <img src={tItem.avatar_url} alt={tItem.name} className="h-full w-full object-cover" />
-                    ) : (
-                      <MessageSquare className="h-6 w-6 text-primary" />
-                    )}
-                  </div>
-                  <div>
-                    <h4 className="font-bold text-slate-800 text-sm">{tItem.name}</h4>
-                    {localizedRegion && <p className="text-[10px] text-slate-400 font-semibold mt-0.5">{localizedRegion}</p>}
-                  </div>
-                </div>
-                
-                <div className="md:col-span-9 space-y-4 md:border-l md:border-slate-100 md:pl-8">
-                  <div className="flex gap-0.5 text-amber-500">
-                    {Array.from({ length: 5 }).map((_, idx) => (
-                      <Star
-                        key={idx}
-                        className={`h-4 w-4 ${idx < tItem.rating ? "fill-current" : "text-slate-200"}`}
-                      />
-                    ))}
-                  </div>
-                  <p className="text-slate-600 text-sm italic leading-relaxed font-serif">
-                    "{localizedContent}"
-                  </p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        <TestimonialsSlider testimonials={displayTestimonials} lang={lang} layout="editorial" />
       </section>
 
       {/* Editorial footer CTA card */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="rounded-3xl bg-emerald-950 p-8 sm:p-12 text-white flex flex-col md:flex-row justify-between items-center gap-8 border border-emerald-800 relative overflow-hidden shadow-xl">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_90%_90%,rgba(16,185,129,0.15),transparent)]"></div>
+        <div className="rounded-3xl bg-emerald-600 p-8 sm:p-12 text-white flex flex-col md:flex-row justify-between items-center gap-8 border border-amber-300/10 relative overflow-hidden shadow-xl">
+          {/* Glowing amber radial lights */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_20%,rgba(251,191,36,0.05),transparent)] pointer-events-none"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_80%,rgba(251,191,36,0.03),transparent)] pointer-events-none"></div>
           
+          {/* Decorative golden waves / strokes */}
+          <div className="absolute inset-0 opacity-[0.09] pointer-events-none">
+            <svg className="w-full h-full" viewBox="0 0 800 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M-100,200 Q200,100 400,300 T900,200" stroke="#fbbf24" strokeWidth="2" />
+              <path d="M-50,250 Q250,150 450,350 T950,250" stroke="#f59e0b" strokeWidth="1" strokeDasharray="5,5" />
+              <path d="M0,150 Q300,250 600,50 T1000,150" stroke="#f59e0b" strokeWidth="1.5" />
+              <path d="M-150,100 Q200,300 550,150 T1050,300" stroke="#fbbf24" strokeWidth="1.2" strokeDasharray="4,4" />
+            </svg>
+          </div>
+
+          {/* Golden abstract circles */}
+          <div className="absolute -top-12 -left-12 w-48 h-48 rounded-full border border-amber-400/5 pointer-events-none"></div>
+          <div className="absolute -bottom-16 -right-16 w-64 h-64 rounded-full border border-amber-400/5 pointer-events-none"></div>
+
           <div className="space-y-4 relative max-w-lg text-center md:text-left">
-            <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl font-serif uppercase leading-tight">{t.discount10Title}</h2>
-            <p className="text-emerald-100/70 text-sm leading-relaxed">
+            <h2 className="text-3xl font-extrabold tracking-tight sm:text-4xl font-serif uppercase leading-tight text-white">{t.discount10Title}</h2>
+            <p className="text-emerald-50/90 text-sm leading-relaxed">
               {t.discount10Desc}
             </p>
-            <div className="flex flex-wrap justify-center md:justify-start gap-4 text-xs font-semibold text-emerald-400">
-              <span className="flex items-center gap-1">{t.consultationFree}</span>
-              <span className="flex items-center gap-1">{t.deliveryCod}</span>
+            <div className="flex flex-wrap justify-center md:justify-start gap-3 text-xs font-semibold">
+              <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-300/5 text-amber-200/90 border border-amber-300/10 shadow-2xs">
+                {t.consultationFree}
+              </span>
+              <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-300/5 text-amber-200/90 border border-amber-300/10 shadow-2xs">
+                {t.deliveryCod}
+              </span>
             </div>
           </div>
           
-          <div className="relative shrink-0 flex flex-col items-center gap-3 bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
-            <div className="w-32 h-32 bg-white rounded-xl overflow-hidden flex items-center justify-center text-slate-950 font-bold text-xs p-2 text-center">
+          <div className="relative shrink-0 flex flex-col items-center gap-3 bg-white/10 border border-white/20 rounded-2xl p-6 backdrop-blur-md shadow-lg">
+            <div className="w-32 h-32 bg-white rounded-xl overflow-hidden flex items-center justify-center text-slate-500 border border-slate-100 font-bold text-xs p-2 text-center shadow-md hover:border-amber-300 transition-colors">
               {settings.zalo_qr_url ? (
                 <img
                   src={settings.zalo_qr_url}
@@ -1341,7 +1344,7 @@ function renderEditorialLayout(lang: LanguageCode, settings: any, phone: string,
               href={`https://zalo.me/${phone}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-full bg-emerald-500 px-6 py-2.5 text-xs font-bold hover:scale-105 active:scale-95 transition-transform uppercase tracking-wider"
+              className="rounded-full bg-amber-300 text-emerald-950 px-6 py-2.5 text-xs font-bold hover:bg-amber-200 hover:scale-105 active:scale-95 transition-all shadow-md uppercase tracking-wider"
             >
               {t.openZaloNow}
             </a>

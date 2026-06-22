@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { Plus, Edit, Trash2, X, Tag, AlertCircle } from "lucide-react";
 
-interface Category {
+interface BlogCategory {
   id: number;
   name: string;
   name_en?: string;
@@ -12,8 +12,8 @@ interface Category {
   slug: string;
 }
 
-export default function AdminCategoriesPage() {
-  const [categories, setCategories] = useState<Category[]>([]);
+export default function AdminBlogCategoriesPage() {
+  const [categories, setCategories] = useState<BlogCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,7 +27,7 @@ export default function AdminCategoriesPage() {
 
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [editingCategory, setEditingCategory] = useState<BlogCategory | null>(null);
 
   // Form fields
   const [name, setName] = useState("");
@@ -63,10 +63,10 @@ export default function AdminCategoriesPage() {
   const fetchCategories = async () => {
     setLoading(true);
     try {
-      const data = await api.get("/categories");
+      const data = await api.get("/blog-categories");
       setCategories(data);
     } catch (err: any) {
-      setError(err.message || "Không thể tải danh sách danh mục.");
+      setError(err.message || "Không thể tải danh sách chuyên mục.");
     } finally {
       setLoading(false);
     }
@@ -87,7 +87,7 @@ export default function AdminCategoriesPage() {
     setIsModalOpen(true);
   };
 
-  const openEditModal = (category: Category) => {
+  const openEditModal = (category: BlogCategory) => {
     setEditingCategory(category);
     setName(category.name);
     setNameEn(category.name_en || "");
@@ -99,14 +99,14 @@ export default function AdminCategoriesPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm("Bạn có chắc chắn muốn xóa danh mục này? LƯU Ý: Xóa danh mục không xóa sản phẩm, nhưng các sản phẩm thuộc danh mục này cần được cập nhật lại danh mục hợp lệ.")) {
+    if (!confirm("Bạn có chắc chắn muốn xóa chuyên mục này? LƯU Ý: Các bài viết thuộc chuyên mục này sẽ tự động trở về trạng thái không có chuyên mục.")) {
       return;
     }
     try {
-      await api.delete(`/categories/${id}`);
+      await api.delete(`/blog-categories/${id}`);
       setCategories(categories.filter((c) => c.id !== id));
     } catch (err: any) {
-      alert(err.message || "Không thể xóa danh mục.");
+      alert(err.message || "Không thể xóa chuyên mục.");
     }
   };
 
@@ -128,15 +128,15 @@ export default function AdminCategoriesPage() {
 
     try {
       if (editingCategory) {
-        const updated = await api.put(`/categories/${editingCategory.id}`, payload);
+        const updated = await api.put(`/blog-categories/${editingCategory.id}`, payload);
         setCategories(categories.map((c) => (c.id === editingCategory.id ? updated : c)));
       } else {
-        const created = await api.post("/categories", payload);
+        const created = await api.post("/blog-categories", payload);
         setCategories([...categories, created]);
       }
       setIsModalOpen(false);
     } catch (err: any) {
-      setFormError(err.message || "Lỗi lưu danh mục. Vui lòng kiểm tra lại.");
+      setFormError(err.message || "Lỗi lưu chuyên mục. Vui lòng kiểm tra lại.");
     } finally {
       setSubmitting(false);
     }
@@ -147,9 +147,9 @@ export default function AdminCategoriesPage() {
       {/* Title Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-slate-800 tracking-tight">Danh Mục Sản Phẩm</h1>
+          <h1 className="text-2xl font-black text-slate-800 tracking-tight">Chuyên Mục Bài Viết</h1>
           <p className="text-slate-500 text-xs mt-1">
-            Quản lý các danh mục phân loại nông sản hiển thị trên website.
+            Quản lý các chuyên mục phân loại câu chuyện nhà vườn và cẩm nang nông nghiệp.
           </p>
         </div>
         {!readonly && (
@@ -158,7 +158,7 @@ export default function AdminCategoriesPage() {
             className="flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground shadow-sm hover:opacity-90 active:scale-95 transition-transform shrink-0"
           >
             <Plus className="h-4 w-4" />
-            <span>Thêm Danh Mục</span>
+            <span>Thêm Chuyên Mục</span>
           </button>
         )}
       </div>
@@ -176,7 +176,7 @@ export default function AdminCategoriesPage() {
           <table className="w-full border-collapse text-left">
             <thead>
               <tr className="border-b border-border bg-slate-50 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                <th className="px-6 py-4">Tên danh mục</th>
+                <th className="px-6 py-4">Tên chuyên mục</th>
                 <th className="px-6 py-4">Đường dẫn tĩnh (Slug)</th>
                 <th className="px-6 py-4 text-right">Thao tác</th>
               </tr>
@@ -187,7 +187,7 @@ export default function AdminCategoriesPage() {
                   <td colSpan={3} className="px-6 py-20 text-center">
                     <div className="flex flex-col items-center gap-2">
                       <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
-                      <span className="text-slate-400 text-[11px]">Đang tải danh mục...</span>
+                      <span className="text-slate-400 text-[11px]">Đang tải chuyên mục...</span>
                     </div>
                   </td>
                 </tr>
@@ -240,7 +240,7 @@ export default function AdminCategoriesPage() {
               ) : (
                 <tr>
                   <td colSpan={3} className="px-6 py-16 text-center text-slate-400">
-                    Chưa có danh mục nào. Nhấp vào "Thêm Danh Mục" để tạo mới.
+                    Chưa có chuyên mục nào. Nhấp vào "Thêm Chuyên Mức" để tạo mới.
                   </td>
                 </tr>
               )}
@@ -255,7 +255,7 @@ export default function AdminCategoriesPage() {
           <div className="w-full max-w-md rounded-3xl border border-border bg-white p-6 shadow-xl animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <h2 className="text-lg font-black text-slate-800">
-                {editingCategory ? "Chỉnh Sửa Danh Mục" : "Thêm Danh Mục Mới"}
+                {editingCategory ? "Chỉnh Sửa Chuyên Mục" : "Thêm Chuyên Mục Mới"}
               </h2>
               <button
                 onClick={() => setIsModalOpen(false)}
@@ -307,12 +307,12 @@ export default function AdminCategoriesPage() {
               {activeTab === "vi" && (
                 <div className="space-y-4">
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-700">Tên danh mục *</label>
+                    <label className="text-xs font-bold text-slate-700">Tên chuyên mục *</label>
                     <input
                       type="text"
                       value={name}
                       onChange={handleNameChange}
-                      placeholder="Ví dụ: Rau củ quả sạch"
+                      placeholder="Ví dụ: Câu chuyện nhà nông"
                       className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none"
                       required
                     />
@@ -324,7 +324,7 @@ export default function AdminCategoriesPage() {
                       type="text"
                       value={slug}
                       onChange={(e) => setSlug(slugify(e.target.value))}
-                      placeholder="Ví dụ: rau-cu-qua-sach"
+                      placeholder="Ví dụ: cau-chuyen-nha-nong"
                       className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none"
                       required
                     />
@@ -336,12 +336,12 @@ export default function AdminCategoriesPage() {
               {activeTab === "en" && (
                 <div className="space-y-4">
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-700">Tên danh mục (Tiếng Anh)</label>
+                    <label className="text-xs font-bold text-slate-700">Tên chuyên mục (Tiếng Anh)</label>
                     <input
                       type="text"
                       value={nameEn}
                       onChange={(e) => setNameEn(e.target.value)}
-                      placeholder="e.g. Fresh vegetables"
+                      placeholder="e.g. Farmer's stories"
                       className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none"
                     />
                   </div>
@@ -352,12 +352,12 @@ export default function AdminCategoriesPage() {
               {activeTab === "zh" && (
                 <div className="space-y-4">
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-slate-700">Tên danh mục (Tiếng Trung)</label>
+                    <label className="text-xs font-bold text-slate-700">Tên chuyên mục (Tiếng Trung)</label>
                     <input
                       type="text"
                       value={nameZh}
                       onChange={(e) => setNameZh(e.target.value)}
-                      placeholder="例如：新鲜蔬菜"
+                      placeholder="例如：农人故事"
                       className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none"
                     />
                   </div>

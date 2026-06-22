@@ -69,7 +69,7 @@ export default async function ContactPage({
   return (
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 space-y-12">
       {/* Page Banner */}
-      <div className="relative overflow-hidden bg-emerald-950 text-white py-16 px-8 rounded-[32px] shadow-lg border border-white/5">
+      <div className="relative overflow-hidden bg-emerald-600 text-white py-20 px-8 rounded-[32px] shadow-lg border border-white/5">
         {/* Background Image */}
         <img 
           src="/banner_contact.png" 
@@ -104,7 +104,7 @@ export default async function ContactPage({
 
         <ul className="space-y-6">
           <li className="flex items-start gap-4">
-            <div className="rounded-2xl bg-emerald-50 p-3 text-primary shrink-0">
+            <div className="rounded-2xl bg-emerald-50 p-3 text-emerald-600 shrink-0">
               <MapPin className="h-6 w-6" />
             </div>
             <div>
@@ -115,18 +115,18 @@ export default async function ContactPage({
             </div>
           </li>
           <li className="flex items-start gap-4">
-            <div className="rounded-2xl bg-emerald-50 p-3 text-primary shrink-0">
+            <div className="rounded-2xl bg-emerald-50 p-3 text-emerald-600 shrink-0">
               <Phone className="h-6 w-6" />
             </div>
             <div>
               <h3 className="font-bold text-slate-800 text-sm">{t.hotlineLabel}</h3>
-              <a href={`tel:${phoneNumber}`} className="text-xs text-primary hover:underline font-semibold block mt-0.5">
+              <a href={`tel:${phoneNumber}`} className="text-xs text-emerald-600 hover:text-emerald-500 hover:underline font-semibold block mt-0.5">
                 {formatPhone(phoneNumber)} (Zalo)
               </a>
             </div>
           </li>
           <li className="flex items-start gap-4">
-            <div className="rounded-2xl bg-emerald-50 p-3 text-primary shrink-0">
+            <div className="rounded-2xl bg-emerald-50 p-3 text-emerald-600 shrink-0">
               <Mail className="h-6 w-6" />
             </div>
             <div>
@@ -166,7 +166,7 @@ export default async function ContactPage({
               href={`https://zalo.me/${phoneNumber}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-[10px] font-bold text-primary mt-1.5"
+              className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 hover:text-emerald-500 hover:underline mt-1.5"
             >
               <MessageSquare className="h-3 w-3" />
               <span>{lang === "vi" ? "Bắt đầu nhắn tin" : lang === "en" ? "Start messaging" : "开始发送消息"}</span>

@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 from app.core.database import get_db
 from app.models.testimonial import Testimonial, TestimonialCreate, TestimonialUpdate, TestimonialPublic
-from app.routers.auth import get_current_user
+from app.routers.auth import get_current_user, require_role_write
 from app.models.user import User
 
 router = APIRouter(prefix="/testimonials", tags=["testimonials"])
@@ -17,7 +17,7 @@ def read_testimonials(db: Annotated[Session, Depends(get_db)]):
 @router.post("/", response_model=TestimonialPublic, status_code=status.HTTP_201_CREATED)
 def create_testimonial(
     testimonial_in: TestimonialCreate,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_role_write(["super_admin", "admin", "content_editor"]))],
     db: Annotated[Session, Depends(get_db)]
 ):
     if testimonial_in.rating < 1 or testimonial_in.rating > 5:
@@ -35,7 +35,7 @@ def create_testimonial(
 def update_testimonial(
     testimonial_id: int,
     testimonial_in: TestimonialUpdate,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_role_write(["super_admin", "admin", "content_editor"]))],
     db: Annotated[Session, Depends(get_db)]
 ):
     db_testimonial = db.get(Testimonial, testimonial_id)
@@ -65,7 +65,7 @@ def update_testimonial(
 @router.delete("/{testimonial_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_testimonial(
     testimonial_id: int,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_role_write(["super_admin", "admin", "content_editor"]))],
     db: Annotated[Session, Depends(get_db)]
 ):
     db_testimonial = db.get(Testimonial, testimonial_id)

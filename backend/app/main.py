@@ -6,7 +6,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.core.config import settings
 from app.core.database import init_db
-from app.routers import auth, products, blogs, uploads, categories, users, testimonials
+from app.routers import auth, products, blogs, uploads, categories, blog_categories, users, testimonials, analytics
 from app.routers.settings import router as settings_router
 
 @asynccontextmanager
@@ -16,6 +16,9 @@ async def lifespan(app: FastAPI):
     os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
     # Initialize database schemas and default administrator
     init_db()
+    # Start background Cloudflare analytics sync daemon
+    from app.core.analytics_worker import start_analytics_scheduler
+    start_analytics_scheduler()
     yield
     # Shutdown actions (if any)
 
@@ -43,11 +46,13 @@ app.add_middleware(
 app.include_router(auth.router, prefix=settings.API_V1_STR)
 app.include_router(products.router, prefix=settings.API_V1_STR)
 app.include_router(categories.router, prefix=settings.API_V1_STR)
+app.include_router(blog_categories.router, prefix=settings.API_V1_STR)
 app.include_router(blogs.router, prefix=settings.API_V1_STR)
 app.include_router(uploads.router, prefix=settings.API_V1_STR)
 app.include_router(settings_router, prefix=settings.API_V1_STR)
 app.include_router(users.router, prefix=settings.API_V1_STR)
 app.include_router(testimonials.router, prefix=settings.API_V1_STR)
+app.include_router(analytics.router, prefix=settings.API_V1_STR)
 
 # Mount directory to serve uploaded static files/images
 # Example: http://localhost:8000/static/uploads/img_name.webp

@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 from app.core.database import get_db
 from app.models.category import Category, CategoryCreate, CategoryUpdate, CategoryPublic
-from app.routers.auth import get_current_user
+from app.routers.auth import get_current_user, require_role_write
 from app.models.user import User
 
 router = APIRouter(prefix="/categories", tags=["categories"])
@@ -17,7 +17,7 @@ def read_categories(db: Annotated[Session, Depends(get_db)]):
 @router.post("/", response_model=CategoryPublic, status_code=status.HTTP_201_CREATED)
 def create_category(
     category_in: CategoryCreate,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_role_write(["super_admin", "admin", "product_manager"]))],
     db: Annotated[Session, Depends(get_db)]
 ):
     # Check if slug or name already exists
@@ -44,7 +44,7 @@ def create_category(
 def update_category(
     category_id: int,
     category_in: CategoryUpdate,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_role_write(["super_admin", "admin", "product_manager"]))],
     db: Annotated[Session, Depends(get_db)]
 ):
     db_category = db.get(Category, category_id)
@@ -84,7 +84,7 @@ def update_category(
 @router.delete("/{category_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_category(
     category_id: int,
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(require_role_write(["super_admin", "admin", "product_manager"]))],
     db: Annotated[Session, Depends(get_db)]
 ):
     db_category = db.get(Category, category_id)

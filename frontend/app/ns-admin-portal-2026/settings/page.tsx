@@ -23,6 +23,13 @@ export default function AdminSettingsPage() {
   const [uploadingBanner1, setUploadingBanner1] = useState(false);
   const [uploadingBanner2, setUploadingBanner2] = useState(false);
   const [uploadingBanner3, setUploadingBanner3] = useState(false);
+  const [readonly, setReadonly] = useState(false);
+
+  useEffect(() => {
+    api.get("/auth/me")
+      .then((me) => setReadonly(me.readonly))
+      .catch((err) => console.error(err));
+  }, []);
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -477,14 +484,18 @@ export default function AdminSettingsPage() {
           </div>
 
           <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100 mt-6">
-            <button
-              type="submit"
-              disabled={submitting}
-              className="flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-xs font-semibold text-primary-foreground shadow-sm hover:opacity-90 active:scale-95 transition-all disabled:opacity-50"
-            >
-              <Save className="h-4 w-4" />
-              <span>{submitting ? "Đang lưu..." : "Lưu Cấu Hình"}</span>
-            </button>
+            {!readonly ? (
+              <button
+                type="submit"
+                disabled={submitting}
+                className="flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-xs font-semibold text-primary-foreground shadow-sm hover:opacity-90 active:scale-95 transition-all disabled:opacity-50"
+              >
+                <Save className="h-4 w-4" />
+                <span>{submitting ? "Đang lưu..." : "Lưu Cấu Hình"}</span>
+              </button>
+            ) : (
+              <span className="text-xs font-semibold text-slate-400">Chế độ Chỉ xem - Không thể lưu thay đổi</span>
+            )}
           </div>
         </form>
       )}

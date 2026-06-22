@@ -4,14 +4,44 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { api, getAuthToken, logoutAdmin } from "@/lib/api";
-import { LayoutDashboard, ShoppingBag, BookOpen, LogOut, Home, Leaf, ShieldAlert, Tag, Settings, Users, Key, MessageSquare } from "lucide-react";
+import { LayoutDashboard, ShoppingBag, BookOpen, LogOut, Home, Leaf, ShieldAlert, Tag, Settings, Users, Key, MessageSquare, BarChart3 } from "lucide-react";
 
 interface UserProfile {
   id: number;
   username: string;
   is_active: boolean;
   is_superuser: boolean;
+  role: string;
+  readonly: boolean;
 }
+
+const isPathAllowed = (path: string, role: string) => {
+  if (path === "/ns-admin-portal-2026" || path === "/ns-admin-portal-2026/change-password") {
+    return true;
+  }
+  
+  if (role === "super_admin") {
+    return true;
+  }
+  
+  if (role === "admin") {
+    return path !== "/ns-admin-portal-2026/users";
+  }
+  
+  if (role === "product_manager") {
+    return path === "/ns-admin-portal-2026/products" || path === "/ns-admin-portal-2026/categories";
+  }
+  
+  if (role === "content_editor") {
+    return (
+      path === "/ns-admin-portal-2026/blogs" ||
+      path === "/ns-admin-portal-2026/blog-categories" ||
+      path === "/ns-admin-portal-2026/testimonials"
+    );
+  }
+  
+  return false;
+};
 
 export default function AdminLayout({
   children,
@@ -40,8 +70,10 @@ export default function AdminLayout({
   }, [router]);
 
   useEffect(() => {
-    if (authorized && user && pathname === "/ns-admin-portal-2026/users" && !user.is_superuser) {
-      router.push("/ns-admin-portal-2026");
+    if (authorized && user) {
+      if (!isPathAllowed(pathname, user.role)) {
+        router.push("/ns-admin-portal-2026");
+      }
     }
   }, [authorized, user, pathname, router]);
 
@@ -56,16 +88,16 @@ export default function AdminLayout({
     );
   }
 
-  const menuItems = [
+  const baseMenuItems = [
     { name: "Tổng quan", path: "/ns-admin-portal-2026", icon: LayoutDashboard },
     { name: "Quản lý sản phẩm", path: "/ns-admin-portal-2026/products", icon: ShoppingBag },
-    { name: "Danh mục sản phẩm", path: "/ns-admin-portal-2026/categories", icon: Tag },
-    { name: "Quản lý bài viết", path: "/ns-admin-portal-2026/blogs", icon: BookOpen },
-    { name: "Ý kiến khách hàng", path: "/ns-admin-portal-2026/testimonials", icon: MessageSquare },
+    { name: "Quản lý nội dung", path: "/ns-admin-portal-2026/blogs", icon: BookOpen },
     { name: "Cấu hình hệ thống", path: "/ns-admin-portal-2026/settings", icon: Settings },
   ];
 
-  if (user.is_superuser) {
+  const menuItems = baseMenuItems.filter(item => isPathAllowed(item.path, user.role));
+
+  if (user.role === "super_admin") {
     menuItems.push({ name: "Quản lý nhân viên", path: "/ns-admin-portal-2026/users", icon: Users });
   }
 
@@ -151,7 +183,15 @@ export default function AdminLayout({
         </header>
 
         {/* Page children wrapper */}
-        <main className="flex-grow p-6 sm:p-10 overflow-y-auto">{children}</main>
+        <main className="flex-grow p-6 sm:p-10 overflow-y-auto">
+          {user.readonly && (
+            <div className="mb-6 rounded-2xl bg-purple-50 border border-purple-200 p-4 text-xs font-bold text-purple-950 flex items-center gap-2.5 shadow-sm">
+              <ShieldAlert className="h-4 w-4 text-purple-700 shrink-0" />
+              <span>Chế độ chỉ xem (Read-only): Tài khoản của bạn chỉ có quyền xem nội dung và không được thực hiện chỉnh sửa dữ liệu.</span>
+            </div>
+          )}
+          {children}
+        </main>
       </div>
     </div>
   );

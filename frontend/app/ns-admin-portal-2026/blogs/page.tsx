@@ -5,6 +5,8 @@ import { api } from "@/lib/api";
 import { Plus, Edit, Trash2, X, Upload, Check, AlertCircle, BookOpen } from "lucide-react";
 import dynamic from "next/dynamic";
 import "react-quill-new/dist/quill.snow.css";
+import AdminBlogCategoriesPage from "../blog-categories/page";
+import AdminTestimonialsPage from "../testimonials/page";
 
 const ReactQuill = dynamic(() => import("react-quill-new"), {
   ssr: false,
@@ -34,12 +36,22 @@ interface Blog {
   tag_en?: string | null;
   tag_zh?: string | null;
   tag_color?: string | null;
+  category?: string | null;
+  category_en?: string | null;
+  category_zh?: string | null;
 }
 
 export default function AdminBlogsPage() {
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [readonly, setReadonly] = useState(false);
+
+  useEffect(() => {
+    api.get("/auth/me")
+      .then((me) => setReadonly(me.readonly))
+      .catch((err) => console.error("Error fetching user role:", err));
+  }, []);
 
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -62,10 +74,25 @@ export default function AdminBlogsPage() {
   const [tagEn, setTagEn] = useState("");
   const [tagZh, setTagZh] = useState("");
   const [tagColor, setTagColor] = useState("emerald");
+  const [category, setCategory] = useState("");
+  const [categoryEn, setCategoryEn] = useState("");
+  const [categoryZh, setCategoryZh] = useState("");
+
+  interface BlogCategory {
+    id: number;
+    name: string;
+    name_en?: string;
+    name_zh?: string;
+    slug: string;
+  }
+
+  const [blogCategories, setBlogCategories] = useState<BlogCategory[]>([]);
+  const [selectedFilterCategory, setSelectedFilterCategory] = useState("");
 
   const [uploadingImage, setUploadingImage] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"vi" | "en" | "zh">("vi");
+  const [activeLangTab, setActiveLangTab] = useState<"vi" | "en" | "zh">("vi");
+  const [activeTab, setActiveTab] = useState<"blogs" | "categories" | "testimonials">("blogs");
 
   // Quill Editor Modules config with custom image handler
   const modules = useMemo(() => ({
@@ -149,9 +176,24 @@ export default function AdminBlogsPage() {
     }
   };
 
+  const fetchBlogCategories = async () => {
+    try {
+      const data = await api.get("/blog-categories");
+      setBlogCategories(data);
+    } catch (err) {
+      console.error("Failed to load blog categories", err);
+    }
+  };
+
   useEffect(() => {
     fetchBlogs();
+    fetchBlogCategories();
   }, []);
+
+  const filteredBlogs = useMemo(() => {
+    if (!selectedFilterCategory) return blogs;
+    return blogs.filter((b) => b.category === selectedFilterCategory);
+  }, [blogs, selectedFilterCategory]);
 
   const openAddModal = () => {
     setEditingBlog(null);
@@ -171,8 +213,11 @@ export default function AdminBlogsPage() {
     setTagEn("");
     setTagZh("");
     setTagColor("emerald");
+    setCategory("");
+    setCategoryEn("");
+    setCategoryZh("");
     setFormError(null);
-    setActiveTab("vi");
+    setActiveLangTab("vi");
     setIsModalOpen(true);
   };
 
@@ -194,8 +239,11 @@ export default function AdminBlogsPage() {
     setTagEn(blog.tag_en || "");
     setTagZh(blog.tag_zh || "");
     setTagColor(blog.tag_color || "emerald");
+    setCategory(blog.category || "");
+    setCategoryEn(blog.category_en || "");
+    setCategoryZh(blog.category_zh || "");
     setFormError(null);
-    setActiveTab("vi");
+    setActiveLangTab("vi");
     setIsModalOpen(true);
   };
 
@@ -246,6 +294,9 @@ export default function AdminBlogsPage() {
       tag_en: tagEn || null,
       tag_zh: tagZh || null,
       tag_color: tagColor || "emerald",
+      category: category || null,
+      category_en: categoryEn || null,
+      category_zh: categoryZh || null,
     };
 
     try {
@@ -264,19 +315,83 @@ export default function AdminBlogsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Tab Switcher */}
+      <div className="flex gap-4 border-b border-border pb-px mb-6">
+        <button
+          onClick={() => setActiveTab("blogs")}
+          className={`pb-3 text-sm font-bold border-b-2 transition-colors px-1 ${
+            activeTab === "blogs"
+              ? "border-primary text-primary"
+              : "border-transparent text-slate-500 hover:text-slate-800"
+          }`}
+        >
+          Danh sách bài viết
+        </button>
+        <button
+          onClick={() => setActiveTab("categories")}
+          className={`pb-3 text-sm font-bold border-b-2 transition-colors px-1 ${
+            activeTab === "categories"
+              ? "border-primary text-primary"
+              : "border-transparent text-slate-500 hover:text-slate-800"
+          }`}
+        >
+          Chuyên mục bài viết
+        </button>
+        <button
+          onClick={() => setActiveTab("testimonials")}
+          className={`pb-3 text-sm font-bold border-b-2 transition-colors px-1 ${
+            activeTab === "testimonials"
+              ? "border-primary text-primary"
+              : "border-transparent text-slate-500 hover:text-slate-800"
+          }`}
+        >
+          Ý kiến khách hàng
+        </button>
+      </div>
+
+      {activeTab === "categories" ? (
+        <AdminBlogCategoriesPage />
+      ) : activeTab === "testimonials" ? (
+        <AdminTestimonialsPage />
+      ) : (
+        <>
+          {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">Bài Viết</h1>
           <p className="text-xs text-slate-500 mt-1">Quản lý các câu chuyện nhà vườn và cẩm nang nông nghiệp.</p>
         </div>
-        <button
-          onClick={openAddModal}
-          className="flex items-center gap-1 rounded-full bg-primary px-5 py-3 text-xs font-bold text-primary-foreground shadow-sm hover:scale-105 active:scale-95 transition-transform"
-        >
-          <Plus className="h-4 w-4" />
-          <span>Thêm bài viết</span>
-        </button>
+        {!readonly && (
+          <button
+            onClick={openAddModal}
+            className="flex items-center gap-1 rounded-full bg-primary px-5 py-3 text-xs font-bold text-primary-foreground shadow-sm hover:scale-105 active:scale-95 transition-transform"
+          >
+            <Plus className="h-4 w-4" />
+            <span>Thêm bài viết</span>
+          </button>
+        )}
+      </div>
+
+      {/* Filters Toolbar */}
+      <div className="flex flex-wrap gap-4 items-center justify-between bg-white border border-border rounded-3xl p-4 shadow-sm">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-bold text-slate-500">Lọc theo chuyên mục:</span>
+          <select
+            value={selectedFilterCategory}
+            onChange={(e) => setSelectedFilterCategory(e.target.value)}
+            className="rounded-2xl border border-border bg-slate-50 px-4 py-2 text-xs focus:border-primary focus:bg-white focus:outline-none min-w-[200px]"
+          >
+            <option value="">Tất cả chuyên mục</option>
+            {blogCategories.map((c) => (
+              <option key={c.id} value={c.name}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="text-xs text-slate-400 font-semibold">
+          Hiển thị: {filteredBlogs.length} / {blogs.length} bài viết
+        </div>
       </div>
 
       {error && (
@@ -306,8 +421,8 @@ export default function AdminBlogsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-700">
-                {blogs.length > 0 ? (
-                  blogs.map((blog) => (
+                {filteredBlogs.length > 0 ? (
+                  filteredBlogs.map((blog) => (
                     <tr key={blog.id} className="hover:bg-slate-50/50 transition-colors">
                       <td className="px-6 py-4 shrink-0">
                         <div className="h-12 w-20 rounded-xl bg-slate-100 overflow-hidden border border-border flex items-center justify-center text-[10px] text-slate-400">
@@ -331,6 +446,21 @@ export default function AdminBlogsPage() {
                           
                           {/* Tags Display */}
                           <div className="flex flex-wrap gap-1.5 mt-1.5">
+                            {blog.category && (
+                              <span className="bg-slate-100 text-slate-800 border border-slate-200 rounded-full px-2 py-0.5 text-[9px] font-semibold">
+                                Chuyên mục: {blog.category}
+                              </span>
+                            )}
+                            {blog.category_en && (
+                              <span className="bg-slate-100 text-slate-600 border border-slate-200 rounded-full px-2 py-0.5 text-[9px]">
+                                CM EN: {blog.category_en}
+                              </span>
+                            )}
+                            {blog.category_zh && (
+                              <span className="bg-slate-100 text-slate-600 border border-slate-200 rounded-full px-2 py-0.5 text-[9px]">
+                                CM ZH: {blog.category_zh}
+                              </span>
+                            )}
                             {blog.tag && (
                               <span className={`border rounded-full px-2 py-0.5 text-[9px] font-semibold ${
                                 blog.tag_color === "blue" ? "bg-blue-50 text-blue-700 border-blue-100" :
@@ -371,27 +501,33 @@ export default function AdminBlogsPage() {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right space-x-2">
-                        <button
-                          onClick={() => openEditModal(blog)}
-                          className="inline-flex rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-primary transition-colors"
-                          title="Sửa bài viết"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(blog.id)}
-                          className="inline-flex rounded-lg p-2 text-slate-500 hover:bg-red-50 hover:text-red-600 transition-colors"
-                          title="Xóa bài viết"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
+                        {!readonly ? (
+                          <>
+                            <button
+                              onClick={() => openEditModal(blog)}
+                              className="inline-flex rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-primary transition-colors"
+                              title="Sửa bài viết"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(blog.id)}
+                              className="inline-flex rounded-lg p-2 text-slate-500 hover:bg-red-50 hover:text-red-600 transition-colors"
+                              title="Xóa bài viết"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </>
+                        ) : (
+                          <span className="text-[10px] text-slate-400 font-medium">Chỉ xem</span>
+                        )}
                       </td>
                     </tr>
                   ))
                 ) : (
                   <tr>
                     <td colSpan={5} className="text-center py-10 text-slate-400">
-                      Chưa có bài viết nào. Hãy bấm "Thêm bài viết" để bắt đầu.
+                      Không tìm thấy bài viết nào phù hợp.
                     </td>
                   </tr>
                 )}
@@ -431,27 +567,27 @@ export default function AdminBlogsPage() {
               <div className="flex border-b border-slate-100 gap-4">
                 <button
                   type="button"
-                  onClick={() => setActiveTab("vi")}
+                  onClick={() => setActiveLangTab("vi")}
                   className={`pb-2 text-xs font-bold border-b-2 transition-colors ${
-                    activeTab === "vi" ? "border-primary text-primary" : "border-transparent text-slate-400 hover:text-slate-600"
+                    activeLangTab === "vi" ? "border-primary text-primary" : "border-transparent text-slate-400 hover:text-slate-600"
                   }`}
                 >
                   Tiếng Việt (Gốc)
                 </button>
                 <button
                   type="button"
-                  onClick={() => setActiveTab("en")}
+                  onClick={() => setActiveLangTab("en")}
                   className={`pb-2 text-xs font-bold border-b-2 transition-colors ${
-                    activeTab === "en" ? "border-primary text-primary" : "border-transparent text-slate-400 hover:text-slate-600"
+                    activeLangTab === "en" ? "border-primary text-primary" : "border-transparent text-slate-400 hover:text-slate-600"
                   }`}
                 >
                   Tiếng Anh (English)
                 </button>
                 <button
                   type="button"
-                  onClick={() => setActiveTab("zh")}
+                  onClick={() => setActiveLangTab("zh")}
                   className={`pb-2 text-xs font-bold border-b-2 transition-colors ${
-                    activeTab === "zh" ? "border-primary text-primary" : "border-transparent text-slate-400 hover:text-slate-600"
+                    activeLangTab === "zh" ? "border-primary text-primary" : "border-transparent text-slate-400 hover:text-slate-600"
                   }`}
                 >
                   Tiếng Trung (中文)
@@ -459,7 +595,7 @@ export default function AdminBlogsPage() {
               </div>
 
               {/* Tab: Tiếng Việt */}
-              {activeTab === "vi" && (
+              {activeLangTab === "vi" && (
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div className="space-y-1">
@@ -525,7 +661,7 @@ export default function AdminBlogsPage() {
               )}
 
               {/* Tab: Tiếng Anh */}
-              {activeTab === "en" && (
+              {activeLangTab === "en" && (
                 <div className="space-y-4">
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-700">Tiêu đề bài viết (Tiếng Anh)</label>
@@ -576,7 +712,7 @@ export default function AdminBlogsPage() {
               )}
 
               {/* Tab: Tiếng Trung */}
-              {activeTab === "zh" && (
+              {activeLangTab === "zh" && (
                 <div className="space-y-4">
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-700">Tiêu đề bài viết (Tiếng Trung)</label>
@@ -625,6 +761,35 @@ export default function AdminBlogsPage() {
                   </div>
                 </div>
               )}
+
+              {/* Blog Category Selection (Common) */}
+              <div className="space-y-1 pt-2">
+                <label className="text-xs font-bold text-slate-700">Chuyên mục bài viết</label>
+                <select
+                  value={category}
+                  onChange={(e) => {
+                    const selectedVal = e.target.value;
+                    setCategory(selectedVal);
+                    // Find matching category to auto-fill translated values
+                    const catObj = blogCategories.find(c => c.name === selectedVal);
+                    if (catObj) {
+                      setCategoryEn(catObj.name_en || "");
+                      setCategoryZh(catObj.name_zh || "");
+                    } else {
+                      setCategoryEn("");
+                      setCategoryZh("");
+                    }
+                  }}
+                  className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none"
+                >
+                  <option value="">-- Không có chuyên mục --</option>
+                  {blogCategories.map((c) => (
+                    <option key={c.id} value={c.name}>
+                      {c.name} {c.name_en ? `(${c.name_en})` : ""}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
               {/* Image Upload Area (Common) */}
               <div className="space-y-2 pt-2">
@@ -715,6 +880,8 @@ export default function AdminBlogsPage() {
             </form>
           </div>
         </div>
+      )}
+        </>
       )}
     </div>
   );

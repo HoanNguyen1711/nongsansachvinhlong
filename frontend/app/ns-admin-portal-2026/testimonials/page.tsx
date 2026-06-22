@@ -22,6 +22,14 @@ export default function AdminTestimonialsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [readonly, setReadonly] = useState(false);
+
+  useEffect(() => {
+    api.get("/auth/me")
+      .then((me) => setReadonly(me.readonly))
+      .catch((err) => console.error(err));
+  }, []);
+
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTestimonial, setEditingTestimonial] = useState<Testimonial | null>(null);
@@ -168,13 +176,15 @@ export default function AdminTestimonialsPage() {
             Quản lý các phản hồi, đánh giá từ khách hàng hiển thị trên website.
           </p>
         </div>
-        <button
-          onClick={openAddModal}
-          className="flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground shadow-sm hover:opacity-90 active:scale-95 transition-transform shrink-0"
-        >
-          <Plus className="h-4 w-4" />
-          <span>Thêm Đánh Giá</span>
-        </button>
+        {!readonly && (
+          <button
+            onClick={openAddModal}
+            className="flex items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground shadow-sm hover:opacity-90 active:scale-95 transition-transform shrink-0"
+          >
+            <Plus className="h-4 w-4" />
+            <span>Thêm Đánh Giá</span>
+          </button>
+        )}
       </div>
 
       {error && (
@@ -248,20 +258,26 @@ export default function AdminTestimonialsPage() {
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => openEditModal(t)}
-                          className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-800 transition-colors"
-                          title="Sửa đánh giá"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(t.id)}
-                          className="rounded-lg p-1.5 text-red-500 hover:bg-red-50 transition-colors"
-                          title="Xóa đánh giá"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
+                        {!readonly ? (
+                          <>
+                            <button
+                              onClick={() => openEditModal(t)}
+                              className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-800 transition-colors"
+                              title="Sửa đánh giá"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(t.id)}
+                              className="rounded-lg p-1.5 text-red-500 hover:bg-red-50 transition-colors"
+                              title="Xóa đánh giá"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </>
+                        ) : (
+                          <span className="text-[10px] text-slate-400 font-medium">Chỉ xem</span>
+                        )}
                       </div>
                     </td>
                   </tr>

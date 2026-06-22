@@ -33,7 +33,7 @@ export default function HeroSlider({
   }, [images.length]);
 
   if (images.length === 0) {
-    return <div className="absolute inset-0 bg-emerald-950" />;
+    return <div className="absolute inset-0 bg-emerald-600" />;
   }
 
   return (
@@ -56,8 +56,8 @@ export default function HeroSlider({
                 isActive ? "scale-105" : "scale-100"
               }`}
             />
-            {/* Gradient Overlay - Darker on the left (where text is overlaid) for maximum readability */}
-            <div className="absolute inset-0 bg-gradient-to-r from-emerald-950/95 via-emerald-950/70 to-emerald-950/40 lg:from-emerald-950/90 lg:via-emerald-950/40 lg:to-transparent z-11"></div>
+            {/* Gradient Overlay - Lighter emerald-600 for better image visibility but keeping text readable */}
+            <div className="absolute inset-0 bg-gradient-to-r from-emerald-600/70 via-emerald-600/35 to-transparent lg:from-emerald-600/60 lg:via-emerald-600/15 lg:to-transparent z-11"></div>
           </div>
         );
       })}

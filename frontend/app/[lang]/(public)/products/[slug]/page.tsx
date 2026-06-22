@@ -331,7 +331,7 @@ export default async function ProductDetailPage({ params }: Props) {
     <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 space-y-8">
       {/* Back navigation */}
       <div>
-        <Link href={getLocalizedHref("/products", lang)} className="inline-flex items-center gap-1 text-sm font-semibold text-slate-500 hover:text-primary transition-colors">
+        <Link href={getLocalizedHref("/products", lang)} className="inline-flex items-center gap-1 text-sm font-semibold text-slate-500 hover:text-emerald-600 transition-colors">
           <ArrowLeft className="h-4 w-4" />
           <span>{t.backToProducts}</span>
         </Link>
@@ -403,15 +403,15 @@ export default async function ProductDetailPage({ params }: Props) {
           {/* Trust points card */}
           <div className="rounded-2xl bg-slate-50 p-4 border border-slate-100 grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
             <div className="flex items-center gap-2 text-slate-700">
-              <ShieldCheck className="h-5 w-5 text-primary shrink-0" />
+              <ShieldCheck className="h-5 w-5 text-emerald-600 shrink-0" />
               <span>{t.vietgapTitle}</span>
             </div>
             <div className="flex items-center gap-2 text-slate-700">
-              <Heart className="h-5 w-5 text-primary shrink-0" />
+              <Heart className="h-5 w-5 text-emerald-600 shrink-0" />
               <span>{lang === "vi" ? "Không chất bảo quản" : lang === "en" ? "No preservatives" : "无防腐剂"}</span>
             </div>
             <div className="flex items-center gap-2 text-slate-700">
-              <Calendar className="h-5 w-5 text-primary shrink-0" />
+              <Calendar className="h-5 w-5 text-emerald-600 shrink-0" />
               <span>{lang === "vi" ? "Hái tươi trực tiếp" : lang === "en" ? "Freshly picked" : "产地新鲜直采"}</span>
             </div>
           </div>
@@ -420,7 +420,7 @@ export default async function ProductDetailPage({ params }: Props) {
           <div className="flex flex-col sm:flex-row gap-4 pt-4">
             <a
               href={`tel:${phone}`}
-              className="flex-1 rounded-full border border-primary bg-primary text-primary-foreground px-8 py-4 text-center text-base font-semibold hover:opacity-90 active:scale-95 transition-all shadow-md flex items-center justify-center gap-2"
+              className="flex-1 rounded-full border border-emerald-600 bg-emerald-600 text-white px-8 py-4 text-center text-base font-semibold hover:bg-emerald-500 active:scale-95 transition-all shadow-md flex items-center justify-center gap-2"
             >
               <Phone className="h-5 w-5 animate-pulse" />
               <span>{t.callNow}: {formatPhone(phone)}</span>

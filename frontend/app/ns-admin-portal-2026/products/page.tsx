@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { Plus, Edit, Trash2, X, Upload, Check, AlertCircle } from "lucide-react";
+import AdminCategoriesPage from "../categories/page";
 
 interface Product {
   id: number;
@@ -24,7 +25,16 @@ export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [readonly, setReadonly] = useState(false);
+
+  useEffect(() => {
+    api.get("/auth/me")
+      .then((me) => setReadonly(me.readonly))
+      .catch((err) => console.error("Error fetching user role:", err));
+  }, []);
   
+  const [activeTab, setActiveTab] = useState<"products" | "categories">("products");
+
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -46,7 +56,7 @@ export default function AdminProductsPage() {
   
   const [uploadingImage, setUploadingImage] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"vi" | "en" | "zh">("vi");
+  const [activeLangTab, setActiveLangTab] = useState<"vi" | "en" | "zh">("vi");
 
   // Auto-slugify Vietnamese text helper
   const slugify = (text: string) => {
@@ -111,7 +121,7 @@ export default function AdminProductsPage() {
     setDescriptionZh("");
     setIsAvailable(true);
     setFormError(null);
-    setActiveTab("vi");
+    setActiveLangTab("vi");
     setIsModalOpen(true);
   };
 
@@ -130,7 +140,7 @@ export default function AdminProductsPage() {
     setDescriptionZh(product.description_zh || "");
     setIsAvailable(product.is_available);
     setFormError(null);
-    setActiveTab("vi");
+    setActiveLangTab("vi");
     setIsModalOpen(true);
   };
 
@@ -195,19 +205,49 @@ export default function AdminProductsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
+      {/* Tab Switcher */}
+      <div className="flex gap-4 border-b border-border pb-px mb-6">
+        <button
+          onClick={() => setActiveTab("products")}
+          className={`pb-3 text-sm font-bold border-b-2 transition-colors px-1 ${
+            activeTab === "products"
+              ? "border-primary text-primary"
+              : "border-transparent text-slate-500 hover:text-slate-800"
+          }`}
+        >
+          Danh sách sản phẩm
+        </button>
+        <button
+          onClick={() => setActiveTab("categories")}
+          className={`pb-3 text-sm font-bold border-b-2 transition-colors px-1 ${
+            activeTab === "categories"
+              ? "border-primary text-primary"
+              : "border-transparent text-slate-500 hover:text-slate-800"
+          }`}
+        >
+          Danh mục sản phẩm
+        </button>
+      </div>
+
+      {activeTab === "categories" ? (
+        <AdminCategoriesPage />
+      ) : (
+        <>
+          {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-extrabold text-slate-800 tracking-tight">Sản Phẩm</h1>
           <p className="text-xs text-slate-500 mt-1">Danh sách sản phẩm nông trại của bạn đang bán trực tuyến.</p>
         </div>
-        <button
-          onClick={openAddModal}
-          className="flex items-center gap-1 rounded-full bg-primary px-5 py-3 text-xs font-bold text-primary-foreground shadow-sm hover:scale-105 active:scale-95 transition-transform"
-        >
-          <Plus className="h-4 w-4" />
-          <span>Thêm sản phẩm</span>
-        </button>
+        {!readonly && (
+          <button
+            onClick={openAddModal}
+            className="flex items-center gap-1 rounded-full bg-primary px-5 py-3 text-xs font-bold text-primary-foreground shadow-sm hover:scale-105 active:scale-95 transition-transform"
+          >
+            <Plus className="h-4 w-4" />
+            <span>Thêm sản phẩm</span>
+          </button>
+        )}
       </div>
 
       {error && (
@@ -278,20 +318,26 @@ export default function AdminProductsPage() {
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right space-x-2">
-                        <button
-                          onClick={() => openEditModal(product)}
-                          className="inline-flex rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-primary transition-colors"
-                          title="Sửa sản phẩm"
-                        >
-                          <Edit className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(product.id)}
-                          className="inline-flex rounded-lg p-2 text-slate-500 hover:bg-red-50 hover:text-red-600 transition-colors"
-                          title="Xóa sản phẩm"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
+                        {!readonly ? (
+                          <>
+                            <button
+                              onClick={() => openEditModal(product)}
+                              className="inline-flex rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-primary transition-colors"
+                              title="Sửa sản phẩm"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(product.id)}
+                              className="inline-flex rounded-lg p-2 text-slate-500 hover:bg-red-50 hover:text-red-600 transition-colors"
+                              title="Xóa sản phẩm"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </>
+                        ) : (
+                          <span className="text-[10px] text-slate-400 font-medium">Chỉ xem</span>
+                        )}
                       </td>
                     </tr>
                   ))
@@ -338,27 +384,27 @@ export default function AdminProductsPage() {
               <div className="flex border-b border-slate-100 gap-4">
                 <button
                   type="button"
-                  onClick={() => setActiveTab("vi")}
+                  onClick={() => setActiveLangTab("vi")}
                   className={`pb-2 text-xs font-bold border-b-2 transition-colors ${
-                    activeTab === "vi" ? "border-primary text-primary" : "border-transparent text-slate-400 hover:text-slate-600"
+                    activeLangTab === "vi" ? "border-primary text-primary" : "border-transparent text-slate-400 hover:text-slate-600"
                   }`}
                 >
                   Tiếng Việt (Gốc)
                 </button>
                 <button
                   type="button"
-                  onClick={() => setActiveTab("en")}
+                  onClick={() => setActiveLangTab("en")}
                   className={`pb-2 text-xs font-bold border-b-2 transition-colors ${
-                    activeTab === "en" ? "border-primary text-primary" : "border-transparent text-slate-400 hover:text-slate-600"
+                    activeLangTab === "en" ? "border-primary text-primary" : "border-transparent text-slate-400 hover:text-slate-600"
                   }`}
                 >
                   Tiếng Anh (English)
                 </button>
                 <button
                   type="button"
-                  onClick={() => setActiveTab("zh")}
+                  onClick={() => setActiveLangTab("zh")}
                   className={`pb-2 text-xs font-bold border-b-2 transition-colors ${
-                    activeTab === "zh" ? "border-primary text-primary" : "border-transparent text-slate-400 hover:text-slate-600"
+                    activeLangTab === "zh" ? "border-primary text-primary" : "border-transparent text-slate-400 hover:text-slate-600"
                   }`}
                 >
                   Tiếng Trung (中文)
@@ -366,7 +412,7 @@ export default function AdminProductsPage() {
               </div>
 
               {/* Tab: Tiếng Việt */}
-              {activeTab === "vi" && (
+              {activeLangTab === "vi" && (
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div className="space-y-1">
@@ -407,7 +453,7 @@ export default function AdminProductsPage() {
               )}
 
               {/* Tab: Tiếng Anh */}
-              {activeTab === "en" && (
+              {activeLangTab === "en" && (
                 <div className="space-y-4">
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-700">Tên sản phẩm (Tiếng Anh)</label>
@@ -434,7 +480,7 @@ export default function AdminProductsPage() {
               )}
 
               {/* Tab: Tiếng Trung */}
-              {activeTab === "zh" && (
+              {activeLangTab === "zh" && (
                 <div className="space-y-4">
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-700">Tên sản phẩm (Tiếng Trung)</label>
@@ -562,6 +608,8 @@ export default function AdminProductsPage() {
             </form>
           </div>
         </div>
+      )}
+        </>
       )}
     </div>
   );
