@@ -129,11 +129,22 @@ h1, h2, h3, h4, h5, h6 {
   border-bottom: none !important;
 }
 
-/* Public Blog Post Styles (WYSIWYG HTML Rendering) */
+/* Public Blog Post Styles (WYSIWYG HTML Rendering) & Fix Vietnamese word breaking */
+article h1,
+article h2,
+article h3,
+article p,
+article a,
+article span,
+.blog-rich-content,
+.blog-rich-content * {
+  word-break: keep-all !important;
+  overflow-wrap: break-word !important;
+  word-wrap: break-word !important;
+}
+
 .blog-rich-content {
   color: #334155; /* text-slate-700 */
-  word-break: normal !important;
-  overflow-wrap: break-word !important;
 }
 .blog-rich-content p {
   margin-bottom: 1.25rem;
