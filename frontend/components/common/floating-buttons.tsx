@@ -70,20 +70,22 @@ export const FloatingButtons: React.FC<FloatingButtonsProps> = ({
       </a>
 
       {/* Hotline Button */}
-      <a
-        href={`tel:${phone}`}
-        className="group relative flex h-14 w-14 hover:w-48 items-center justify-start rounded-full bg-amber-600 text-white shadow-lg transition-all duration-300 ease-out overflow-hidden"
-        title={phoneTitle}
-        id="btn-floating-hotline"
-      >
-        <span className="absolute inset-0 rounded-full bg-amber-600 animate-ping opacity-30 group-hover:opacity-0 transition-opacity duration-300"></span>
-        <div className="flex h-full w-full items-center justify-start pl-4 gap-3">
-          <Phone className="relative h-6 w-6 shrink-0 group-hover:animate-bounce" />
-          <span className="whitespace-nowrap font-bold text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            {formatPhone(phone)}
-          </span>
-        </div>
-      </a>
+      <div className="relative group">
+        <span className="absolute right-0 top-0 h-14 w-14 rounded-full bg-amber-600 animate-ping opacity-30 group-hover:opacity-0 transition-opacity duration-300 pointer-events-none"></span>
+        <a
+          href={`tel:${phone}`}
+          className="relative flex h-14 w-14 hover:w-48 items-center justify-start rounded-full bg-amber-600 text-white shadow-lg transition-all duration-300 ease-out overflow-hidden"
+          title={phoneTitle}
+          id="btn-floating-hotline"
+        >
+          <div className="flex h-full w-full items-center justify-start pl-4 gap-3">
+            <Phone className="relative h-6 w-6 shrink-0 group-hover:animate-bounce" />
+            <span className="whitespace-nowrap font-bold text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              {formatPhone(phone)}
+            </span>
+          </div>
+        </a>
+      </div>
     </div>
   );
 };
