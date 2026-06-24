@@ -11,6 +11,10 @@ interface BlogCategory {
   name_zh?: string;
   slug: string;
   position?: number;
+  show_in_navbar?: boolean;
+  short_description?: string;
+  short_description_en?: string;
+  short_description_zh?: string;
 }
 
 export default function AdminBlogCategoriesPage() {
@@ -26,6 +30,18 @@ export default function AdminBlogCategoriesPage() {
       .catch((err) => console.error(err));
   }, []);
 
+  const triggerRevalidation = async () => {
+    try {
+      await fetch("/revalidate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ tags: ["categories", "blogs"] }),
+      });
+    } catch (e) {
+      console.error("Failed to trigger cache revalidation:", e);
+    }
+  };
+
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<BlogCategory | null>(null);
@@ -36,6 +52,10 @@ export default function AdminBlogCategoriesPage() {
   const [nameZh, setNameZh] = useState("");
   const [slug, setSlug] = useState("");
   const [position, setPosition] = useState<number>(0);
+  const [showInNavbar, setShowInNavbar] = useState(false);
+  const [shortDescription, setShortDescription] = useState("");
+  const [shortDescriptionEn, setShortDescriptionEn] = useState("");
+  const [shortDescriptionZh, setShortDescriptionZh] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState<"vi" | "en" | "zh">("vi");
@@ -85,6 +105,10 @@ export default function AdminBlogCategoriesPage() {
     setNameZh("");
     setSlug("");
     setPosition(0);
+    setShowInNavbar(false);
+    setShortDescription("");
+    setShortDescriptionEn("");
+    setShortDescriptionZh("");
     setFormError(null);
     setActiveTab("vi");
     setIsModalOpen(true);
@@ -97,6 +121,10 @@ export default function AdminBlogCategoriesPage() {
     setNameZh(category.name_zh || "");
     setSlug(category.slug);
     setPosition(category.position || 0);
+    setShowInNavbar(category.show_in_navbar || false);
+    setShortDescription(category.short_description || "");
+    setShortDescriptionEn(category.short_description_en || "");
+    setShortDescriptionZh(category.short_description_zh || "");
     setFormError(null);
     setActiveTab("vi");
     setIsModalOpen(true);
@@ -109,8 +137,37 @@ export default function AdminBlogCategoriesPage() {
     try {
       await api.delete(`/blog-categories/${id}`);
       setCategories(categories.filter((c) => c.id !== id));
+      triggerRevalidation();
     } catch (err: any) {
       alert(err.message || "Không thể xóa chuyên mục.");
+    }
+  };
+
+  const handleTogglePinned = async (cat: BlogCategory) => {
+    if (readonly) return;
+    const newStatus = !cat.show_in_navbar;
+    
+    try {
+      if (newStatus) {
+        // Find if there is another pinned category
+        const pinnedCat = categories.find(c => c.show_in_navbar && c.id !== cat.id);
+        if (pinnedCat) {
+          // Unpin the old one
+          await api.put(`/blog-categories/${pinnedCat.id}`, {
+            show_in_navbar: false
+          });
+        }
+      }
+      
+      // Update the current one
+      await api.put(`/blog-categories/${cat.id}`, {
+        show_in_navbar: newStatus
+      });
+      
+      fetchCategories();
+      triggerRevalidation();
+    } catch (err: any) {
+      alert(err.message || "Không thể cập nhật trạng thái ghim.");
     }
   };
 
@@ -121,6 +178,14 @@ export default function AdminBlogCategoriesPage() {
       return;
     }
 
+    if (showInNavbar) {
+      const currentlyPinned = categories.filter((c) => c.show_in_navbar && c.id !== editingCategory?.id);
+      if (currentlyPinned.length >= 1) {
+        setFormError("Chỉ cho phép hiển thị tối đa 1 chuyên mục lên menu chính. Vui lòng bỏ ghim chuyên mục khác trước.");
+        return;
+      }
+    }
+
     setSubmitting(true);
     setFormError(null);
     const payload = {
@@ -129,6 +194,10 @@ export default function AdminBlogCategoriesPage() {
       name_zh: nameZh || null,
       slug,
       position: Number(position) || 0,
+      show_in_navbar: showInNavbar,
+      short_description: shortDescription || null,
+      short_description_en: shortDescriptionEn || null,
+      short_description_zh: shortDescriptionZh || null,
     };
 
     try {
@@ -140,6 +209,7 @@ export default function AdminBlogCategoriesPage() {
         setCategories([...categories, created]);
       }
       setIsModalOpen(false);
+      triggerRevalidation();
     } catch (err: any) {
       setFormError(err.message || "Lỗi lưu chuyên mục. Vui lòng kiểm tra lại.");
     } finally {
@@ -184,13 +254,14 @@ export default function AdminBlogCategoriesPage() {
                 <th className="px-6 py-4">Tên chuyên mục</th>
                 <th className="px-6 py-4">Đường dẫn tĩnh (Slug)</th>
                 <th className="px-6 py-4">Thứ tự</th>
+                <th className="px-6 py-4 text-center">Ghim Menu chính</th>
                 <th className="px-6 py-4 text-right">Thao tác</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 text-xs font-semibold text-slate-600">
               {loading ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-20 text-center">
+                  <td colSpan={5} className="px-6 py-20 text-center">
                     <div className="flex flex-col items-center gap-2">
                       <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
                       <span className="text-slate-400 text-[11px]">Đang tải chuyên mục...</span>
@@ -206,9 +277,16 @@ export default function AdminBlogCategoriesPage() {
                           <Tag className="h-4 w-4" />
                         </div>
                         <div>
-                          <span className="text-slate-800 font-bold block">{cat.name}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-slate-800 font-bold">{cat.name}</span>
+                            {cat.show_in_navbar && (
+                              <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[9px] font-black text-emerald-700 uppercase tracking-wider">
+                                Menu chính
+                              </span>
+                            )}
+                          </div>
                           {cat.name_en && (
-                            <span className="text-[10px] text-slate-400 font-normal block">EN: {cat.name_en}</span>
+                            <span className="text-[10px] text-slate-400 font-normal block mt-0.5">EN: {cat.name_en}</span>
                           )}
                           {cat.name_zh && (
                             <span className="text-[10px] text-slate-400 font-normal block">ZH: {cat.name_zh}</span>
@@ -218,6 +296,22 @@ export default function AdminBlogCategoriesPage() {
                     </td>
                     <td className="px-6 py-4 text-slate-400 font-mono">/{cat.slug}</td>
                     <td className="px-6 py-4 font-mono text-slate-500">{cat.position ?? 0}</td>
+                    <td className="px-6 py-4 text-center">
+                      <button
+                        type="button"
+                        onClick={() => handleTogglePinned(cat)}
+                        disabled={readonly}
+                        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                          cat.show_in_navbar ? "bg-primary" : "bg-slate-200"
+                        } ${readonly ? "opacity-50 cursor-not-allowed" : ""}`}
+                      >
+                        <span
+                          className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                            cat.show_in_navbar ? "translate-x-5" : "translate-x-0"
+                          }`}
+                        />
+                      </button>
+                    </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
                         {!readonly ? (
@@ -246,7 +340,7 @@ export default function AdminBlogCategoriesPage() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={4} className="px-6 py-16 text-center text-slate-400">
+                  <td colSpan={5} className="px-6 py-16 text-center text-slate-400">
                     Chưa có chuyên mục nào. Nhấp vào "Thêm Chuyên Mức" để tạo mới.
                   </td>
                 </tr>
@@ -348,6 +442,29 @@ export default function AdminBlogCategoriesPage() {
                       min="0"
                     />
                   </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-700">Mô tả ngắn (Hiển thị trên Banner)</label>
+                    <textarea
+                      value={shortDescription}
+                      onChange={(e) => setShortDescription(e.target.value)}
+                      placeholder="Mô tả tóm tắt nội dung chính của chuyên mục này để hiển thị trên banner..."
+                      className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none h-20 resize-none"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-2 pt-2">
+                    <input
+                      type="checkbox"
+                      id="showInNavbar"
+                      checked={showInNavbar}
+                      onChange={(e) => setShowInNavbar(e.target.checked)}
+                      className="h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary accent-primary"
+                    />
+                    <label htmlFor="showInNavbar" className="text-xs font-bold text-slate-700 cursor-pointer select-none">
+                      Hiển thị trên menu chính (Navbar)
+                    </label>
+                  </div>
                 </div>
               )}
 
@@ -364,6 +481,16 @@ export default function AdminBlogCategoriesPage() {
                       className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none"
                     />
                   </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-700">Mô tả ngắn (Tiếng Anh)</label>
+                    <textarea
+                      value={shortDescriptionEn}
+                      onChange={(e) => setShortDescriptionEn(e.target.value)}
+                      placeholder="Short description in English..."
+                      className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none h-20 resize-none"
+                    />
+                  </div>
                 </div>
               )}
 
@@ -378,6 +505,16 @@ export default function AdminBlogCategoriesPage() {
                       onChange={(e) => setNameZh(e.target.value)}
                       placeholder="例如：农人故事"
                       className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-700">Mô tả ngắn (Tiếng Trung)</label>
+                    <textarea
+                      value={shortDescriptionZh}
+                      onChange={(e) => setShortDescriptionZh(e.target.value)}
+                      placeholder="Short description in Chinese..."
+                      className="w-full rounded-2xl border border-border bg-slate-50 px-4 py-3 text-xs focus:border-primary focus:bg-white focus:outline-none h-20 resize-none"
                     />
                   </div>
                 </div>

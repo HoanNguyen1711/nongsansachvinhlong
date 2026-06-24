@@ -75,6 +75,7 @@ def init_db():
             "banner_image_url_2": "",
             "banner_image_url_3": "",
             "homepage_layout": "default",
+            "whatsapp_number": "84901234567",
         }
         for key, value in default_settings.items():
             db_setting = session.exec(select(Setting).where(Setting.key == key)).first()

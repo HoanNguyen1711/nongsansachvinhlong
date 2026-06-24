@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Suspense } from "react";
 import Navbar from "@/components/common/navbar";
 import Footer from "@/components/common/footer";
 import { FloatingButtons } from "@/components/common/floating-buttons";
@@ -59,6 +59,7 @@ export default async function PublicLayout({
   const phone = settings.phone_number || "0901234567";
   const address = settings.address || "123 Đường Phan Chu Trinh, TP. Buôn Ma Thuột, Đắk Lắk";
   const email = settings.email || "contact@nongsansach.vn";
+  const whatsappNumber = settings.whatsapp_number || "";
 
   const resolvedParams = await params;
   const lang = (resolvedParams.lang || "vi") as LanguageCode;
@@ -66,10 +67,12 @@ export default async function PublicLayout({
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Navbar phone={phone} lang={lang} />
+      <Suspense fallback={<div className="h-16 bg-background border-b border-border w-full animate-pulse"></div>}>
+        <Navbar phone={phone} lang={lang} />
+      </Suspense>
       <main className="flex-1">{children}</main>
-      <Footer phone={phone} address={address} email={email} lang={lang} />
-      <FloatingButtons phone={phone} />
+      <Footer phone={phone} address={address} email={email} lang={lang} whatsappNumber={whatsappNumber} />
+      <FloatingButtons phone={phone} whatsappNumber={whatsappNumber} />
     </div>
   );
 }
